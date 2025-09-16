@@ -17,8 +17,40 @@ public class User {
     private Long id;
     @NotBlank
     @Size(min=3,max=50)
-    @Column(unique=true)
     private String username;
+    @NotBlank
+    @Email
+    private String email;
+    @NotBlank
+    @Size(min=6)
+    @JsonIgnore
+    private String password;
+
+    private String phone;
+    private String firstname;
+    private String lastname;
+    @Column(columnDefinition="TEXT")
+    private String bio;
+    private String profilePicture;
+
+    @Enumerated(EnumType.STRING)
+    private Role role=Role.REGISTERED_USER;
+    public enum Role{
+        ADMIN,CONTENT_CREATOR,REGISTERED_USER
+    }
+    private Boolean isActive=true;
+    private Boolean emailVerified=false;
+    private Boolean phoneVerified=false;
+    private Boolean termsAgreed=false;
+
+
+
+
+
+
+
+
+
 
 
 
