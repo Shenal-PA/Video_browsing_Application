@@ -8,6 +8,9 @@ public class VideobrowsingApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(VideobrowsingApplication.class, args);
+
+
+
 	}
 
 }
