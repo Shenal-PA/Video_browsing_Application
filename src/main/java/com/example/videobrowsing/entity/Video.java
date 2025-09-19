@@ -1,11 +1,12 @@
 package com.example.videobrowsing.entity;
+import com.example.videobrowsing.entity.Comment;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.xml.stream.events.Comment;
+//import javax.xml.stream.events.Comment;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,6 +17,9 @@ public class Video {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank
+    private String title;
 
     @Column(columnDefinition="TEXT")
     private String description;
@@ -28,7 +32,7 @@ public class Video {
     private Long fileSize;
     private String resolution;
 
-    @ManyToOne(ferch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="category_id")
     private Category category;
 
@@ -38,20 +42,16 @@ public class Video {
     private User uploadedBy;
 
     @Enumerated(EnumType.STRING)
-    private privacy privacy=privacy.PUBLIC;
+    private Privacy privacy = Privacy.PUBLIC;
 
     @Enumerated(EnumType.STRING)
     private Status status=Status.PROCESSING;
 
-    public enum Status{
-        PUBLIC,PRICATE
-    }
-    public enum Status{
-        PUBLICSHED,DISABLED,PROCESSING
-    }
+
     private Long viewCount=0L;
     private Long likeCount=0L;
     private Long dislikeCount=0L;
+
 
     @Column(columnDefinition="JSON")
     private String tags;
@@ -91,10 +91,10 @@ public class Video {
     public void setId(Long id) {
         this.id = id;
     }
-    public String gettitle() {
+    public String getTitle() {
         return title;
     }
-    public void settitle(String title) {
+    public void setTitle(String title) {
         this.title=title;
     }
     public String getdescription() {
