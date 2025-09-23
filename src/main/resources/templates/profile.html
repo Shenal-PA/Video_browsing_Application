@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub</a></h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" id="headerSearchInput" placeholder="Search videos..." maxlength="100">
+            <button class="btn btn-secondary" onclick="searchFromHeader()">🔍</button>
+        </div>
+        <div class="nav-user">
+            <button class="btn btn-secondary" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header fade-in">
+            <div class="profile-info">
+                <div class="profile-avatar-container">
+                    <img id="profilePicture" src="/images/default-avatar.jpg" alt="Profile Picture" class="profile-avatar">
+                    <div class="avatar-overlay" onclick="showEditProfile()">
+                        <span>✏️ Edit</span>
+                    </div>
+                </div>
+                <div class="profile-details">
+                    <h1 id="profileName">Loading...</h1>
+                    <p id="profileUsername">@loading</p>
+                    <p id="profileRole">Role: Loading...</p>
+                    <p id="profileBio">Bio loading...</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <strong id="profileVideoCount">0</strong>
+                            <span>Videos</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong id="profileViewCount">0</strong>
+                            <span>Total Views</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong id="profileLikeCount">0</strong>
+                            <span>Likes Received</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong id="profileJoinDate">2024</strong>
+                            <span>Joined</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-actions">
+                <button class="btn" onclick="showEditProfile()">✏️ Edit Profile</button>
+                <div id="creatorActions" style="display: none;">
+                    <button class="btn btn-secondary" onclick="showUploadVideo()">📹 Upload Video</button>
+                    <button class="btn btn-secondary" onclick="showAnalytics()">📊 Analytics</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Navigation Tabs -->
+        <div class="profile-tabs">
+            <button class="tab-button active" onclick="showTab('videos', this)">📹 My Videos (<span id="videoTabCount">0</span>)</button>
+            <button class="tab-button" onclick="showTab('playlists', this)">📋 Playlists (<span id="playlistTabCount">0</span>)</button>
+            <button class="tab-button" onclick="showTab('watchlater', this)">⏰ Watch Later (<span id="watchLaterTabCount">0</span>)</button>
+            <button class="tab-button" onclick="showTab('liked', this)">❤️ Liked Videos</button>
+            <div id="adminTabContainer" style="display: none;">
+                <button class="tab-button" onclick="showTab('admin', this)">⚙️ Admin Dashboard</button>
+            </div>
+        </div>
+
+        <!-- Videos Tab -->
+        <div id="videosTab" class="tab-content slide-up">
+            <div class="tab-header">
+                <h2>📹 My Videos</h2>
+                <div class="tab-controls">
+                    <select id="videoSortFilter" onchange="sortVideos()">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="mostViewed">Most Viewed</option>
+                        <option value="mostLiked">Most Liked</option>
+                    </select>
+                    <select id="videoStatusFilter" onchange="filterVideosByStatus()">
+                        <option value="all">All Videos</option>
+                        <option value="PUBLIC">Public</option>
+                        <option value="PRIVATE">Private</option>
+                    </select>
+                </div>
+            </div>
+            <div id="myVideos" class="video-grid">
+                <div class="loading">Loading your videos...</div>
+            </div>
+        </div>
+
+        <!-- Playlists Tab -->
+        <div id="playlistsTab" class="tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>📋 My Playlists</h2>
+                <div class="tab-controls">
+                    <button class="btn" onclick="showCreatePlaylist()">➕ Create New Playlist</button>
+                </div>
+            </div>
+            <div id="myPlaylists" class="playlist-grid">
+                <div class="loading">Loading your playlists...</div>
+            </div>
+        </div>
+
+        <!-- Watch Later Tab -->
+        <div id="watchlaterTab" class="tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>⏰ Watch Later</h2>
+                <div class="tab-controls">
+                    <button class="btn btn-secondary" onclick="clearWatchLater()">🗑️ Clear All</button>
+                </div>
+            </div>
+            <div id="watchLaterVideos" class="video-grid">
+                <div class="loading">Loading watch later videos...</div>
+            </div>
+        </div>
+
+        <!-- Liked Videos Tab -->
+        <div id="likedTab" class="tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>❤️ Liked Videos</h2>
+                <p class="tab-description">Videos you've liked from other creators</p>
+            </div>
+            <div id="likedVideos" class="video-grid">
+                <div class="loading">Loading liked videos...</div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard Tab -->
+        <div id="adminTab" class="tab-content" style="display: none;">
+            <h2>⚙️ Admin Dashboard</h2>
+
+            <!-- Admin Statistics -->
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <h3 id="totalUsers">0</h3>
+                    <p>👥 Total Users</p>
+                    <div class="stat-change" id="userChange">+0 this week</div>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalVideos">0</h3>
+                    <p>📹 Total Videos</p>
+                    <div class="stat-change" id="videoChange">+0 this week</div>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalCreators">0</h3>
+                    <p>🎬 Content Creators</p>
+                    <div class="stat-change" id="creatorChange">+0 this week</div>
+                </div>
+                <div class="stat-card">
+                    <h3 id="pendingReports">0</h3>
+                    <p>⚠️ Pending Reports</p>
+                    <div class="stat-change urgent" id="reportChange">Needs attention</div>
+                </div>
+            </div>
+
+            <!-- Admin Quick Actions -->
+            <div class="admin-quick-actions">
+                <h3>⚡ Quick Actions</h3>
+                <div class="action-buttons">
+                    <button class="btn" onclick="showUserManagement()">👥 Manage Users</button>
+                    <button class="btn" onclick="showVideoManagement()">📹 Manage Videos</button>
+                    <button class="btn" onclick="showCategoryManagement()">📁 Manage Categories</button>
+                    <button class="btn" onclick="showReportManagement()">⚠️ Handle Reports</button>
+                    <button class="btn btn-secondary" onclick="showSystemLogs()">📋 System Logs</button>
+                    <button class="btn btn-secondary" onclick="exportData()">📊 Export Data</button>
+                </div>
+            </div>
+
+            <!-- Admin Management Sections -->
+            <div class="admin-sections">
+                <div class="admin-section">
+                    <h3>📊 Recent Reports</h3>
+                    <div id="recentReports">
+                        <div class="loading">Loading reports...</div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>👥 User Management</h3>
+                    <div class="section-controls">
+                        <input type="text" id="userSearchInput" placeholder="Search users..." style="width: 70%;">
+                        <button class="btn" onclick="searchUsers()">Search</button>
+                    </div>
+                    <div id="userManagement">
+                        <div class="loading">Loading users...</div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>📁 Category Management</h3>
+                    <div class="section-controls">
+                        <button class="btn" onclick="showCreateCategory()">➕ Add Category</button>
+                    </div>
+                    <div id="categoryManagement">
+                        <div class="loading">Loading categories...</div>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>📈 System Analytics</h3>
+                    <div class="analytics-grid">
+                        <div class="analytics-item">
+                            <strong>Today's Views:</strong> <span id="todayViews">0</span>
+                        </div>
+                        <div class="analytics-item">
+                            <strong>New Users Today:</strong> <span id="newUsersToday">0</span>
+                        </div>
+                        <div class="analytics-item">
+                            <strong>Videos Uploaded Today:</strong> <span id="videosUploadedToday">0</span>
+                        </div>
+                        <div class="analytics-item">
+                            <strong>Active Sessions:</strong> <span id="activeSessions">0</span>
+                        </div>
+                        <div class="analytics-item">
+                            <strong>Storage Used:</strong> <span id="storageUsed">0 GB</span>
+                        </div>
+                        <div class="analytics-item">
+                            <strong>Bandwidth Used:</strong> <span id="bandwidthUsed">0 GB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- All the modals from previous implementation -->
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editProfileModal')">&times;</span>
+        <h2>✏️ Edit Profile</h2>
+        <form onsubmit="updateProfile(event)" enctype="multipart/form-data">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="editFirstName">First Name:</label>
+                    <input type="text" id="editFirstName" placeholder="Your first name" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="editLastName">Last Name:</label>
+                    <input type="text" id="editLastName" placeholder="Your last name" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editEmail">Email:</label>
+                <input type="email" id="editEmail" placeholder="Your email address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editPhone">Phone:</label>
+                <input type="tel" id="editPhone" placeholder="Your phone number">
+            </div>
+
+            <div class="form-group">
+                <label for="editBio">Bio:</label>
+                <textarea id="editBio" placeholder="Tell us about yourself..." rows="4" maxlength="500"></textarea>
+                <small class="form-text"><span id="bioCharCount">0</span>/500 characters</small>
+            </div>
+
+            <div class="form-group">
+                <label for="editProfilePicture">Profile Picture:</label>
+                <input type="file" id="editProfilePicture" accept="image/*">
+                <small class="form-text">Recommended size: 400x400px, Max: 5MB</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn">💾 Update Profile</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">❌ Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Upload Video Modal -->
+<div id="uploadVideoModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('uploadVideoModal')">&times;</span>
+        <h2>📹 Upload New Video</h2>
+        <form onsubmit="uploadVideo(event)" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="videoTitle">Video Title:</label>
+                <input type="text" id="videoTitle" placeholder="Enter an engaging title" required maxlength="255">
+                <small class="form-text">A good title helps viewers find your video</small>
+            </div>
+
+            <div class="form-group">
+                <label for="videoDescription">Description:</label>
+                <textarea id="videoDescription" placeholder="Describe your video..." rows="5" maxlength="1000"></textarea>
+                <small class="form-text"><span id="descCharCount">0</span>/1000 characters</small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="videoCategory">Category:</label>
+                    <select id="videoCategory" required>
+                        <option value="">Select a category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="videoPrivacy">Privacy:</label>
+                    <select id="videoPrivacy" required>
+                        <option value="PUBLIC">🌍 Public - Everyone can see</option>
+                        <option value="PRIVATE">🔒 Private - Only you can see</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="videoTags">Tags:</label>
+                <input type="text" id="videoTags" placeholder="gaming, tutorial, fun (comma separated)" maxlength="500">
+                <small class="form-text">Tags help people discover your video</small>
+            </div>
+
+            <div class="form-group">
+                <label for="videoFile">Video File:</label>
+                <input type="file" id="videoFile" accept="video/*" required>
+                <small class="form-text">Max 100MB, MP4 format recommended</small>
+            </div>
+
+            <div class="form-group">
+                <label for="thumbnailFile">Custom Thumbnail:</label>
+                <input type="file" id="thumbnailFile" accept="image/*">
+                <small class="form-text">Optional, recommended size: 1280x720px</small>
+            </div>
+
+            <div class="upload-progress" id="uploadProgress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="progressText">0%</span>
+                    <span id="uploadSpeed"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn" id="uploadBtn">🚀 Upload Video</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('uploadVideoModal')">❌ Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Additional modals would go here -->
+
+<script src="/js/app.js"></script>
+<script src="/js/profile.js"></script>
+<script>
+    // Character count for bio
+    document.getElementById('editBio').addEventListener('input', function() {
+        const count = this.value.length;
+        document.getElementById('bioCharCount').textContent = count;
+        if (count > 450) {
+            document.getElementById('bioCharCount').style.color = '#ff0000';
+        } else {
+            document.getElementById('bioCharCount').style.color = '#888';
+        }
+    });
+
+    // Character count for video description
+    document.getElementById('videoDescription').addEventListener('input', function() {
+        const count = this.value.length;
+        document.getElementById('descCharCount').textContent = count;
+    });
+
+    function searchFromHeader() {
+        const query = document.getElementById('headerSearchInput').value.trim();
+        if (query) {
+            window.location.href = `/?search=${encodeURIComponent(query)}`;
+        }
+    }
+</script>
+</body>
+</html>

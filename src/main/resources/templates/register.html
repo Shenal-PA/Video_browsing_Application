@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body class="auth-page">
+<div class="auth-container">
+    <div class="auth-form-container">
+        <div class="auth-brand">
+            <h1>🎬 VideoHub</h1>
+            <p>Join our community and start your video journey!</p>
+        </div>
+
+        <form class="auth-form" onsubmit="registerPage(event)">
+            <h2>📝 Create Account</h2>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" maxlength="50">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Choose a unique username" required minlength="3" maxlength="50">
+                <small class="form-text">Username must be 3-50 characters long</small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="Your phone number (optional)">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="6">
+                    <small class="form-text">Password must be at least 6 characters</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Account Type</label>
+                <select id="role" name="role" required>
+                    <option value="">Select account type</option>
+                    <option value="REGISTERED_USER">👤 Regular User - Watch and interact with videos</option>
+                    <option value="CONTENT_CREATOR">🎬 Content Creator - Upload and share videos</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">Bio (Optional)</label>
+                <textarea id="bio" name="bio" placeholder="Tell us about yourself..." rows="3" maxlength="500"></textarea>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
+                <label for="agreeTerms">
+                    I agree to the <a href="#" class="text-red">Terms and Conditions</a>
+                    and <a href="#" class="text-red">Privacy Policy</a>
+                </label>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="newsletter" name="newsletter">
+                <label for="newsletter">Subscribe to our newsletter for updates</label>
+            </div>
+
+            <button type="submit" class="btn auth-btn">🎉 Create Account</button>
+
+            <div class="auth-divider">
+                <span>Already have an account?</span>
+            </div>
+
+            <a href="/login.html" class="btn btn-secondary auth-btn">🔐 Sign In</a>
+        </form>
+    </div>
+
+    <div class="auth-side">
+        <div class="auth-side-content">
+            <h2>Why Join VideoHub?</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-icon">🚀</span>
+                    <div>
+                        <h3>Get Started Instantly</h3>
+                        <p>Create your account in seconds and start exploring</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🎯</span>
+                    <div>
+                        <h3>Personalized Experience</h3>
+                        <p>Get video recommendations based on your interests</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🌟</span>
+                    <div>
+                        <h3>Creator Tools</h3>
+                        <p>Upload videos, build your audience, and grow your channel</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🛡️</span>
+                    <div>
+                        <h3>Safe & Secure</h3>
+                        <p>Your privacy and security are our top priorities</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h3>Join Our Growing Community</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <strong>10K+</strong>
+                        <span>Active Users</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>50K+</strong>
+                        <span>Videos</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>100+</strong>
+                        <span>Categories</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+    async function registerPage(event) {
+        event.preventDefault();
+
+        const formData = {
+            firstName: document.getElementById('firstName').value.trim(),
+            lastName: document.getElementById('lastName').value.trim(),
+            username: document.getElementById('username').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            phone: document.getElementById('phone').value.trim(),
+            password: document.getElementById('password').value,
+            confirmPassword: document.getElementById('confirmPassword').value,
+            role: document.getElementById('role').value,
+            bio: document.getElementById('bio').value.trim(),
+            termsAgreed: document.getElementById('agreeTerms').checked,
+            newsletter: document.getElementById('newsletter').checked
+        };
+
+        // Validation
+        if (!formData.username || !formData.email || !formData.password || !formData.role) {
+            showAlert('Please fill in all required fields.', 'error');
+            return;
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            showAlert('Passwords do not match.', 'error');
+            return;
+        }
+
+        if (formData.password.length < 6) {
+            showAlert('Password must be at least 6 characters long.', 'error');
+            return;
+        }
+
+        if (!formData.termsAgreed) {
+            showAlert('You must agree to the Terms and Conditions.', 'error');
+            return;
+        }
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '⏳ Creating account...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                showAlert('🎉 Account created successfully! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 2000);
+            } else {
+                const error = await response.text();
+                showAlert(`❌ ${error}`, 'error');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            showAlert('🚫 Registration failed. Please try again.', 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    function showAlert(message, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            max-width: 350px;
+            ${type === 'success' ? 'background-color: #28a745;' : ''}
+            ${type === 'error' ? 'background-color: #dc3545;' : ''}
+        `;
+
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 4000);
+    }
+
+    // Real-time password strength indicator
+    document.getElementById('password').addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        let feedback = '';
+
+        if (password.length >= 6) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        switch (strength) {
+            case 0:
+            case 1:
+                feedback = 'Weak';
+                this.style.borderColor = '#dc3545';
+                break;
+            case 2:
+                feedback = 'Fair';
+                this.style.borderColor = '#ffc107';
+                break;
+            case 3:
+                feedback = 'Good';
+                this.style.borderColor = '#28a745';
+                break;
+            case 4:
+                feedback = 'Strong';
+                this.style.borderColor = '#007bff';
+                break;
+        }
+
+        let strengthIndicator = document.getElementById('passwordStrength');
+        if (!strengthIndicator) {
+            strengthIndicator = document.createElement('small');
+            strengthIndicator.id = 'passwordStrength';
+            strengthIndicator.className = 'form-text';
+            this.parentNode.appendChild(strengthIndicator);
+        }
+        strengthIndicator.textContent = password ? `Password strength: ${feedback}` : '';
+    });
+
+    // Username availability check
+    let usernameTimeout;
+    document.getElementById('username').addEventListener('input', function() {
+        const username = this.value.trim();
+
+        clearTimeout(usernameTimeout);
+
+        if (username.length >= 3) {
+            usernameTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/api/users/check-username?username=${encodeURIComponent(username)}`);
+                    const available = await response.json();
+
+                    let indicator = document.getElementById('usernameIndicator');
+                    if (!indicator) {
+                        indicator = document.createElement('small');
+                        indicator.id = 'usernameIndicator';
+                        indicator.className = 'form-text';
+                        this.parentNode.appendChild(indicator);
+                    }
+
+                    if (available) {
+                        indicator.textContent = '✅ Username available';
+                        indicator.style.color = '#28a745';
+                        this.style.borderColor = '#28a745';
+                    } else {
+                        indicator.textContent = '❌ Username already taken';
+                        indicator.style.color = '#dc3545';
+                        this.style.borderColor = '#dc3545';
+                    }
+                } catch (error) {
+                    console.error('Username check failed:', error);
+                }
+            }, 500);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Video - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub</a></h1>
+        </div>
+        <div class="nav-user">
+            <button class="btn btn-secondary" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">👤 Profile</button>
+            <button class="btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+</header>
+
+<main class="upload-main">
+    <div class="upload-container">
+        <div class="upload-header">
+            <h1>📹 Upload Your Video</h1>
+            <p>Share your creativity with the VideoHub community</p>
+        </div>
+
+        <div class="upload-content">
+            <div class="upload-steps">
+                <div class="step active" id="step1">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <h3>Video Details</h3>
+                        <p>Basic information about your video</p>
+                    </div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <h3>Upload Files</h3>
+                        <p>Video file and thumbnail</p>
+                    </div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <h3>Settings</h3>
+                        <p>Privacy and additional settings</p>
+                    </div>
+                </div>
+            </div>
+
+            <form id="uploadForm" class="upload-form" onsubmit="submitUpload(event)">
+                <!-- Step 1: Video Details -->
+                <div class="form-step active" id="formStep1">
+                    <div class="form-section">
+                        <h3>📝 Video Information</h3>
+
+                        <div class="form-group">
+                            <label for="videoTitle">Title *</label>
+                            <input type="text" id="videoTitle" name="title" placeholder="Enter an engaging title for your video" required maxlength="255">
+                            <div class="char-count"><span id="titleCount">0</span>/255</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="videoDescription">Description</label>
+                            <textarea id="videoDescription" name="description" placeholder="Describe your video content..." rows="6" maxlength="1000"></textarea>
+                            <div class="char-count"><span id="descCount">0</span>/1000</div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="videoCategory">Category *</label>
+                                <select id="videoCategory" name="category" required>
+                                    <option value="">Select a category</option>
+                                    <option value="entertainment">🎭 Entertainment</option>
+                                    <option value="education">📚 Education</option>
+                                    <option value="technology">💻 Technology</option>
+                                    <option value="gaming">🎮 Gaming</option>
+                                    <option value="music">🎵 Music</option>
+                                    <option value="sports">⚽ Sports</option>
+                                    <option value="news">📰 News</option>
+                                    <option value="comedy">😂 Comedy</option>
+                                    <option value="lifestyle">🌟 Lifestyle</option>
+                                    <option value="travel">✈️ Travel</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="videoLanguage">Language</label>
+                                <select id="videoLanguage" name="language">
+                                    <option value="english">English</option>
+                                    <option value="spanish">Spanish</option>
+                                    <option value="french">French</option>
+                                    <option value="german">German</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="videoTags">Tags</label>
+                            <input type="text" id="videoTags" name="tags" placeholder="gaming, tutorial, beginner (separate with commas)" maxlength="200">
+                            <small class="form-help">Tags help people discover your video</small>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn" onclick="nextStep()">Next Step →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: File Upload -->
+                <div class="form-step" id="formStep2">
+                    <div class="form-section">
+                        <h3>📁 Upload Files</h3>
+
+                        <div class="upload-area">
+                            <div class="file-upload-section">
+                                <label for="videoFile" class="file-upload-label">
+                                    <div class="upload-icon">🎥</div>
+                                    <h4>Video File *</h4>
+                                    <p>Drag and drop your video here or click to browse</p>
+                                    <small>Supported: MP4, MOV, AVI (Max: 100MB)</small>
+                                </label>
+                                <input type="file" id="videoFile" name="videoFile" accept="video/*" required style="display: none;">
+                                <div class="file-info" id="videoFileInfo" style="display: none;">
+                                    <div class="file-details">
+                                        <span class="file-name"></span>
+                                        <span class="file-size"></span>
+                                    </div>
+                                    <button type="button" class="remove-file" onclick="removeFile('videoFile')">×</button>
+                                </div>
+                            </div>
+
+                            <div class="file-upload-section">
+                                <label for="thumbnailFile" class="file-upload-label">
+                                    <div class="upload-icon">🖼️</div>
+                                    <h4>Custom Thumbnail</h4>
+                                    <p>Upload a custom thumbnail image</p>
+                                    <small>Recommended: 1280x720px, JPG/PNG (Max: 5MB)</small>
+                                </label>
+                                <input type="file" id="thumbnailFile" name="thumbnailFile" accept="image/*" style="display: none;">
+                                <div class="file-info" id="thumbnailFileInfo" style="display: none;">
+                                    <div class="file-details">
+                                        <span class="file-name"></span>
+                                        <span class="file-size"></span>
+                                    </div>
+                                    <button type="button" class="remove-file" onclick="removeFile('thumbnailFile')">×</button>
+                                </div>
+                                <div class="thumbnail-preview" id="thumbnailPreview"></div>
+                            </div>
+                        </div>
+
+                        <div class="upload-progress" id="uploadProgress" style="display: none;">
+                            <div class="progress-header">
+                                <h4>📤 Uploading...</h4>
+                                <span id="uploadPercentage">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                            <div class="progress-details">
+                                <span id="uploadSpeed">0 MB/s</span>
+                                <span id="timeRemaining">Calculating...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Previous</button>
+                        <button type="button" class="btn" onclick="nextStep()">Next Step →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Settings -->
+                <div class="form-step" id="formStep3">
+                    <div class="form-section">
+                        <h3>⚙️ Video Settings</h3>
+
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <h4>🔒 Privacy Settings</h4>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="privacy" value="PUBLIC" checked>
+                                        <div class="radio-content">
+                                            <div class="radio-icon">🌍</div>
+                                            <div>
+                                                <strong>Public</strong>
+                                                <p>Anyone can search for and view</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="privacy" value="PRIVATE">
+                                        <div class="radio-content">
+                                            <div class="radio-icon">🔒</div>
+                                            <div>
+                                                <strong>Private</strong>
+                                                <p>Only you can view this video</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>💬 Interaction Settings</h4>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="allowComments" checked>
+                                        <span>💬 Allow comments</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="allowRatings" checked>
+                                        <span>⭐ Allow ratings</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="allowSharing" checked>
+                                        <span>🔗 Allow sharing</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>🔔 Notification Settings</h4>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="notifySubscribers" checked>
+                                        <span>📢 Notify subscribers</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="addToFeed" checked>
+                                        <span>📰 Add to public feed</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>📅 Publishing Options</h4>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="publishTime" value="now" checked>
+                                        <div class="radio-content">
+                                            <div class="radio-icon">⚡</div>
+                                            <div>
+                                                <strong>Publish Now</strong>
+                                                <p>Make video available immediately</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="publishTime" value="schedule">
+                                        <div class="radio-content">
+                                            <div class="radio-icon">📅</div>
+                                            <div>
+                                                <strong>Schedule</strong>
+                                                <p>Set a specific publish time</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="schedule-options" id="scheduleOptions" style="display: none;">
+                                    <input type="datetime-local" id="scheduleDateTime" name="scheduleDateTime">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Previous</button>
+                        <button type="submit" class="btn" id="uploadSubmitBtn">🚀 Upload Video</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="/js/app.js"></script>
+<script>
+    let currentStep = 1;
+    const totalSteps = 3;
+
+    // Character counting
+    document.getElementById('videoTitle').addEventListener('input', function() {
+        document.getElementById('titleCount').textContent = this.value.length;
+    });
+
+    document.getElementById('videoDescription').addEventListener('input', function() {
+        document.getElementById('descCount').textContent = this.value.length;
+    });
+
+    // File upload handling
+    document.getElementById('videoFile').addEventListener('change', function(e) {
+        handleFileSelect(e, 'videoFile', 'videoFileInfo');
+    });
+
+    document.getElementById('thumbnailFile').addEventListener('change', function(e) {
+        handleFileSelect(e, 'thumbnailFile', 'thumbnailFileInfo');
+        if (e.target.files[0]) {
+            showThumbnailPreview(e.target.files[0]);
+        }
+    });
+
+    // Publishing options
+    document.querySelectorAll('input[name="publishTime"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const scheduleOptions = document.getElementById('scheduleOptions');
+            if (this.value === 'schedule') {
+                scheduleOptions.style.display = 'block';
+            } else {
+                scheduleOptions.style.display = 'none';
+            }
+        });
+    });
+
+    function nextStep() {
+        if (currentStep < totalSteps) {
+            if (validateCurrentStep()) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById(`formStep${currentStep}`).classList.remove('active');
+
+                currentStep++;
+
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                document.getElementById(`formStep${currentStep}`).classList.add('active');
+            }
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 1) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`formStep${currentStep}`).classList.remove('active');
+
+            currentStep--;
+
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`formStep${currentStep}`).classList.add('active');
+        }
+    }
+
+    function validateCurrentStep() {
+        if (currentStep === 1) {
+            const title = document.getElementById('videoTitle').value.trim();
+            const category = document.getElementById('videoCategory').value;
+
+            if (!title) {
+                showAlert('Please enter a video title.', 'error');
+                return false;
+            }
+            if (!category) {
+                showAlert('Please select a category.', 'error');
+                return false;
+            }
+        } else if (currentStep === 2) {
+            const videoFile = document.getElementById('videoFile').files[0];
+
+            if (!videoFile) {
+                showAlert('Please select a video file.', 'error');
+                return false;
+            }
+
+            if (videoFile.size > 100 * 1024 * 1024) { // 100MB
+                showAlert('Video file size must be less than 100MB.', 'error');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function handleFileSelect(event, inputId, infoId) {
+        const file = event.target.files[0];
+        const fileInfo = document.getElementById(infoId);
+
+        if (file) {
+            const fileName = fileInfo.querySelector('.file-name');
+            const fileSize = fileInfo.querySelector('.file-size');
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'flex';
+        } else {
+            fileInfo.style.display = 'none';
+        }
+    }
+
+    function removeFile(inputId) {
+        document.getElementById(inputId).value = '';
+        const infoId = inputId + 'Info';
+        document.getElementById(infoId).style.display = 'none';
+
+        if (inputId === 'thumbnailFile') {
+            document.getElementById('thumbnailPreview').innerHTML = '';
+        }
+    }
+
+    function showThumbnailPreview(file) {
+        const preview = document.getElementById('thumbnailPreview');
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Thumbnail preview">`;
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function formatFileSize(bytes) {
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        if (bytes === 0) return '0 Bytes';
+        const i = Math.floor(Math.log(bytes) / Math.log(1024));
+        return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    async function submitUpload(event) {
+        event.preventDefault();
+
+        if (!validateCurrentStep()) {
+            return;
+        }
+
+        const formData = new FormData();
+        const form = event.target;
+
+        // Add all form data
+        formData.append('title', document.getElementById('videoTitle').value);
+        formData.append('description', document.getElementById('videoDescription').value);
+        formData.append('category', document.getElementById('videoCategory').value);
+        formData.append('language', document.getElementById('videoLanguage').value);
+        formData.append('tags', document.getElementById('videoTags').value);
+        formData.append('privacy', document.querySelector('input[name="privacy"]:checked').value);
+        formData.append('allowComments', document.querySelector('input[name="allowComments"]').checked);
+        formData.append('allowRatings', document.querySelector('input[name="allowRatings"]').checked);
+        formData.append('allowSharing', document.querySelector('input[name="allowSharing"]').checked);
+
+        const videoFile = document.getElementById('videoFile').files[0];
+        const thumbnailFile = document.getElementById('thumbnailFile').files[0];
+
+        if (videoFile) formData.append('videoFile', videoFile);
+        if (thumbnailFile) formData.append('thumbnailFile', thumbnailFile);
+
+        const submitBtn = document.getElementById('uploadSubmitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Uploading...';
+
+        try {
+            const response = await fetch('/api/videos/upload', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            });
+
+            if (response.ok) {
+                showAlert('🎉 Video uploaded successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/profile.html';
+                }, 2000);
+            } else {
+                const error = await response.text();
+                showAlert(`❌ Upload failed: ${error}`, 'error');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            showAlert('🚫 Upload failed. Please try again.', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '🚀 Upload Video';
+        }
+    }
+
+    function showAlert(message, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            max-width: 350px;
+            ${type === 'success' ? 'background-color: #28a745;' : ''}
+            ${type === 'error' ? 'background-color: #dc3545;' : ''}
+        `;
+
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 4000);
+    }
+</script>
+</body>
+</html>

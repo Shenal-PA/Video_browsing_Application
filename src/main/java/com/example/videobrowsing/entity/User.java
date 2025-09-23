@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.xml.stream.events.Comment;
+import com.example.videobrowsing.entity.Comment;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class User {
     @JsonIgnore
     private List<Video>uploadedVideos;
 
-    @OneToMany (mappedBy="user",cascade=CascadeType.ALL)
+    @OneToMany (mappedBy="user")
     @JsonIgnore
     private List<Comment>comments;
 

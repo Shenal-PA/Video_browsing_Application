@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body class="auth-page">
+<div class="auth-container">
+    <div class="auth-form-container">
+        <div class="auth-brand">
+            <h1>🎬 VideoHub</h1>
+            <p>Welcome back! Please sign in to your account.</p>
+        </div>
+
+        <form class="auth-form" onsubmit="loginPage(event)">
+            <h2>🔐 Sign In</h2>
+
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username or email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Remember me for 30 days</label>
+            </div>
+
+            <button type="submit" class="btn auth-btn">🚀 Sign In</button>
+
+            <div class="auth-links">
+                <a href="#" onclick="showForgotPasswordPage()">Forgot your password?</a>
+            </div>
+
+            <div class="auth-divider">
+                <span>Don't have an account?</span>
+            </div>
+
+            <a href="/register.html" class="btn btn-secondary auth-btn">📝 Create Account</a>
+        </form>
+    </div>
+
+    <div class="auth-side">
+        <div class="auth-side-content">
+            <h2>Join Our Video Community</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-icon">🎥</span>
+                    <div>
+                        <h3>Watch Unlimited Videos</h3>
+                        <p>Access thousands of videos across multiple categories</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">💬</span>
+                    <div>
+                        <h3>Engage with Community</h3>
+                        <p>Comment, rate, and interact with creators</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📋</span>
+                    <div>
+                        <h3>Create Playlists</h3>
+                        <p>Organize your favorite videos in custom playlists</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🎬</span>
+                    <div>
+                        <h3>Upload Content</h3>
+                        <p>Share your videos with the world as a creator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div id="forgotPasswordModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('forgotPasswordModal')">&times;</span>
+        <h2>🔄 Reset Password</h2>
+        <p>Enter your email address and we'll send you a link to reset your password.</p>
+        <form onsubmit="resetPasswordPage(event)">
+            <div class="form-group">
+                <label for="resetEmail">Email Address</label>
+                <input type="email" id="resetEmail" placeholder="Enter your email address" required>
+            </div>
+            <button type="submit" class="btn">📧 Send Reset Link</button>
+            <button type="button" class="btn btn-secondary" onclick="closeModal('forgotPasswordModal')">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+    async function loginPage(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const remember = document.getElementById('remember').checked;
+
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '🔄 Signing in...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ username, password, remember })
+            });
+
+            if (response.ok) {
+                showAlert('🎉 Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } else {
+                const error = await response.text();
+                showAlert(`❌ ${error}`, 'error');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            showAlert('🚫 Login failed. Please try again.', 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    function showForgotPasswordPage() {
+        document.getElementById('forgotPasswordModal').style.display = 'flex';
+    }
+
+    async function resetPasswordPage(event) {
+        event.preventDefault();
+
+        const email = document.getElementById('resetEmail').value.trim();
+
+        if (!email) {
+            showAlert('Please enter your email address.', 'error');
+            return;
+        }
+
+        try {
+            // Simulate password reset API call
+            showAlert('📧 Password reset link sent to your email!', 'success');
+            closeModal('forgotPasswordModal');
+            document.getElementById('resetEmail').value = '';
+        } catch (error) {
+            showAlert('❌ Failed to send reset link. Please try again.', 'error');
+        }
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showAlert(message, type) {
+        // Create alert element
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            max-width: 300px;
+            ${type === 'success' ? 'background-color: #28a745;' : ''}
+            ${type === 'error' ? 'background-color: #dc3545;' : ''}
+        `;
+
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 3000);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <meta name="description" content="Watch videos on VideoHub">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub</a></h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" id="searchInput" placeholder="Search videos..." maxlength="100">
+            <button class="btn btn-secondary" onclick="searchVideos()">🔍</button>
+        </div>
+        <div class="nav-user">
+            <div id="guestNav" style="display: none;">
+                <button class="btn" onclick="showLogin()">Login</button>
+                <button class="btn btn-secondary" onclick="showRegister()">Register</button>
+            </div>
+            <div id="userNav" style="display: none;">
+                <span id="welcomeUser"></span>
+                <button class="btn btn-secondary" onclick="goToProfile()">Profile</button>
+                <button class="btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="video-detail-main">
+    <div class="video-container">
+        <!-- Video Player Section -->
+        <div class="video-player-section">
+            <div class="video-player-container">
+                <video id="videoPlayer" class="video-player" controls preload="metadata">
+                    <source id="videoSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-overlay" id="videoOverlay" style="display: none;">
+                    <div class="overlay-content">
+                        <h3>⚠️ Guest Viewing Limit</h3>
+                        <p>You've reached your limit of 5 videos as a guest user.</p>
+                        <button class="btn" onclick="showRegister()">Register for Unlimited Access</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Information -->
+            <div class="video-info-section">
+                <div class="video-header">
+                    <h1 id="videoTitle" class="video-title-large">Loading...</h1>
+                    <div class="video-meta">
+                        <div class="video-stats">
+                            <span id="videoViews">0 views</span>
+                            <span>•</span>
+                            <span id="videoDate">Loading...</span>
+                        </div>
+                        <div class="video-actions">
+                            <button class="action-btn" id="likeBtn" onclick="toggleLike()">
+                                <span class="btn-icon">👍</span>
+                                <span id="likeCount">0</span>
+                            </button>
+                            <button class="action-btn" id="dislikeBtn" onclick="toggleDislike()">
+                                <span class="btn-icon">👎</span>
+                                <span id="dislikeCount">0</span>
+                            </button>
+                            <button class="action-btn" onclick="shareVideo()">
+                                <span class="btn-icon">🔗</span>
+                                Share
+                            </button>
+                            <button class="action-btn" onclick="addToWatchLater()">
+                                <span class="btn-icon">⏰</span>
+                                Watch Later
+                            </button>
+                            <button class="action-btn" onclick="showAddToPlaylist()">
+                                <span class="btn-icon">📋</span>
+                                Add to Playlist
+                            </button>
+                            <button class="action-btn" onclick="reportVideo()" id="reportBtn">
+                                <span class="btn-icon">⚠️</span>
+                                Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Description -->
+                <div class="video-description">
+                    <div class="channel-info">
+                        <div class="channel-avatar">
+                            <img id="channelAvatar" src="/images/default-avatar.jpg" alt="Channel">
+                        </div>
+                        <div class="channel-details">
+                            <h3 id="channelName">Loading...</h3>
+                            <span id="channelSubscribers">0 subscribers</span>
+                        </div>
+                        <button class="btn subscribe-btn" id="subscribeBtn" onclick="toggleSubscribe()">
+                            🔔 Subscribe
+                        </button>
+                    </div>
+
+                    <div class="description-content">
+                        <div class="description-text" id="videoDescription">
+                            Loading description...
+                        </div>
+                        <button class="show-more-btn" id="showMoreBtn" onclick="toggleDescription()">
+                            Show more
+                        </button>
+                    </div>
+
+                    <div class="video-tags" id="videoTags">
+                        <!-- Tags will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="comments-section">
+            <div class="comments-header">
+                <h3>💬 Comments (<span id="commentCount">0</span>)</h3>
+                <select id="commentSort" onchange="sortComments()">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="popular">Most popular</option>
+                </select>
+            </div>
+
+            <div class="comment-form" id="commentForm" style="display: none;">
+                <div class="comment-input-container">
+                    <img id="userAvatar" src="/images/default-avatar.jpg" alt="Your avatar" class="comment-avatar">
+                    <div class="comment-input-wrapper">
+                        <textarea id="commentInput" placeholder="Add a public comment..." rows="1" maxlength="500"></textarea>
+                        <div class="comment-actions">
+                            <div class="char-count"><span id="commentCharCount">0</span>/500</div>
+                            <div class="comment-buttons">
+                                <button class="btn btn-secondary" onclick="cancelComment()">Cancel</button>
+                                <button class="btn" onclick="submitComment()" id="submitCommentBtn">Comment</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-prompt" id="loginPrompt">
+                <p>Please <a href="#" onclick="showLogin()">login</a> to leave a comment.</p>
+            </div>
+
+            <div class="comments-list" id="commentsList">
+                <div class="loading">Loading comments...</div>
+            </div>
+
+            <div class="load-more-comments" id="loadMoreComments" style="display: none;">
+                <button class="btn btn-secondary" onclick="loadMoreComments()">Load More Comments</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar with Related Videos -->
+    <div class="video-sidebar">
+        <div class="sidebar-section">
+            <h3>🔥 Related Videos</h3>
+            <div id="relatedVideos" class="related-videos-list">
+                <div class="loading">Loading related videos...</div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>📈 Trending Now</h3>
+            <div id="trendingVideos" class="related-videos-list">
+                <div class="loading">Loading trending videos...</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Share Modal -->
+<div id="shareModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('shareModal')">&times;</span>
+        <h2>🔗 Share Video</h2>
+        <div class="share-options">
+            <div class="share-link">
+                <label>Video URL:</label>
+                <div class="link-container">
+                    <input type="text" id="shareUrl" readonly>
+                    <button class="btn" onclick="copyToClipboard()">📋 Copy</button>
+                </div>
+            </div>
+            <div class="share-social">
+                <h4>Share on social media:</h4>
+                <div class="social-buttons">
+                    <button class="social-btn facebook" onclick="shareOnFacebook()">📘 Facebook</button>
+                    <button class="social-btn twitter" onclick="shareOnTwitter()">🐦 Twitter</button>
+                    <button class="social-btn whatsapp" onclick="shareOnWhatsApp()">💚 WhatsApp</button>
+                    <button class="social-btn email" onclick="shareViaEmail()">📧 Email</button>
+                </div>
+            </div>
+            <div class="embed-code">
+                <label>Embed code:</label>
+                <textarea id="embedCode" readonly rows="3"></textarea>
+                <button class="btn btn-secondary" onclick="copyEmbedCode()">📋 Copy Embed Code</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add to Playlist Modal -->
+<div id="addToPlaylistModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('addToPlaylistModal')">&times;</span>
+        <h2>📋 Add to Playlist</h2>
+        <div class="playlist-options">
+            <div class="create-playlist-option">
+                <button class="btn" onclick="showCreateNewPlaylist()">➕ Create New Playlist</button>
+            </div>
+            <div class="existing-playlists" id="existingPlaylists">
+                <div class="loading">Loading your playlists...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div id="reportModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('reportModal')">&times;</span>
+        <h2>⚠️ Report Video</h2>
+        <form onsubmit="submitReport(event)">
+            <div class="form-group">
+                <label>Reason for reporting:</label>
+                <select id="reportReason" required>
+                    <option value="">Select a reason</option>
+                    <option value="inappropriate">Inappropriate content</option>
+                    <option value="spam">Spam or misleading</option>
+                    <option value="copyright">Copyright infringement</option>
+                    <option value="violence">Violent or graphic content</option>
+                    <option value="harassment">Harassment or bullying</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Additional details (optional):</label>
+                <textarea id="reportDetails" placeholder="Provide more context..." rows="4" maxlength="500"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">⚠️ Submit Report</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('reportModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+    let currentVideo = null;
+    let currentUser = null;
+    let commentsLoaded = 0;
+    const commentsPerPage = 10;
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeVideoDetail();
+    });
+
+    async function initializeVideoDetail() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoId = urlParams.get('id') || window.location.pathname.split('/').pop();
+
+        if (!videoId) {
+            showAlert('Video not found', 'error');
+            return;
+        }
+
+        try {
+            await checkCurrentUser();
+            await loadVideo(videoId);
+            await loadComments(videoId);
+            await loadRelatedVideos(videoId);
+            updateCommentForm();
+        } catch (error) {
+            console.error('Error initializing video detail:', error);
+            showAlert('Failed to load video', 'error');
+        }
+    }
+
+    async function loadVideo(videoId) {
+        try {
+            const response = await fetch(`/api/videos/${videoId}`, {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                currentVideo = await response.json();
+                displayVideo(currentVideo);
+                incrementViewCount(videoId);
+            } else {
+                throw new Error('Video not found');
+            }
+        } catch (error) {
+            console.error('Error loading video:', error);
+            showAlert('Video not found or unavailable', 'error');
+        }
+    }
+
+    function displayVideo(video) {
+        document.getElementById('videoTitle').textContent = video.title;
+        document.getElementById('videoSource').src = video.videoUrl;
+        document.getElementById('videoViews').textContent = `${video.viewCount || 0} views`;
+        document.getElementById('videoDate').textContent = formatDate(video.createdAt);
+        document.getElementById('likeCount').textContent = video.likeCount || 0;
+        document.getElementById('dislikeCount').textContent = video.dislikeCount || 0;
+        document.getElementById('commentCount').textContent = video.commentCount || 0;
+
+        document.getElementById('channelName').textContent = video.uploader?.username || 'Unknown';
+        document.getElementById('channelAvatar').src = video.uploader?.profilePicture || '/images/default-avatar.jpg';
+        document.getElementById('channelSubscribers').textContent = `${video.uploader?.subscriberCount || 0} subscribers`;
+
+        document.getElementById('videoDescription').textContent = video.description || 'No description available.';
+
+        // Display tags
+        if (video.tags) {
+            const tagsContainer = document.getElementById('videoTags');
+            const tags = video.tags.split(',').map(tag => tag.trim());
+            tagsContainer.innerHTML = tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
+        }
+
+        // Update sharing URL
+        const shareUrl = `${window.location.origin}/video-detail.html?id=${video.id}`;
+        document.getElementById('shareUrl').value = shareUrl;
+        document.getElementById('embedCode').value = `<iframe src="${shareUrl}" width="560" height="315" frameborder="0" allowfullscreen></iframe>`;
+
+        // Load video player
+        const videoPlayer = document.getElementById('videoPlayer');
+        videoPlayer.load();
+    }
+
+    // Video interaction functions
+    async function toggleLike() {
+        if (!currentUser) {
+            showAlert('Please login to like videos', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/videos/${currentVideo.id}/like`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                document.getElementById('likeCount').textContent = result.likeCount;
+                document.getElementById('likeBtn').classList.toggle('liked', result.userLiked);
+
+                if (result.userLiked) {
+                    document.getElementById('dislikeBtn').classList.remove('disliked');
+                }
+            }
+        } catch (error) {
+            console.error('Error toggling like:', error);
+        }
+    }
+
+    async function submitComment() {
+        if (!currentUser) {
+            showAlert('Please login to comment', 'error');
+            return;
+        }
+
+        const commentText = document.getElementById('commentInput').value.trim();
+        if (!commentText) {
+            showAlert('Please enter a comment', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/comments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    videoId: currentVideo.id,
+                    content: commentText
+                })
+            });
+
+            if (response.ok) {
+                document.getElementById('commentInput').value = '';
+                loadComments(currentVideo.id);
+                showAlert('Comment added successfully!', 'success');
+            } else {
+                showAlert('Failed to add comment', 'error');
+            }
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+            showAlert('Failed to add comment', 'error');
+        }
+    }
+
+    function updateCommentForm() {
+        const commentForm = document.getElementById('commentForm');
+        const loginPrompt = document.getElementById('loginPrompt');
+
+        if (currentUser) {
+            commentForm.style.display = 'block';
+            loginPrompt.style.display = 'none';
+            document.getElementById('userAvatar').src = currentUser.profilePicture || '/images/default-avatar.jpg';
+        } else {
+            commentForm.style.display = 'none';
+            loginPrompt.style.display = 'block';
+        }
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) return '1 day ago';
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+        if (diffDays < 365) return `${Math.ceil(diffDays / 30)} months ago`;
+        return `${Math.ceil(diffDays / 365)} years ago`;
+    }
+
+    // Additional functions for share, playlist, report functionality...
+    function shareVideo() {
+        document.getElementById('shareModal').style.display = 'flex';
+    }
+
+    function copyToClipboard() {
+        const shareUrl = document.getElementById('shareUrl');
+        shareUrl.select();
+        document.execCommand('copy');
+        showAlert('Link copied to clipboard!', 'success');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function showAlert(message, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            max-width: 350px;
+            ${type === 'success' ? 'background-color: #28a745;' : ''}
+            ${type === 'error' ? 'background-color: #dc3545;' : ''}
+        `;
+
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 4000);
+    }
+</script>
+</body>
+</html>

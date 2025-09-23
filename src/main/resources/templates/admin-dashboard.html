@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub Admin</a></h1>
+        </div>
+        <div class="nav-user">
+            <span class="admin-indicator">⚙️ Admin Panel</span>
+            <button class="btn btn-secondary" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">👤 Profile</button>
+            <button class="btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+</header>
+
+<main class="admin-main">
+    <div class="admin-container">
+        <!-- Dashboard Header -->
+        <div class="admin-header">
+            <h1>📊 Admin Dashboard</h1>
+            <div class="admin-actions">
+                <button class="btn" onclick="refreshDashboard()">🔄 Refresh</button>
+                <button class="btn btn-secondary" onclick="exportSystemReport()">📋 Export Report</button>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="system-status">
+            <div class="status-item">
+                <span class="status-indicator online"></span>
+                <span>System Online</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator" id="dbStatus"></span>
+                <span>Database</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator" id="storageStatus"></span>
+                <span>Storage</span>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="dashboard-stats">
+            <div class="stat-card primary">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <h3 id="totalUsers">0</h3>
+                    <p>Total Users</p>
+                    <div class="stat-change positive" id="userGrowth">+0%</div>
+                </div>
+            </div>
+            <div class="stat-card secondary">
+                <div class="stat-icon">📹</div>
+                <div class="stat-info">
+                    <h3 id="totalVideos">0</h3>
+                    <p>Total Videos</p>
+                    <div class="stat-change positive" id="videoGrowth">+0%</div>
+                </div>
+            </div>
+            <div class="stat-card tertiary">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-info">
+                    <h3 id="totalViews">0</h3>
+                    <p>Total Views</p>
+                    <div class="stat-change positive" id="viewGrowth">+0%</div>
+                </div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-info">
+                    <h3 id="pendingReports">0</h3>
+                    <p>Pending Reports</p>
+                    <div class="stat-change urgent">Needs Review</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="admin-tab-button active" onclick="showAdminTab('overview', this)">📊 Overview</button>
+            <button class="admin-tab-button" onclick="showAdminTab('users', this)">👥 Users</button>
+            <button class="admin-tab-button" onclick="showAdminTab('videos', this)">📹 Videos</button>
+            <button class="admin-tab-button" onclick="showAdminTab('reports', this)">⚠️ Reports</button>
+            <button class="admin-tab-button" onclick="showAdminTab('categories', this)">📁 Categories</button>
+            <button class="admin-tab-button" onclick="showAdminTab('analytics', this)">📈 Analytics</button>
+            <button class="admin-tab-button" onclick="showAdminTab('settings', this)">⚙️ Settings</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overviewTab" class="admin-tab-content">
+            <div class="overview-grid">
+                <!-- Recent Activity -->
+                <div class="overview-section">
+                    <h3>📋 Recent Activity</h3>
+                    <div id="recentActivity" class="activity-list">
+                        <div class="loading">Loading recent activity...</div>
+                    </div>
+                </div>
+
+                <!-- System Health -->
+                <div class="overview-section">
+                    <h3>🏥 System Health</h3>
+                    <div class="health-metrics">
+                        <div class="health-item">
+                            <span>CPU Usage:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="cpuUsage" style="width: 45%"></div>
+                            </div>
+                            <span>45%</span>
+                        </div>
+                        <div class="health-item">
+                            <span>Memory:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="memoryUsage" style="width: 62%"></div>
+                            </div>
+                            <span>62%</span>
+                        </div>
+                        <div class="health-item">
+                            <span>Storage:</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="storageUsage" style="width: 78%"></div>
+                            </div>
+                            <span>78%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Videos -->
+                <div class="overview-section">
+                    <h3>🔥 Top Performing Videos</h3>
+                    <div id="topVideos" class="top-videos-list">
+                        <div class="loading">Loading top videos...</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="overview-section">
+                    <h3>⚡ Quick Actions</h3>
+                    <div class="quick-actions">
+                        <button class="action-btn" onclick="moderateContent()">
+                            <span>🛡️</span>
+                            <div>
+                                <strong>Moderate Content</strong>
+                                <small>Review flagged videos</small>
+                            </div>
+                        </button>
+                        <button class="action-btn" onclick="manageUsers()">
+                            <span>👥</span>
+                            <div>
+                                <strong>Manage Users</strong>
+                                <small>User administration</small>
+                            </div>
+                        </button>
+                        <button class="action-btn" onclick="systemSettings()">
+                            <span>⚙️</span>
+                            <div>
+                                <strong>System Settings</strong>
+                                <small>Configure platform</small>
+                            </div>
+                        </button>
+                        <button class="action-btn" onclick="viewAnalytics()">
+                            <span>📊</span>
+                            <div>
+                                <strong>View Analytics</strong>
+                                <small>Platform insights</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersTab" class="admin-tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>👥 User Management</h2>
+                <div class="tab-controls">
+                    <input type="text" id="userSearchInput" placeholder="Search users..." style="width: 250px;">
+                    <select id="userRoleFilter">
+                        <option value="">All Roles</option>
+                        <option value="REGISTERED_USER">Regular Users</option>
+                        <option value="CONTENT_CREATOR">Content Creators</option>
+                        <option value="ADMIN">Admins</option>
+                    </select>
+                    <button class="btn" onclick="searchUsers()">🔍 Search</button>
+                    <button class="btn btn-secondary" onclick="exportUserData()">📊 Export</button>
+                </div>
+            </div>
+            <div id="usersList" class="users-list">
+                <div class="loading">Loading users...</div>
+            </div>
+            <div class="pagination" id="usersPagination"></div>
+        </div>
+
+        <!-- Videos Tab -->
+        <div id="videosTab" class="admin-tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>📹 Video Management</h2>
+                <div class="tab-controls">
+                    <input type="text" id="videoSearchInput" placeholder="Search videos..." style="width: 250px;">
+                    <select id="videoStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="PUBLIC">Public</option>
+                        <option value="PRIVATE">Private</option>
+                        <option value="PENDING">Pending Review</option>
+                        <option value="FLAGGED">Flagged</option>
+                    </select>
+                    <button class="btn" onclick="searchVideos()">🔍 Search</button>
+                    <button class="btn btn-secondary" onclick="exportVideoData()">📊 Export</button>
+                </div>
+            </div>
+            <div id="videosList" class="videos-list">
+                <div class="loading">Loading videos...</div>
+            </div>
+            <div class="pagination" id="videosPagination"></div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reportsTab" class="admin-tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>⚠️ Report Management</h2>
+                <div class

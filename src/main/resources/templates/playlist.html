@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub</a></h1>
+        </div>
+        <div class="nav-search">
+            <input type="text" id="searchInput" placeholder="Search videos..." maxlength="100">
+            <button class="btn btn-secondary" onclick="searchVideos()">🔍</button>
+        </div>
+        <div class="nav-user">
+            <button class="btn btn-secondary" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">👤 Profile</button>
+            <button class="btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+</header>
+
+<main class="playlist-main">
+    <div class="playlist-container">
+        <!-- Playlist Header -->
+        <div class="playlist-header">
+            <div class="playlist-thumbnail">
+                <img id="playlistThumbnail" src="/images/default-playlist.jpg" alt="Playlist thumbnail">
+                <div class="playlist-overlay">
+                    <div class="playlist-info">
+                        <span id="playlistVideoCount">0 videos</span>
+                        <button class="btn play-all-btn" onclick="playAll()">▶️ Play All</button>
+                    </div>
+                </div>
+            </div>
+            <div class="playlist-details">
+                <h1 id="playlistTitle">Loading...</h1>
+                <div class="playlist-meta">
+                    <span id="playlistCreator">By Unknown</span>
+                    <span>•</span>
+                    <span id="playlistCreatedDate">Unknown date</span>
+                    <span>•</span>
+                    <span id="playlistViews">0 views</span>
+                </div>
+                <div class="playlist-description" id="playlistDescription">
+                    Loading description...
+                </div>
+                <div class="playlist-actions">
+                    <button class="btn" onclick="toggleSavePlaylist()" id="savePlaylistBtn">
+                        💾 Save Playlist
+                    </button>
+                    <button class="btn btn-secondary" onclick="sharePlaylist()">
+                        🔗 Share
+                    </button>
+                    <div class="playlist-owner-actions" id="playlistOwnerActions" style="display: none;">
+                        <button class="btn btn-secondary" onclick="editPlaylist()">
+                            ✏️ Edit
+                        </button>
+                        <button class="btn btn-danger" onclick="deletePlaylist()">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Playlist Controls -->
+        <div class="playlist-controls">
+            <div class="sort-options">
+                <label for="sortOrder">Sort by:</label>
+                <select id="sortOrder" onchange="sortPlaylist()">
+                    <option value="order">Playlist order</option>
+                    <option value="dateAdded">Date added (newest)</option>
+                    <option value="dateAddedOld">Date added (oldest)</option>
+                    <option value="title">Title (A-Z)</option>
+                    <option value="titleDesc">Title (Z-A)</option>
+                    <option value="duration">Duration (shortest)</option>
+                    <option value="durationDesc">Duration (longest)</option>
+                    <option value="views">Most viewed</option>
+                </select>
+            </div>
+            <div class="view-options">
+                <button class="view-btn active" onclick="setView('list')" id="listViewBtn">
+                    📋 List View
+                </button>
+                <button class="view-btn" onclick="setView('grid')" id="gridViewBtn">
+                    🔲 Grid View
+                </button>
+            </div>
+        </div>
+
+        <!-- Playlist Content -->
+        <div class="playlist-content">
+            <div class="playlist-stats">
+                <div class="stat-item">
+                    <strong id="totalDuration">0:00</strong>
+                    <span>Total duration</span>
+                </div>
+                <div class="stat-item">
+                    <strong id="totalVideos">0</strong>
+                    <span>Videos</span>
+                </div>
+                <div class="stat-item">
+                    <strong id="playlistPrivacy">Public</strong>
+                    <span>Privacy</span>
+                </div>
+            </div>
+
+            <div class="playlist-videos" id="playlistVideos">
+                <div class="loading">Loading playlist videos...</div>
+            </div>
+
+            <div class="empty-playlist" id="emptyPlaylist" style="display: none;">
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <h3>This playlist is empty</h3>
+                    <p>No videos have been added to this playlist yet.</p>
+                    <button class="btn" onclick="findVideos()">🔍 Find Videos to Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Playlists Sidebar -->
+    <div class="playlist-sidebar">
+        <div class="sidebar-section">
+            <h3>📋 More from this creator</h3>
+            <div id="creatorPlaylists" class="related-playlists">
+                <div class="loading">Loading playlists...</div>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>🔥 Trending Playlists</h3>
+            <div id="trendingPlaylists" class="related-playlists">
+                <div class="loading">Loading trending playlists...</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Edit Playlist Modal -->
+<div id="editPlaylistModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('editPlaylistModal')">&times;</span>
+        <h2>✏️ Edit Playlist</h2>
+        <form onsubmit="updatePlaylist(event)">
+            <div class="form-group">
+                <label for="editTitle">Playlist Title:</label>
+                <input type="text" id="editTitle" placeholder="Enter playlist title" required maxlength="255">
+            </div>
+
+            <div class="form-group">
+                <label for="editDescription">Description:</label>
+                <textarea id="editDescription" placeholder="Describe your playlist..." rows="4" maxlength="500"></textarea>
+                <small class="form-text"><span id="editDescCount">0</span>/500 characters</small>
+            </div>
+
+            <div class="form-group">
+                <label for="editPrivacy">Privacy:</label>
+                <select id="editPrivacy" required>
+                    <option value="PUBLIC">🌍 Public - Anyone can view</option>
+                    <option value="PRIVATE">🔒 Private - Only you can view</option>
+                    <option value="UNLISTED">🔗 Unlisted - Only people with link can view</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="editThumbnail">Custom Thumbnail:</label>
+                <input type="file" id="editThumbnail" accept="image/*">
+                <small class="form-text">Recommended size: 1280x720px</small>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="editCollaborative">
+                <label for="editCollaborative">Allow others to add videos</label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn">💾 Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editPlaylistModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Share Playlist Modal -->
+<div id="sharePlaylistModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('sharePlaylistModal')">&times;</span>
+        <h2>🔗 Share Playlist</h2>
+        <div class="share-options">
+            <div class="share-link">
+                <label>Playlist URL:</label>
+                <div class="link-container">
+                    <input type="text" id="sharePlaylistUrl" readonly>
+                    <button class="btn" onclick="copyPlaylistLink()">📋 Copy</button>
+                </div>
+            </div>
+            <div class="share-social">
+                <h4>Share on social media:</h4>
+                <div class="social-buttons">
+                    <button class="social-btn facebook" onclick="sharePlaylistOnFacebook()">📘 Facebook</button>
+                    <button class="social-btn twitter" onclick="sharePlaylistOnTwitter()">🐦 Twitter</button>
+                    <button class="social-btn whatsapp" onclick="sharePlaylistOnWhatsApp()">💚 WhatsApp</button>
+                    <button class="social-btn email" onclick="sharePlaylistViaEmail()">📧 Email</button>
+                </div>
+            </div>
+            <div class="embed-options">
+                <label>Embed Options:</label>
+                <div class="embed-settings">
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="embedAutoplay">
+                        <label for="embedAutoplay">Autoplay</label>
+                    </div>
+                    <div class="checkbox-container">
+                        <input type="checkbox" id="embedShowInfo" checked>
+                        <label for="embedShowInfo">Show playlist info</label>
+                    </div>
+                </div>
+                <textarea id="playlistEmbedCode" readonly rows="3"></textarea>
+                <button class="btn btn-secondary" onclick="copyPlaylistEmbed()">📋 Copy Embed Code</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Videos Modal -->
+<div id="addVideosModal" class="modal" style="display: none;">
+    <div class="modal-content large-modal">
+        <span class="close" onclick="closeModal('addVideosModal')">&times;</span>
+        <h2>➕ Add Videos to Playlist</h2>
+        <div class="add-videos-content">
+            <div class="search-section">
+                <div class="search-bar">
+                    <input type="text" id="videoSearchInput" placeholder="Search for videos to add..." maxlength="100">
+                    <button class="btn" onclick="searchVideosToAdd()">🔍 Search</button>
+                </div>
+                <div class="filter-options">
+                    <select id="videoSourceFilter">
+                        <option value="all">All Videos</option>
+                        <option value="myVideos">My Videos</option>
+                        <option value="liked">Liked Videos</option>
+                        <option value="watchLater">Watch Later</option>
+                    </select>
+                    <select id="videoCategoryFilter">
+                        <option value="">All Categories</option>
+                        <!-- Categories will be loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="videos-to-add" id="videosToAdd">
+                <div class="loading">Loading videos...</div>
+            </div>
+
+            <div class="selected-videos" id="selectedVideos" style="display: none;">
+                <h4>Selected Videos (<span id="selectedCount">0</span>):</h4>
+                <div class="selected-list" id="selectedList"></div>
+                <button class="btn" onclick="addSelectedVideos()">➕ Add to Playlist</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+    let currentPlaylist = null;
+    let currentUser = null;
+    let playlistVideos = [];
+    let selectedVideosToAdd = [];
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        initializePlaylistPage();
+    });
+
+    async function initializePlaylistPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const playlistId = urlParams.get('id') || window.location.pathname.split('/').pop();
+
+        if (!playlistId) {
+            showAlert('Playlist not found', 'error');
+            return;
+        }
+
+        try {
+            await checkCurrentUser();
+            await loadPlaylist(playlistId);
+            await loadPlaylistVideos(playlistId);
+            await loadRelatedPlaylists();
+        } catch (error) {
+            console.error('Error initializing playlist:', error);
+            showAlert('Failed to load playlist', 'error');
+        }
+    }
+
+    async function loadPlaylist(playlistId) {
+        try {
+            const response = await fetch(`/api/playlists/${playlistId}`, {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                currentPlaylist = await response.json();
+                displayPlaylistInfo(currentPlaylist);
+            } else {
+                throw new Error('Playlist not found');
+            }
+        } catch (error) {
+            console.error('Error loading playlist:', error);
+            showAlert('Playlist not found or unavailable', 'error');
+        }
+    }
+
+    function displayPlaylistInfo(playlist) {
+        document.getElementById('playlistTitle').textContent = playlist.name;
+        document.getElementById('playlistCreator').textContent = `By ${playlist.creator?.username || 'Unknown'}`;
+        document.getElementById('playlistCreatedDate').textContent = formatDate(playlist.createdAt);
+        document.getElementById('playlistDescription').textContent = playlist.description || 'No description available.';
+        document.getElementById('playlistPrivacy').textContent = playlist.privacy || 'Public';
+        document.getElementById('playlistVideoCount').textContent = `${playlist.videoCount || 0} videos`;
+
+        if (playlist.thumbnail) {
+            document.getElementById('playlistThumbnail').src = playlist.thumbnail;
+        }
+
+        // Show owner actions if current user is the owner
+        if (currentUser && currentUser.id === playlist.creator?.id) {
+            document.getElementById('playlistOwnerActions').style.display = 'flex';
+        }
+
+        // Update share URL
+        const shareUrl = `${window.location.origin}/playlist.html?id=${playlist.id}`;
+        document.getElementById('sharePlaylistUrl').value = shareUrl;
+    }
+
+    async function loadPlaylistVideos(playlistId) {
+        try {
+            const response = await fetch(`/api/playlists/${playlistId}/videos`, {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                playlistVideos = await response.json();
+                displayPlaylistVideos(playlistVideos);
+                updatePlaylistStats();
+            } else {
+                throw new Error('Failed to load videos');
+            }
+        } catch (error) {
+            console.error('Error loading playlist videos:', error);
+            document.getElementById('playlistVideos').innerHTML = '<div class="error">Failed to load videos</div>';
+        }
+    }
+
+    function displayPlaylistVideos(videos) {
+        const container = document.getElementById('playlistVideos');
+        const emptyPlaylist = document.getElementById('emptyPlaylist');
+
+        if (videos.length === 0) {
+            container.innerHTML = '';
+            emptyPlaylist.style.display = 'block';
+            return;
+        }
+
+        emptyPlaylist.style.display = 'none';
+
+        container.innerHTML = videos.map((video, index) => `
+            <div class="playlist-video-item" data-video-id="${video.id}">
+                <div class="video-index">${index + 1}</div>
+                <div class="video-thumbnail">
+                    <img src="${video.thumbnail || '/images/default-thumbnail.jpg'}" alt="${video.title}">
+                    <div class="video-duration">${formatDuration(video.duration)}</div>
+                    <button class="play-button" onclick="playVideo('${video.id}')">▶️</button>
+                </div>
+                <div class="video-info">
+                    <h4 class="video-title" onclick="goToVideo('${video.id}')">${video.title}</h4>
+                    <div class="video-meta">
+                        <span class="video-uploader">${video.uploader?.username || 'Unknown'}</span>
+                        <span class="video-views">${video.viewCount || 0} views</span>
+                    </div>
+                    <div class="video-description">${(video.description || '').substring(0, 100)}${video.description?.length > 100 ? '...' : ''}</div>
+                </div>
+                <div class="video-actions">
+                    <button class="action-btn" onclick="addToWatchLater('${video.id}')" title="Add to Watch Later">
+                        ⏰
+                    </button>
+                    <button class="action-btn" onclick="shareVideo('${video.id}')" title="Share">
+                        🔗
+                    </button>
+                    ${currentUser && currentUser.id === currentPlaylist.creator?.id ? `
+                        <button class="action-btn" onclick="removeFromPlaylist('${video.id}')" title="Remove from playlist">
+                            🗑️
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updatePlaylistStats() {
+        document.getElementById('totalVideos').textContent = playlistVideos.length;
+
+        const totalDuration = playlistVideos.reduce((total, video) => total + (video.duration || 0), 0);
+        document.getElementById('totalDuration').textContent = formatDuration(totalDuration);
+    }
+
+    function playAll() {
+        if (playlistVideos.length > 0) {
+            const firstVideo = playlistVideos[0];
+            window.location.href = `/video-detail.html?id=${firstVideo.id}&playlist=${currentPlaylist.id}`;
+        }
+    }
+
+    function playVideo(videoId) {
+        window.location.href = `/video-detail.html?id=${videoId}&playlist=${currentPlaylist.id}`;
+    }
+
+    function goToVideo(videoId) {
+        window.location.href = `/video-detail.html?id=${videoId}`;
+    }
+
+    function editPlaylist() {
+        if (!currentPlaylist) return;
+
+        document.getElementById('editTitle').value = currentPlaylist.name;
+        document.getElementById('editDescription').value = currentPlaylist.description || '';
+        document.getElementById('editPrivacy').value = currentPlaylist.privacy || 'PUBLIC';
+        document.getElementById('editCollaborative').checked = currentPlaylist.collaborative || false;
+
+        document.getElementById('editPlaylistModal').style

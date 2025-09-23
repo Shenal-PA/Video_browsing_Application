@@ -13,10 +13,12 @@ import java.util.List;
 @Repository
 
 public interface VideoRepository extends JpaRepository<Video, Long> {
-    List<Video>findByUploader(User user);
+    //List<Video>findByUploader(User user);
     List<Video>findByCategory(Category category);
     List<Video>findByStatus(Video.Status status);
     List<Video>findByPrivacy(Video.Privacy privacy);
+    List<Video> findByUploader(User uploader);
+    List<Video> findByUploadedBy(User uploadedBy);
 
     @Query("SELECT v FROM Video v WHERE v.status='PUBLISHED'AND V.privacy='PUBLIC'ORDER BY V.createdAt DESC")
     List<Video>findPublicVideos();
