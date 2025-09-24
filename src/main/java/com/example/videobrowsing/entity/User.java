@@ -202,6 +202,18 @@ public class User {
     public void setPlaylists(List<Playlist> playlists){
         this.playlists=playlists;
     }
+    public String getFirstName() {
+        return firstname;
+    }
+    public void setFirstName(String firstName) {
+        this.firstname = firstName;
+    }
+    public String getLastName() {
+        return lastname;
+    }
+    public void setLastName(String lastName) {
+        this.lastname = lastName;
+    }
 
 
 
