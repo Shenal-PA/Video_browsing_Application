@@ -38,6 +38,14 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
     @Query("SELECT COUNT(v) FROM Video v WHERE v.status = :status")
     Long countByStatus(@Param("status") Video.Status status);
 
+    @Query("SELECT v FROM Video v WHERE v.status='PUBLISHED' AND v.privacy='PUBLIC' ORDER BY v.likeCount DESC")
+    List<Video> findTopRatedVideos();
+
+    @Query("SELECT v FROM Video v WHERE v.status='PUBLISHED' AND v.privacy='PUBLIC' ORDER BY v.createdAt DESC")
+    List<Video> findLatestVideos();
+
+    @Query("SELECT v FROM Video v WHERE v.category.id = :categoryId")
+    List<Video> findByCategoryId(@Param("categoryId") Long categoryId);
 
 
 
