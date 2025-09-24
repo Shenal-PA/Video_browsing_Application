@@ -141,5 +141,13 @@ public class VideoDTO {
 
     }
 
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
 
 }

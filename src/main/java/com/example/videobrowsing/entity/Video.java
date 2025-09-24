@@ -107,12 +107,17 @@ public class Video {
     public void setFilepath(String filepath) {
         this.filepath = filepath;
     }
-
-    public String getThumbnail() {
+    public String getFilePath() {
+        return filepath;
+    }
+    public void setFilePath(String filePath) {
+        this.filepath = filePath;
+    }
+    public String getThumbnailPath() {
         return thumbnail;
     }
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+    public void setThumbnailPath(String thumbnailPath) {
+        this.thumbnail = thumbnailPath;
     }
 
     public Integer getDuration() {
