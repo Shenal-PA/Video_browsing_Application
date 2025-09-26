@@ -21,7 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role")
     Long countByRole(@Param("role") User.Role role);
 
-    @Query("SELECT u FROM User u WHERE u.username LIKE %:keyword% OR u.email LIKE %:keyword% OR u.firstName LIKE %:keyword% OR u.lastName LIKE %:keyword%")
+    @Query("SELECT u FROM User u WHERE u.username LIKE %:keyword% OR u.email LIKE %:keyword% OR u.firstname LIKE %:keyword% OR u.lastname LIKE %:keyword%")
     List<User> searchUsers(@Param("keyword") String keyword);
 }
-
