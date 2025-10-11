@@ -15,6 +15,12 @@ public class PlaylistDTO {
     private String privacy;
     private Boolean isCollaborative;
     private Integer videoCount;
+    private Long ownerId;
+    private String ownerDisplayName;
+    private String createdAt;
+    private String updatedAt;
+    private boolean canEdit;
+    private java.util.List<PlaylistVideoItemDTO> videos;
 
     // Constructors
     public PlaylistDTO() {}
@@ -48,4 +54,22 @@ public class PlaylistDTO {
 
     public Integer getVideoCount() { return videoCount; }
     public void setVideoCount(Integer videoCount) { this.videoCount = videoCount; }
+
+    public Long getOwnerId() { return ownerId; }
+    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
+
+    public String getOwnerDisplayName() { return ownerDisplayName; }
+    public void setOwnerDisplayName(String ownerDisplayName) { this.ownerDisplayName = ownerDisplayName; }
+
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public String getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
+
+    public boolean isCanEdit() { return canEdit; }
+    public void setCanEdit(boolean canEdit) { this.canEdit = canEdit; }
+
+    public java.util.List<PlaylistVideoItemDTO> getVideos() { return videos; }
+    public void setVideos(java.util.List<PlaylistVideoItemDTO> videos) { this.videos = videos; }
 }

@@ -1,14 +1,16 @@
 package com.example.videobrowsing.repository;
 
-import com.example.videobrowsing.entity.PlaylistVideo;
-import com.example.videobrowsing.entity.Playlist;
-import com.example.videobrowsing.entity.Video;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.Optional;
+
+import com.example.videobrowsing.entity.Playlist;
+import com.example.videobrowsing.entity.PlaylistVideo;
+import com.example.videobrowsing.entity.Video;
 
 @Repository
 public interface PlaylistVideoRepository extends JpaRepository<PlaylistVideo, Long> {
@@ -23,4 +25,6 @@ public interface PlaylistVideoRepository extends JpaRepository<PlaylistVideo, Lo
     Integer findMaxPositionInPlaylist(@Param("playlist") Playlist playlist);
 
     void deleteByPlaylistAndVideo(Playlist playlist, Video video);
+
+    long countByPlaylist(Playlist playlist);
 }

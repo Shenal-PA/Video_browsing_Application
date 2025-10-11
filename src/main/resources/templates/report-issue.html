@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report an Issue - VideoHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Dark Theme Variables */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #888888;
+            --accent-primary: #ff3e3e;
+            --accent-secondary: #ff6b6b;
+            --border-color: #2a2a2a;
+            --hover-color: #252525;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --gradient-primary: linear-gradient(135deg, #ff3e3e 0%, #ff6b6b 100%);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+        }
+
+        /* Base Styles */
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .home-btn {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .home-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 62, 62, 0.3);
+        }
+
+        .page-title {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .main-container {
+            margin-top: 100px;
+            padding: 2rem;
+        }
+
+        /* Report Form Section */
+        .help-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-icon {
+            font-size: 2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .report-form {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(255, 62, 62, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 62, 62, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hover-color);
+            transform: translateY(-1px);
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            .help-section {
+                padding: 1.5rem;
+            }
+            .form-actions {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="top-nav">
+    <a href="/" class="home-btn">
+        <i class="fas fa-home"></i> Home
+    </a>
+
+</div>
+
+<div class="main-container">
+    <div class="help-section" id="report">
+        <div class="section-title">
+            <span class="section-icon">🚨</span>
+            <h2>Report an Issue</h2>
+        </div>
+
+        <div class="alert alert-success" id="successAlert">
+            <i class="fas fa-check-circle"></i>
+            Your report has been submitted successfully! Our team will review it within 24 hours.
+            <br><small>Redirecting to home page...</small>
+        </div>
+
+        <div class="alert alert-error" id="errorAlert">
+            <i class="fas fa-exclamation-circle"></i>
+            There was an error submitting your report. Please try again.
+        </div>
+
+        <div class="report-form">
+            <form id="reportForm" onsubmit="submitReport(event)">
+                <div class="form-group">
+                    <label for="reportType">Report Type:</label>
+                    <select id="reportType" required>
+                        <option value="">Select report type...</option>
+                        <option value="inappropriate_content">Inappropriate Content</option>
+                        <option value="copyright">Copyright Violation</option>
+                        <option value="spam">Spam or Misleading Content</option>
+                        <option value="harassment">Harassment or Bullying</option>
+                        <option value="technical_issue">Technical Issue</option>
+                        <option value="account_issue">Account Issue</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportedContent">Content URL (if applicable):</label>
+                    <input type="url" id="reportedContent" placeholder="https://videohub.com/video/123">
+                </div>
+
+                <div class="form-group">
+                    <label for="reportSubject">Subject:</label>
+                    <input type="text" id="reportSubject" required placeholder="Brief description of the issue" maxlength="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="reportDescription">Detailed Description:</label>
+                    <textarea id="reportDescription" required placeholder="Please provide detailed information about the issue..." maxlength="1000"></textarea>
+                    <small style="color: var(--text-muted);">
+                        <span id="descriptionCount">0</span>/1000 characters
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="reporterEmail">Your Email (optional):</label>
+                    <input type="email" id="reporterEmail" placeholder="your.email@example.com">
+                    <small style="color: var(--text-muted);">
+                        We'll use this to follow up on your report if needed
+                    </small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        🔄 Reset Form
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        🚨 Submit Report
+                    </button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Setup description character counter
+    function setupDescriptionCounter() {
+        const textarea = document.getElementById('reportDescription');
+        const counter = document.getElementById('descriptionCount');
+        textarea.addEventListener('input', function() {
+            counter.textContent = this.value.length;
+        });
+        counter.textContent = textarea.value.length;
+    }
+
+    function prefillReportForm() {
+        const params = new URLSearchParams(window.location.search);
+        const videoTitle = params.get('videoTitle');
+        const videoId = params.get('videoId');
+        const videoUrl = params.get('videoUrl');
+
+        const form = document.getElementById('reportForm');
+        if (form && videoId) {
+            form.dataset.videoId = videoId;
+        }
+
+        const subjectField = document.getElementById('reportSubject');
+        if (subjectField && videoTitle && !subjectField.value) {
+            subjectField.value = `Report regarding "${videoTitle}"`;
+        }
+
+        const descriptionField = document.getElementById('reportDescription');
+        if (descriptionField && videoTitle) {
+            const prefix = `Video Title: ${videoTitle}`;
+            if (!descriptionField.value.includes(prefix)) {
+                const spacer = descriptionField.value ? '\n\n' : '';
+                descriptionField.value = `${prefix}${spacer}${descriptionField.value}`;
+            }
+        }
+
+        const urlField = document.getElementById('reportedContent');
+        if (urlField && videoUrl && !urlField.value) {
+            urlField.value = videoUrl;
+        }
+
+        const counter = document.getElementById('descriptionCount');
+        if (counter && descriptionField) {
+            counter.textContent = descriptionField.value.length;
+        }
+    }
+
+    // Submit report form
+    async function submitReport(event) {
+        event.preventDefault();
+
+        const form = document.getElementById('reportForm');
+        const params = new URLSearchParams(window.location.search);
+        const formData = {
+            type: document.getElementById('reportType').value,
+            contentUrl: document.getElementById('reportedContent').value,
+            subject: document.getElementById('reportSubject').value,
+            description: document.getElementById('reportDescription').value,
+            reporterEmail: document.getElementById('reporterEmail').value,
+            videoId: form && form.dataset.videoId ? Number(form.dataset.videoId) : null,
+            videoTitle: params.get('videoTitle') || document.getElementById('reportSubject').value
+        };
+
+        // Hide previous alerts
+        document.getElementById('successAlert').classList.remove('show');
+        document.getElementById('errorAlert').classList.remove('show');
+
+        try {
+            const response = await fetch('/api/reports/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                // Show success message briefly
+                document.getElementById('successAlert').classList.add('show');
+                document.getElementById('reportForm').reset();
+                document.getElementById('descriptionCount').textContent = '0';
+                
+                // Redirect to home page after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1500);
+            } else {
+                throw new Error('Failed to submit report');
+            }
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            document.getElementById('errorAlert').classList.add('show');
+            document.getElementById('errorAlert').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // Reset form
+    function resetForm() {
+        document.getElementById('reportForm').reset();
+        document.getElementById('descriptionCount').textContent = '0';
+        document.getElementById('successAlert').classList.remove('show');
+        document.getElementById('errorAlert').classList.remove('show');
+    }
+
+    // Go to home page
+    function goHome() {
+        window.location.href = '/';
+    }
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', () => {
+        setupDescriptionCounter();
+        prefillReportForm();
+    });
+</script>
+</body>
+</html>

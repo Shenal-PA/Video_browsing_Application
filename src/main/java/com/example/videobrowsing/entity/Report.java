@@ -1,7 +1,18 @@
 package com.example.videobrowsing.entity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "reports")
@@ -20,8 +31,10 @@ public class Report {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reported_by")
-    @NotNull
-    private User reportedBy;
+    private User reportedBy;  // Nullable to allow anonymous reports
+
+    @Column(name = "reporter_email")
+    private String reporterEmail;  // Email provided in report form
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -36,6 +49,9 @@ public class Report {
     @Column(columnDefinition = "TEXT")
     private String adminNotes;
 
+    @Column(name = "deletion_reason", columnDefinition = "TEXT")
+    private String deletionReason;  // Reason provided when admin deletes a report
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "resolved_by")
     private User resolvedBy;
@@ -44,11 +60,23 @@ public class Report {
     private LocalDateTime resolvedAt;
 
     public enum ReportType {
-        SPAM, INAPPROPRIATE_CONTENT, COPYRIGHT, PLAYBACK_ISSUE, OTHER
+        SPAM,
+        INAPPROPRIATE_CONTENT,
+        COPYRIGHT,
+        PLAYBACK_ISSUE,
+        HARASSMENT,           // Added for help center form
+        TECHNICAL_ISSUE,      // Added for help center form
+        ACCOUNT_ISSUE,        // Added for help center form
+        OTHER
     }
 
     public enum Status {
-        PENDING, REVIEWED, RESOLVED, DISMISSED
+        PENDING,
+        REVIEWING,            // Added for admin workflow
+        REVIEWED,
+        RESOLVED,
+        DISMISSED,
+        DELETED               // Added for when admin deletes a report
     }
 
     // Constructors
@@ -74,6 +102,9 @@ public class Report {
     public User getReportedBy() { return reportedBy; }
     public void setReportedBy(User reportedBy) { this.reportedBy = reportedBy; }
 
+    public String getReporterEmail() { return reporterEmail; }
+    public void setReporterEmail(String reporterEmail) { this.reporterEmail = reporterEmail; }
+
     public ReportType getReportType() { return reportType; }
     public void setReportType(ReportType reportType) { this.reportType = reportType; }
 
@@ -86,6 +117,9 @@ public class Report {
     public String getAdminNotes() { return adminNotes; }
     public void setAdminNotes(String adminNotes) { this.adminNotes = adminNotes; }
 
+    public String getDeletionReason() { return deletionReason; }
+    public void setDeletionReason(String deletionReason) { this.deletionReason = deletionReason; }
+
     public User getResolvedBy() { return resolvedBy; }
     public void setResolvedBy(User resolvedBy) { this.resolvedBy = resolvedBy; }
 
@@ -95,26 +129,3 @@ public class Report {
     public LocalDateTime getResolvedAt() { return resolvedAt; }
     public void setResolvedAt(LocalDateTime resolvedAt) { this.resolvedAt = resolvedAt; }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

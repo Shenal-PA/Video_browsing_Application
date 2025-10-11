@@ -4,16 +4,1148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - VideoHub</title>
-    <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-brand a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .nav-search {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+        }
+
+        .nav-search label {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .nav-search input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-search input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-search input::placeholder {
+            color: #666666;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(220, 53, 69, 0.4);
+        }
+
+        /* Main Content */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .profile-info {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            flex: 1;
+        }
+
+        .profile-avatar-container {
+            width: 120px;
+            height: 120px;
+        }
+
+        .profile-avatar-icon {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.35);
+            color: #ffffff;
+        }
+
+        .profile-avatar-icon svg {
+            width: 60px;
+            height: 60px;
+            fill: currentColor;
+        }
+
+        .profile-details h1 {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-details p {
+            color: #8a8a8a;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .profile-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+
+        .profile-meta .meta-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .meta-card span {
+            font-size: 0.85rem;
+            color: #9d9d9d;
+            letter-spacing: 0.02em;
+        }
+
+        .meta-card strong {
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .profile-tags {
+            margin-top: 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .profile-tags .tag-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.85rem;
+            color: #e0e0e0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item strong {
+            display: block;
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-item span {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-delete-account {
+            background: linear-gradient(135deg, #ff4d4d 0%, #c62828 100%) !important;
+            color: white !important;
+            border: 2px solid rgba(255, 77, 77, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-delete-account:hover {
+            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%) !important;
+            border-color: rgba(255, 77, 77, 0.6) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 77, 77, 0.4);
+        }
+
+        /* Profile Tabs */
+        .profile-tabs {
+            display: flex;
+            gap: 1rem;
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #8a8a8a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #cccccc;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+            font-weight: 600;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+        }
+
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .tab-header h2 {
+            color: #ffffff;
+            font-size: 1.5rem;
+        }
+
+        .tab-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .tab-controls select {
+            padding: 8px 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .tab-controls select option {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        /* Video Grid */
+        .video-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .video-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .video-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 150px;
+            background: #000000;
+            position: relative;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-info {
+            padding: 1rem;
+        }
+
+        .video-title {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .video-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #8a8a8a;
+            font-size: 0.8rem;
+        }
+
+        /* Playlist Grid */
+        .playlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .playlist-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .playlist-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+        }
+
+        .playlist-title {
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .playlist-info {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .playlist-videos {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .playlist-video-thumb {
+            min-width: 60px;
+            height: 40px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .playlist-video-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Admin Dashboard */
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #ffffff;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            color: #8a8a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            color: #28a745;
+            font-size: 0.8rem;
+        }
+
+        .stat-change.urgent {
+            color: #dc3545;
+        }
+
+        .admin-quick-actions {
+            margin-bottom: 2rem;
+        }
+
+        .admin-quick-actions h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .admin-sections {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .admin-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+        }
+
+        .admin-section h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+        }
+
+        .section-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-controls input {
+            padding: 8px 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .analytics-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .analytics-item strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .analytics-item span {
+            color: #8a8a8a;
+            font-size: 1.2rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            color: #8a8a8a;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #8a8a8a;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ffffff;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #666666;
+        }
+
+        .form-group select option {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .form-text {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #8a8a8a;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Upload Progress */
+        .upload-progress {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff, #cccccc);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #8a8a8a;
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4);
+            }
+            50% { 
+                transform: scale(1.05); 
+                box-shadow: 0 4px 16px rgba(255, 107, 107, 0.6);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .profile-stats {
+                gap: 1rem;
+            }
+
+            .stat-item strong {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .nav-search {
+                order: 3;
+                margin: 0;
+                width: 100%;
+                max-width: none;
+            }
+
+            main {
+                padding: 1rem;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-info {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .profile-stats {
+                justify-content: center;
+            }
+
+            .tab-content {
+                padding: 1rem;
+            }
+
+            .tab-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .video-grid {
+                gap: 1.25rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 1rem;
+                width: auto;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-details h1 {
+                font-size: 1.5rem;
+            }
+
+            .profile-stats {
+                gap: 0.5rem;
+            }
+
+            .stat-item strong {
+                font-size: 1rem;
+            }
+
+            .stat-item span {
+                font-size: 0.8rem;
+            }
+
+            .video-grid {
+                gap: 1rem;
+            }
+
+            .video-card {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .video-card-media {
+                max-width: 100%;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Alert Styles */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            max-width: 350px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #a5a5a5;
+            font-style: italic;
+        }
+
+        .error-text {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #ff6b6b;
+        }
+        .video-card {
+            display: grid;
+            grid-template-columns: minmax(180px, 240px) 1fr;
+            gap: 1.5rem;
+            align-items: stretch;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            background: rgba(20, 20, 20, 0.65);
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .video-card-media {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+            aspect-ratio: 16 / 9;
+        }
+
+        .video-card-media a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .video-card-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .video-card-media:hover img {
+            transform: scale(1.05);
+        }
+
+        .video-duration-overlay {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #ffffff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .video-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .video-title-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .video-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.4;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color 0.3s ease;
+        }
+
+        .video-title-link:hover .video-title {
+            color: #4da6ff;
+        }
+
+        .video-card-body h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .video-card-body .video-description {
+            color: #b0b0b0;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            font-size: 0.95rem;
+        }
+
+        .video-stats-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .video-stats-row span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-public {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.4);
+        }
+
+        .badge-private {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.4);
+        }
+
+        .badge-status {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .video-card-body .video-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: #8a8a8a;
+            font-size: 0.9rem;
+        }
+
+        .video-metadata {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 0.75rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        .video-stats-row,
+        .video-meta-row {
+            justify-content: center;
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            justify-content: center;
+        }
+
+        .video-actions .btn {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-actions .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .video-actions .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .video-actions .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .video-actions .btn-danger:hover {
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .watch-later-card .watch-later-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .watch-later-card .watch-later-actions .btn {
+            padding: 0.45rem 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .video-card {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
 <header>
     <nav class="navbar">
         <div class="nav-brand">
-            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub</a></h1>
+            <h1><a href="/" style="color: inherit; text-decoration: none;">🎬 VideoHub</a></h1>
         </div>
         <div class="nav-search">
+            <label for="headerSearchInput" style="position:absolute;left:-9999px;">Search videos</label>
             <input type="text" id="headerSearchInput" placeholder="Search videos..." maxlength="100">
             <button class="btn btn-secondary" onclick="searchFromHeader()">🔍</button>
         </div>
@@ -24,15 +1156,28 @@
     </nav>
 </header>
 
+<script th:inline="javascript">
+    // Pass creatorId from server to JavaScript
+    window.__CREATOR_ID__ = /*[[${creatorId}]]*/ null;
+    if (typeof window.__CREATOR_ID__ === 'string') {
+        try {
+            window.__CREATOR_ID__ = window.__CREATOR_ID__.length ? parseInt(window.__CREATOR_ID__) : null;
+        } catch (e) {
+            window.__CREATOR_ID__ = null;
+        }
+    }
+</script>
+
 <main>
     <div class="profile-container">
         <!-- Profile Header -->
         <div class="profile-header fade-in">
             <div class="profile-info">
-                <div class="profile-avatar-container">
-                    <img id="profilePicture" src="/images/default-avatar.jpg" alt="Profile Picture" class="profile-avatar">
-                    <div class="avatar-overlay" onclick="showEditProfile()">
-                        <span>✏️ Edit</span>
+                <div class="profile-avatar-container" aria-hidden="true">
+                    <div class="profile-avatar-icon">
+                        <svg viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true">
+                            <path d="M12 12c-3.313 0-6-2.687-6-6s2.687-6 6-6 6 2.687 6 6-2.687 6-6 6zm0 2c4.418 0 8 2.686 8 6v2H4v-2c0-3.314 3.582-6 8-6z" />
+                        </svg>
                     </div>
                 </div>
                 <div class="profile-details">
@@ -40,6 +1185,25 @@
                     <p id="profileUsername">@loading</p>
                     <p id="profileRole">Role: Loading...</p>
                     <p id="profileBio">Bio loading...</p>
+                    <div class="profile-meta">
+                        <div class="meta-card">
+                            <span>Email</span>
+                            <strong id="profileEmail">—</strong>
+                        </div>
+                        <div class="meta-card">
+                            <span>Phone</span>
+                            <strong id="profilePhone">—</strong>
+                        </div>
+                        <div class="meta-card">
+                            <span>Member since</span>
+                            <strong id="profileJoinDate">—</strong>
+                        </div>
+                        <div class="meta-card">
+                            <span>Account status</span>
+                            <strong id="profileStatus">—</strong>
+                        </div>
+                    </div>
+                    <div class="profile-tags" id="profileTags" style="display: none;"></div>
                     <div class="profile-stats">
                         <div class="stat-item">
                             <strong id="profileVideoCount">0</strong>
@@ -54,43 +1218,54 @@
                             <span>Likes Received</span>
                         </div>
                         <div class="stat-item">
-                            <strong id="profileJoinDate">2024</strong>
-                            <span>Joined</span>
+                            <strong id="profileSubscriberCount">0</strong>
+                            <span>Subscribers</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong id="profileSubscriptionCount">0</strong>
+                            <span>Subscriptions</span>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="profile-actions">
-                <button class="btn" onclick="showEditProfile()">✏️ Edit Profile</button>
+                <button class="btn" id="editProfileBtn" onclick="showEditProfile()">✏️ Edit Profile</button>
                 <div id="creatorActions" style="display: none;">
-                    <button class="btn btn-secondary" onclick="showUploadVideo()">📹 Upload Video</button>
+                    <button class="btn btn-secondary" onclick="window.location.href='/video-upload'">📹 Upload Video</button>
                     <button class="btn btn-secondary" onclick="showAnalytics()">📊 Analytics</button>
                 </div>
+                <button class="btn btn-delete-account" id="deleteAccountBtn" onclick="confirmDeleteAccount()">🗑️ Delete Account</button>
             </div>
         </div>
 
         <!-- Profile Navigation Tabs -->
         <div class="profile-tabs">
-            <button class="tab-button active" onclick="showTab('videos', this)">📹 My Videos (<span id="videoTabCount">0</span>)</button>
-            <button class="tab-button" onclick="showTab('playlists', this)">📋 Playlists (<span id="playlistTabCount">0</span>)</button>
-            <button class="tab-button" onclick="showTab('watchlater', this)">⏰ Watch Later (<span id="watchLaterTabCount">0</span>)</button>
-            <button class="tab-button" onclick="showTab('liked', this)">❤️ Liked Videos</button>
+            <button class="tab-button" id="videosTabButton" onclick="showTab('videos', this)" style="display: none;">📹 My Videos (<span id="videoTabCount">0</span>)</button>
+            <button class="tab-button active" id="playlistsTabButton" onclick="showTab('playlists', this)">📋 Playlists (<span id="playlistTabCount">0</span>)</button>
+            <button class="tab-button" id="watchLaterTabButton" onclick="showTab('watchlater', this)">⏰ Watch Later (<span id="watchLaterTabCount">0</span>)</button>
+            <button class="tab-button" id="likedTabButton" onclick="showTab('liked', this)">❤️ Liked Videos (<span id="likedTabCount">0</span>)</button>
+            <button class="tab-button" id="reportsTabButton" onclick="showTab('reports', this)">📢 My Reports (<span id="reportsTabCount">0</span>)</button>
             <div id="adminTabContainer" style="display: none;">
                 <button class="tab-button" onclick="showTab('admin', this)">⚙️ Admin Dashboard</button>
             </div>
         </div>
 
         <!-- Videos Tab -->
-        <div id="videosTab" class="tab-content slide-up">
+        <div id="videosTab" class="tab-content" style="display: none;">
             <div class="tab-header">
-                <h2>📹 My Videos</h2>
-                <div class="tab-controls">
+                <h2 id="videosTabTitle">📹 My Videos</h2>
+                <div id="videosCountDisplay" style="display: none; color: #a5a5a5; font-size: 0.9rem; margin-top: 0.5rem;">
+                    <span id="videosCountText">0 videos</span>
+                </div>
+                <div class="tab-controls" id="videoTabControls">
+                    <label for="videoSortFilter" style="position:absolute;left:-9999px;">Sort videos</label>
                     <select id="videoSortFilter" onchange="sortVideos()">
                         <option value="newest">Newest First</option>
                         <option value="oldest">Oldest First</option>
                         <option value="mostViewed">Most Viewed</option>
                         <option value="mostLiked">Most Liked</option>
                     </select>
+                    <label for="videoStatusFilter" style="position:absolute;left:-9999px;">Filter by status</label>
                     <select id="videoStatusFilter" onchange="filterVideosByStatus()">
                         <option value="all">All Videos</option>
                         <option value="PUBLIC">Public</option>
@@ -104,10 +1279,10 @@
         </div>
 
         <!-- Playlists Tab -->
-        <div id="playlistsTab" class="tab-content" style="display: none;">
+        <div id="playlistsTab" class="tab-content slide-up">
             <div class="tab-header">
                 <h2>📋 My Playlists</h2>
-                <div class="tab-controls">
+                <div class="tab-controls" id="playlistTabControls">
                     <button class="btn" onclick="showCreatePlaylist()">➕ Create New Playlist</button>
                 </div>
             </div>
@@ -140,6 +1315,20 @@
             </div>
         </div>
 
+        <!-- My Reports Tab -->
+        <div id="reportsTab" class="tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>📢 My Reports</h2>
+                <p class="tab-description" style="color: #a5a5a5; margin-top: 0.5rem;">Track the status of your submitted reports and see admin responses</p>
+            </div>
+
+            <div id="reportsContent">
+                <div id="reportsLoading" style="text-align: center; padding: 40px;">
+                    <p style="color: #a5a5a5;">Loading your reports...</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Admin Dashboard Tab -->
         <div id="adminTab" class="tab-content" style="display: none;">
             <h2>⚙️ Admin Dashboard</h2>
@@ -157,232 +1346,1774 @@
                     <div class="stat-change" id="videoChange">+0 this week</div>
                 </div>
                 <div class="stat-card">
-                    <h3 id="totalCreators">0</h3>
-                    <p>🎬 Content Creators</p>
-                    <div class="stat-change" id="creatorChange">+0 this week</div>
+                    <h3 id="totalPlaylists">0</h3>
+                    <p>📋 Total Playlists</p>
+                    <div class="stat-change" id="playlistChange">+0 this week</div>
                 </div>
                 <div class="stat-card">
-                    <h3 id="pendingReports">0</h3>
-                    <p>⚠️ Pending Reports</p>
-                    <div class="stat-change urgent" id="reportChange">Needs attention</div>
+                    <h3 id="totalViews">0</h3>
+                    <p>👀 Total Views</p>
+                    <div class="stat-change" id="viewChange">+0 this week</div>
                 </div>
             </div>
 
-            <!-- Admin Quick Actions -->
+            <!-- Quick Actions -->
             <div class="admin-quick-actions">
-                <h3>⚡ Quick Actions</h3>
+                <h3>Quick Actions</h3>
                 <div class="action-buttons">
-                    <button class="btn" onclick="showUserManagement()">👥 Manage Users</button>
-                    <button class="btn" onclick="showVideoManagement()">📹 Manage Videos</button>
-                    <button class="btn" onclick="showCategoryManagement()">📁 Manage Categories</button>
-                    <button class="btn" onclick="showReportManagement()">⚠️ Handle Reports</button>
-                    <button class="btn btn-secondary" onclick="showSystemLogs()">📋 System Logs</button>
-                    <button class="btn btn-secondary" onclick="exportData()">📊 Export Data</button>
+                    <button class="btn" onclick="showCreateUser()">➕ Add User</button>
+                    <button class="btn" onclick="showCreateVideo()">➕ Add Video</button>
+                    <button class="btn" onclick="showCreatePlaylist()">➕ Add Playlist</button>
+                    <button class="btn" onclick="showManageReports()">📋 View Reports</button>
                 </div>
             </div>
 
-            <!-- Admin Management Sections -->
+            <!-- Sections -->
             <div class="admin-sections">
-                <div class="admin-section">
-                    <h3>📊 Recent Reports</h3>
-                    <div id="recentReports">
-                        <div class="loading">Loading reports...</div>
-                    </div>
-                </div>
-
-                <div class="admin-section">
+                <!-- User Management Section -->
+                <div class="admin-section" id="userManagementSection">
                     <h3>👥 User Management</h3>
                     <div class="section-controls">
-                        <input type="text" id="userSearchInput" placeholder="Search users..." style="width: 70%;">
-                        <button class="btn" onclick="searchUsers()">Search</button>
+                        <input type="text" id="userSearch" placeholder="Search users..." oninput="searchUsers()">
+                        <button class="btn" onclick="showCreateUser()">➕ Add User</button>
                     </div>
-                    <div id="userManagement">
-                        <div class="loading">Loading users...</div>
-                    </div>
+                    <div id="userList" class="loading">Loading users...</div>
                 </div>
 
-                <div class="admin-section">
-                    <h3>📁 Category Management</h3>
+                <!-- Video Management Section -->
+                <div class="admin-section" id="videoManagementSection">
+                    <h3>📹 Video Management</h3>
                     <div class="section-controls">
-                        <button class="btn" onclick="showCreateCategory()">➕ Add Category</button>
+                        <input type="text" id="videoSearch" placeholder="Search videos..." oninput="searchAdminVideos()">
+                        <button class="btn" onclick="showCreateVideo()">➕ Add Video</button>
                     </div>
-                    <div id="categoryManagement">
-                        <div class="loading">Loading categories...</div>
-                    </div>
+                    <div id="videoList" class="loading">Loading videos...</div>
                 </div>
 
-                <div class="admin-section">
-                    <h3>📈 System Analytics</h3>
-                    <div class="analytics-grid">
-                        <div class="analytics-item">
-                            <strong>Today's Views:</strong> <span id="todayViews">0</span>
-                        </div>
-                        <div class="analytics-item">
-                            <strong>New Users Today:</strong> <span id="newUsersToday">0</span>
-                        </div>
-                        <div class="analytics-item">
-                            <strong>Videos Uploaded Today:</strong> <span id="videosUploadedToday">0</span>
-                        </div>
-                        <div class="analytics-item">
-                            <strong>Active Sessions:</strong> <span id="activeSessions">0</span>
-                        </div>
-                        <div class="analytics-item">
-                            <strong>Storage Used:</strong> <span id="storageUsed">0 GB</span>
-                        </div>
-                        <div class="analytics-item">
-                            <strong>Bandwidth Used:</strong> <span id="bandwidthUsed">0 GB</span>
-                        </div>
+                <!-- Playlist Management Section -->
+                <div class="admin-section" id="playlistManagementSection">
+                    <h3>📋 Playlist Management</h3>
+                    <div class="section-controls">
+                        <input type="text" id="playlistSearch" placeholder="Search playlists..." oninput="searchPlaylists()">
+                        <button class="btn" onclick="showCreatePlaylist()">➕ Add Playlist</button>
                     </div>
+                    <div id="playlistList" class="loading">Loading playlists...</div>
+                </div>
+
+                <!-- Report Management Section -->
+                <div class="admin-section" id="reportManagementSection">
+                    <h3>📊 Report Management</h3>
+                    <div class="section-controls">
+                        <button class="btn" onclick="showManageReports()">📋 View Reports</button>
+                    </div>
+                    <div id="reportList" class="loading">Loading reports...</div>
                 </div>
             </div>
         </div>
     </div>
 </main>
 
-<!-- All the modals from previous implementation -->
 <!-- Edit Profile Modal -->
-<div id="editProfileModal" class="modal" style="display: none;">
+<div id="editProfileModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal('editProfileModal')">&times;</span>
-        <h2>✏️ Edit Profile</h2>
-        <form onsubmit="updateProfile(event)" enctype="multipart/form-data">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="editFirstName">First Name:</label>
-                    <input type="text" id="editFirstName" placeholder="Your first name" maxlength="50">
-                </div>
-                <div class="form-group">
-                    <label for="editLastName">Last Name:</label>
-                    <input type="text" id="editLastName" placeholder="Your last name" maxlength="50">
-                </div>
-            </div>
-
+        <span class="close" onclick="closeEditProfile()">&times;</span>
+        <h2>Edit Profile</h2>
+        <form id="editProfileForm" onsubmit="saveProfileChanges(event)">
             <div class="form-group">
-                <label for="editEmail">Email:</label>
-                <input type="email" id="editEmail" placeholder="Your email address" required>
+                <label for="editFirstName">First Name</label>
+                <input type="text" id="editFirstName" name="firstName" placeholder="Enter your first name" maxlength="50">
             </div>
-
             <div class="form-group">
-                <label for="editPhone">Phone:</label>
-                <input type="tel" id="editPhone" placeholder="Your phone number">
+                <label for="editLastName">Last Name</label>
+                <input type="text" id="editLastName" name="lastName" placeholder="Enter your last name" maxlength="50">
             </div>
-
             <div class="form-group">
-                <label for="editBio">Bio:</label>
-                <textarea id="editBio" placeholder="Tell us about yourself..." rows="4" maxlength="500"></textarea>
-                <small class="form-text"><span id="bioCharCount">0</span>/500 characters</small>
+                <label for="editEmail">Email Address</label>
+                <input type="email" id="editEmail" name="email" placeholder="Enter your email" maxlength="100" required>
             </div>
-
             <div class="form-group">
-                <label for="editProfilePicture">Profile Picture:</label>
-                <input type="file" id="editProfilePicture" accept="image/*">
-                <small class="form-text">Recommended size: 400x400px, Max: 5MB</small>
+                <label for="editPhone">Phone Number</label>
+                <input type="tel" id="editPhone" name="phone" placeholder="Enter your phone" maxlength="20">
             </div>
-
+            <div class="form-group">
+                <label for="editBio">Bio</label>
+                <textarea id="editBio" name="bio" rows="4" placeholder="Tell us about yourself"></textarea>
+            </div>
             <div class="form-actions">
-                <button type="submit" class="btn">💾 Update Profile</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">❌ Cancel</button>
+                <button class="btn" type="submit">💾 Save Changes</button>
+                <button class="btn btn-secondary" type="button" onclick="closeEditProfile()">❌ Cancel</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Upload Video Modal -->
-<div id="uploadVideoModal" class="modal" style="display: none;">
+<div id="uploadVideoModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal('uploadVideoModal')">&times;</span>
-        <h2>📹 Upload New Video</h2>
-        <form onsubmit="uploadVideo(event)" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="videoTitle">Video Title:</label>
-                <input type="text" id="videoTitle" placeholder="Enter an engaging title" required maxlength="255">
-                <small class="form-text">A good title helps viewers find your video</small>
+        <span class="close" onclick="closeUploadVideo()">&times;</span>
+        <h2>Upload Video</h2>
+        <div class="form-group">
+            <label for="videoTitle">Title</label>
+            <input type="text" id="videoTitle" placeholder="Enter video title">
+        </div>
+        <div class="form-group">
+            <label for="videoDescription">Description</label>
+            <textarea id="videoDescription" rows="4" placeholder="Enter video description"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="videoTags">Tags (comma separated)</label>
+            <input type="text" id="videoTags" placeholder="Enter tags">
+        </div>
+        <div class="form-group">
+            <label for="videoThumbnail">Thumbnail URL</label>
+            <input type="text" id="videoThumbnail" placeholder="Enter thumbnail URL">
+        </div>
+        <div class="form-group">
+            <label for="videoFile">Video File</label>
+            <input type="file" id="videoFile" accept="video/*">
+        </div>
+        <div class="form-actions">
+            <button class="btn" onclick="uploadVideo()">📤 Upload Video</button>
+            <button class="btn btn-secondary" onclick="closeUploadVideo()">❌ Cancel</button>
+        </div>
+        <div class="upload-progress" style="display: none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="uploadProgressFill"></div>
             </div>
-
-            <div class="form-group">
-                <label for="videoDescription">Description:</label>
-                <textarea id="videoDescription" placeholder="Describe your video..." rows="5" maxlength="1000"></textarea>
-                <small class="form-text"><span id="descCharCount">0</span>/1000 characters</small>
+            <div class="progress-info">
+                <span id="uploadProgressText">0%</span>
+                <span id="uploadEstimatedTime">Estimating time...</span>
             </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="videoCategory">Category:</label>
-                    <select id="videoCategory" required>
-                        <option value="">Select a category</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="videoPrivacy">Privacy:</label>
-                    <select id="videoPrivacy" required>
-                        <option value="PUBLIC">🌍 Public - Everyone can see</option>
-                        <option value="PRIVATE">🔒 Private - Only you can see</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="videoTags">Tags:</label>
-                <input type="text" id="videoTags" placeholder="gaming, tutorial, fun (comma separated)" maxlength="500">
-                <small class="form-text">Tags help people discover your video</small>
-            </div>
-
-            <div class="form-group">
-                <label for="videoFile">Video File:</label>
-                <input type="file" id="videoFile" accept="video/*" required>
-                <small class="form-text">Max 100MB, MP4 format recommended</small>
-            </div>
-
-            <div class="form-group">
-                <label for="thumbnailFile">Custom Thumbnail:</label>
-                <input type="file" id="thumbnailFile" accept="image/*">
-                <small class="form-text">Optional, recommended size: 1280x720px</small>
-            </div>
-
-            <div class="upload-progress" id="uploadProgress" style="display: none;">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-                <div class="progress-info">
-                    <span id="progressText">0%</span>
-                    <span id="uploadSpeed"></span>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn" id="uploadBtn">🚀 Upload Video</button>
-                <button type="button" class="btn btn-secondary" onclick="closeModal('uploadVideoModal')">❌ Cancel</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<!-- Additional modals would go here -->
+<!-- View Video Modal -->
+<div id="viewVideoModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeViewVideo()">&times;</span>
+        <h2>Video Details</h2>
+        <div id="videoDetailsContent" class="loading">Loading video details...</div>
+    </div>
+</div>
 
-<script src="/js/app.js"></script>
-<script src="/js/profile.js"></script>
+<!-- Create Playlist Modal -->
+<div id="createPlaylistModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCreatePlaylist()">&times;</span>
+        <h2>Create Playlist</h2>
+        <div class="form-group">
+            <label for="playlistName">Playlist Name</label>
+            <input type="text" id="playlistName" placeholder="Enter playlist name">
+        </div>
+        <div class="form-group">
+            <label for="playlistDescription">Description</label>
+            <textarea id="playlistDescription" rows="3" placeholder="Enter playlist description"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="playlistThumbnail">Thumbnail URL</label>
+            <input type="text" id="playlistThumbnail" placeholder="Enter thumbnail URL">
+        </div>
+        <div class="form-actions">
+            <button class="btn" onclick="createPlaylist()">➕ Create Playlist</button>
+            <button class="btn btn-secondary" onclick="closeCreatePlaylist()">❌ Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Manage Reports Modal -->
+<div id="manageReportsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeManageReports()">&times;</span>
+        <h2>Manage Reports</h2>
+        <div id="reportDetails" class="loading">Loading report details...</div>
+        <div class="form-actions" style="margin-top: 1rem;">
+            <button class="btn" onclick="resolveReport()">✅ Resolve Report</button>
+            <button class="btn btn-secondary" onclick="closeManageReports()">❌ Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Analytics Modal -->
+<div id="analyticsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeAnalytics()">&times;</span>
+        <h2>Analytics Overview</h2>
+        <div id="analyticsContent" class="loading">Loading analytics data...</div>
+    </div>
+</div>
+
+<script src="/js/profile-playlists.js" id="profile-playlists-module" defer></script>
 <script>
-    // Character count for bio
-    document.getElementById('editBio').addEventListener('input', function() {
-        const count = this.value.length;
-        document.getElementById('bioCharCount').textContent = count;
-        if (count > 450) {
-            document.getElementById('bioCharCount').style.color = '#ff0000';
-        } else {
-            document.getElementById('bioCharCount').style.color = '#888';
-        }
-    });
-
-    // Character count for video description
-    document.getElementById('videoDescription').addEventListener('input', function() {
-        const count = this.value.length;
-        document.getElementById('descCharCount').textContent = count;
-    });
-
+    // Video Functions
+    // Search and Filter Functions
     function searchFromHeader() {
-        const query = document.getElementById('headerSearchInput').value.trim();
-        if (query) {
-            window.location.href = `/?search=${encodeURIComponent(query)}`;
+        const query = document.getElementById('headerSearchInput').value;
+        // TODO: Implement search functionality
+        console.log('Search:', query);
+    }
+
+    function searchUsers() {
+        const query = document.getElementById('userSearch').value;
+        // TODO: Implement user search functionality
+        console.log('Search Users:', query);
+    }
+
+    function searchAdminVideos() {
+        const query = document.getElementById('videoSearch').value;
+        // TODO: Implement video search functionality
+        console.log('Admin Search Videos:', query);
+    }
+
+    function searchPlaylists() {
+        const query = document.getElementById('playlistSearch').value;
+        // TODO: Implement playlist search functionality
+        console.log('Search Playlists:', query);
+    }
+
+    function sortVideos() {
+        const sortBy = document.getElementById('videoSortFilter').value;
+        // TODO: Implement video sorting functionality
+        console.log('Sort Videos By:', sortBy);
+    }
+
+    function filterVideosByStatus() {
+        const status = document.getElementById('videoStatusFilter').value;
+        // TODO: Implement video status filtering functionality
+        console.log('Filter Videos By Status:', status);
+    }
+
+    async function clearWatchLater() {
+        try {
+            const response = await fetch('/api/watch-later', {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.status === 401) {
+                showAlert('Please log in to manage Watch Later.', 'warning');
+                return;
+            }
+
+            if (!response.ok && response.status !== 204) {
+                const message = await response.text();
+                throw new Error(message || 'Unable to clear Watch Later list.');
+            }
+
+            showAlert('Watch Later list cleared.', 'success');
+            const container = document.getElementById('watchLaterVideos');
+            if (container) {
+                container.dataset.loaded = 'false';
+            }
+            loadWatchLaterVideos({ forceRefresh: true });
+        } catch (error) {
+            console.error('Error clearing watch later:', error);
+            showAlert(error.message || 'Failed to clear Watch Later list.', 'error');
+        }
+    }
+
+    function goToPlaylistPage() {
+        window.location.href = '/playlist';
+    }
+
+    function showCreatePlaylist() {
+        goToPlaylistPage();
+    }
+
+    function createPlaylist() {
+        goToPlaylistPage();
+    }
+
+    function closeCreatePlaylist() {
+        const modal = document.getElementById('createPlaylistModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    const tabLoaders = {
+        videos: { containerId: 'myVideos', counterId: 'videoTabCount', loader: loadMyVideos },
+        playlists: { containerId: 'myPlaylists', counterId: 'playlistTabCount', loader: loadMyPlaylists },
+        watchlater: { containerId: 'watchLaterVideos', counterId: 'watchLaterTabCount', loader: loadWatchLaterVideos },
+        liked: { containerId: 'likedVideos', counterId: 'likedTabCount', loader: loadLikedVideos },
+        reports: { containerId: 'reportsContent', counterId: 'reportsTabCount', loader: loadMyReports },
+        admin: { containerId: 'adminTab', loader: loadAdminDashboard }
+    };
+
+    async function runTabLoader(tabName, options = {}) {
+        const entry = tabLoaders[tabName];
+        if (!entry || typeof entry.loader !== 'function') {
+            return;
+        }
+
+        const { forceRefresh = false, userId } = options;
+        const container = entry.containerId ? document.getElementById(entry.containerId) : null;
+
+        if (!forceRefresh && container && container.dataset.loaded === 'true') {
+            return;
+        }
+
+        if (container && !forceRefresh) {
+            setLoadingState(container, 'Loading...');
+        }
+
+        try {
+            await entry.loader({ container, counterId: entry.counterId, forceRefresh, userId });
+        } catch (error) {
+            console.error(`Failed to load ${tabName} tab:`, error);
+            if (container) {
+                renderErrorState(container, 'Something went wrong while loading this section.');
+            }
+        }
+    }
+
+    function setLoadingState(container, message) {
+        if (!container) return;
+        container.innerHTML = `<div class="loading">${escapeHtml(message || 'Loading...')}</div>`;
+    }
+
+    function renderEmptyState(container, message) {
+        if (!container) return;
+        container.innerHTML = `<div class="empty-state">${escapeHtml(message || 'Nothing to show yet.')}</div>`;
+        container.dataset.loaded = 'true';
+    }
+
+    function renderErrorState(container, message) {
+        if (!container) return;
+        container.innerHTML = `<div class="error-text">${escapeHtml(message || 'Unable to load data.')}</div>`;
+        container.dataset.loaded = 'error';
+    }
+
+    function updateTabCounter(counterId, count) {
+        if (!counterId) return;
+        const el = document.getElementById(counterId);
+        if (el) {
+            el.textContent = formatNumber(count ?? 0);
+        }
+    }
+
+    function updateVideoCountDisplay(count) {
+        const displayEl = document.getElementById('videosCountText');
+        if (displayEl) {
+            const videoText = count === 1 ? 'video' : 'videos';
+            displayEl.textContent = `${formatNumber(count)} ${videoText}`;
+        }
+    }
+
+    function updateProfileStats({ videosCount, totalViews, totalLikes, subscriberCount, subscriptionCount } = {}) {
+        const videoCountEl = document.getElementById('profileVideoCount');
+        const viewCountEl = document.getElementById('profileViewCount');
+        const likeCountEl = document.getElementById('profileLikeCount');
+        const subscriberCountEl = document.getElementById('profileSubscriberCount');
+        const subscriptionCountEl = document.getElementById('profileSubscriptionCount');
+
+        if (videoCountEl && typeof videosCount === 'number') videoCountEl.textContent = formatNumber(videosCount);
+        if (viewCountEl && typeof totalViews === 'number') viewCountEl.textContent = formatNumber(totalViews);
+        if (likeCountEl && typeof totalLikes === 'number') likeCountEl.textContent = formatNumber(totalLikes);
+        if (subscriberCountEl && typeof subscriberCount === 'number') subscriberCountEl.textContent = formatNumber(subscriberCount);
+        if (subscriptionCountEl && typeof subscriptionCount === 'number') subscriptionCountEl.textContent = formatNumber(subscriptionCount);
+    }
+
+    function escapeHtml(value) {
+        if (value == null) return '';
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatNumber(value) {
+        const num = Number(value) || 0;
+        if (num >= 1000) {
+            return Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 }).format(num);
+        }
+        return Intl.NumberFormat().format(num);
+    }
+
+    function formatVideoDuration(seconds) {
+        const duration = Number(seconds);
+        if (!Number.isFinite(duration) || duration <= 0) {
+            return '—';
+        }
+        const mins = Math.floor(duration / 60);
+        const secs = Math.floor(duration % 60).toString().padStart(2, '0');
+        return `${mins}:${secs}`;
+    }
+
+    function formatDate(value) {
+        if (!value) return '—';
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) {
+            return '—';
+        }
+        return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function formatDateTime(value) {
+        if (!value) return '—';
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) {
+            return '—';
+        }
+        return parsed.toLocaleString(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function renderVideoCard(video = {}, showEditButton = false) {
+        const card = document.createElement('article');
+        card.className = 'video-card';
+
+        const title = escapeHtml(video.title || 'Untitled video');
+        const description = escapeHtml(video.description || 'No description provided.');
+        const duration = formatVideoDuration(video.duration);
+        const visibility = escapeHtml((video.privacy && video.privacy.toString()) || 'PUBLIC');
+        const status = escapeHtml((video.status && video.status.toString()) || 'ACTIVE');
+        const views = formatNumber(video.viewCount || 0);
+        const likes = formatNumber(video.likeCount || 0);
+        const uploadedAt = formatDate(video.createdAt || video.created_at);
+        const thumbnail = video.thumbnailUrl || video.thumbnailPath || '/images/default-thumbnail.jpg';
+        const videoId = video.id;
+
+        // Determine if we should show edit button (only for own videos, not when viewing other creators)
+        const isViewingOwnProfile = !window.__CREATOR_ID__;
+        const showEdit = isViewingOwnProfile && showEditButton;
+
+        card.innerHTML = `
+            <div class="video-card-media">
+                <a href="/video-show?id=${videoId}">
+                    <img src="${thumbnail}" alt="${title}" onerror="this.src='/images/default-thumbnail.jpg'">
+                    <div class="video-duration-overlay">${duration}</div>
+                </a>
+            </div>
+            <div class="video-card-body">
+                <a href="/video-show?id=${videoId}" class="video-title-link">
+                    <h3 class="video-title">${title}</h3>
+                </a>
+                <div class="video-metadata">
+                    <div class="video-stats-row">
+                        <span>👁️ ${views} views</span>
+                        <span>❤️ ${likes} likes</span>
+                    </div>
+                    <div class="video-meta-row">
+                        <span>📅 ${uploadedAt}</span>
+                    </div>
+                    <div class="video-meta-row">
+                        <span class="badge badge-${visibility.toLowerCase()}">${visibility}</span>
+                        <span class="badge badge-status">${status}</span>
+                    </div>
+                </div>
+                ${showEdit ? `
+                <div class="video-actions">
+                    <button class="btn btn-primary" onclick="editVideo(${videoId})">✏️ Edit Video</button>
+                    <button class="btn btn-danger" onclick="deleteVideo(${videoId}, this)">🗑️ Delete</button>
+                </div>
+                ` : ''}
+            </div>
+        `;
+
+        return card;
+    }
+
+    function renderWatchLaterCard(item = {}) {
+        const video = item.video || {};
+        const card = document.createElement('article');
+        card.className = 'video-card watch-later-card';
+
+        const title = escapeHtml(video.title || 'Untitled video');
+        const description = escapeHtml(video.description || 'No description provided.');
+        const duration = formatVideoDuration(video.duration);
+        const views = formatNumber(video.viewCount || 0);
+        const likes = formatNumber(video.likeCount || 0);
+        const savedAt = formatDateTime(item.addedAt);
+        const thumbnail = video.thumbnailUrl || video.thumbnailPath || '/images/default-thumbnail.jpg';
+        const videoId = video.id;
+
+        card.innerHTML = `
+            <div class="video-card-media">
+                <img src="${thumbnail}" alt="${title}" onerror="this.src='/images/default-thumbnail.jpg'">
+            </div>
+            <div class="video-card-body">
+                <h3>${title}</h3>
+                <p class="video-description">${description}</p>
+                <div class="video-meta-row">
+                    <span>Duration: ${duration}</span>
+                    <span>Views: ${views}</span>
+                    <span>Likes: ${likes}</span>
+                </div>
+                <div class="video-meta-row">
+                    <span>Saved: ${savedAt}</span>
+                    <div class="watch-later-actions">
+                        <a class="btn btn-primary" href="/video-show?id=${videoId}" ${videoId ? '' : 'style="pointer-events:none;opacity:0.6;"'}>▶ Watch</a>
+                        <button class="btn btn-secondary" type="button" ${videoId ? `onclick="removeWatchLaterVideo(${videoId}, this)"` : 'disabled'}>🗑 Remove</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    async function removeWatchLaterVideo(videoId, button) {
+        if (!videoId) {
+            showAlert('Video information missing.', 'error');
+            return;
+        }
+
+        const originalText = button?.innerHTML;
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = 'Removing…';
+        }
+
+        try {
+            const response = await fetch(`/api/watch-later/${videoId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.status === 401) {
+                showAlert('Please log in to manage Watch Later.', 'warning');
+                return;
+            }
+
+            if (!response.ok && response.status !== 204) {
+                const message = await response.text();
+                throw new Error(message || 'Failed to remove video from Watch Later.');
+            }
+
+            showAlert('Video removed from Watch Later.', 'success');
+            const container = document.getElementById('watchLaterVideos');
+            if (container) {
+                container.dataset.loaded = 'false';
+            }
+            loadWatchLaterVideos({ forceRefresh: true });
+        } catch (error) {
+            console.error('Error removing watch later video:', error);
+            showAlert(error.message || 'Failed to remove video from Watch Later.', 'error');
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+    }
+
+    // Edit video function - redirects to video edit page
+    function editVideo(videoId) {
+        if (!videoId) {
+            showAlert('Video ID is missing.', 'error');
+            return;
+        }
+        window.location.href = `/video-edit?id=${videoId}`;
+    }
+
+    // Delete video function
+    async function deleteVideo(videoId, button) {
+        if (!videoId) {
+            showAlert('Video ID is missing.', 'error');
+            return;
+        }
+
+        // Confirm deletion
+        if (!confirm('Are you sure you want to delete this video? This action cannot be undone.')) {
+            return;
+        }
+
+        const originalText = button?.innerHTML;
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = 'Deleting...';
+        }
+
+        try {
+            const response = await fetch(`/api/videos/${videoId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.status === 401) {
+                showAlert('Please log in to delete videos.', 'warning');
+                setTimeout(() => window.location.href = '/login', 1500);
+                return;
+            }
+
+            if (response.status === 403) {
+                showAlert('You do not have permission to delete this video.', 'error');
+                return;
+            }
+
+            if (!response.ok && response.status !== 204) {
+                const message = await response.text();
+                throw new Error(message || 'Failed to delete video.');
+            }
+
+            showAlert('Video deleted successfully!', 'success');
+            
+            // Refresh the video list
+            const container = document.getElementById('myVideos');
+            if (container) {
+                container.dataset.loaded = 'false';
+            }
+            loadMyVideos({ forceRefresh: true });
+        } catch (error) {
+            console.error('Error deleting video:', error);
+            showAlert(error.message || 'Failed to delete video.', 'error');
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+    }
+
+    async function loadMyVideos({ container, counterId, forceRefresh, userId } = {}) {
+        const target = container || document.getElementById('myVideos');
+        if (!target) return;
+        if (!forceRefresh && target.dataset.loaded === 'true') {
+            updateTabCounter(counterId, target.dataset.itemCount || 0);
+            return;
+        }
+
+        setLoadingState(target, 'Loading videos...');
+
+        try {
+            // If userId is provided, fetch that user's videos; otherwise fetch logged-in user's videos
+            const apiUrl = userId ? `/api/videos/user/${userId}` : '/api/videos/my-videos';
+            const response = await fetch(apiUrl, { credentials: 'include' });
+            
+            if (response.status === 401) {
+                renderErrorState(target, 'Please log in to manage your videos.');
+                showAlert('Please log in to manage your videos.', 'error');
+                setTimeout(() => window.location.href = '/login', 1500);
+                return;
+            }
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+
+            const videos = await response.json();
+            
+            // If viewing another user's profile, filter to show only PUBLIC videos
+            const filteredVideos = userId 
+                ? videos.filter(video => video.privacyStatus === 'PUBLIC')
+                : videos;
+            
+            if (!Array.isArray(filteredVideos) || filteredVideos.length === 0) {
+                const emptyMessage = userId ? "This creator hasn't uploaded any public videos yet." : "You haven't uploaded any videos yet.";
+                renderEmptyState(target, emptyMessage);
+                target.dataset.itemCount = 0;
+                updateTabCounter(counterId, 0);
+                // Update stats for both own profile and viewing creator profile
+                updateProfileStats({ videosCount: 0, totalViews: 0, totalLikes: 0 });
+                // Update video count display
+                updateVideoCountDisplay(0);
+                return;
+            }
+
+            target.innerHTML = '';
+            let totalViews = 0;
+            let totalLikes = 0;
+
+            filteredVideos.forEach(video => {
+                totalViews += Number(video.viewCount) || 0;
+                totalLikes += Number(video.likeCount) || 0;
+                // Show edit button only when viewing own videos (userId not provided)
+                target.appendChild(renderVideoCard(video, !userId));
+            });
+
+            target.dataset.loaded = 'true';
+            target.dataset.itemCount = filteredVideos.length;
+
+            updateTabCounter(counterId, filteredVideos.length);
+            
+            // Update stats for both own profile and viewing creator profile
+            updateProfileStats({ videosCount: filteredVideos.length, totalViews, totalLikes });
+            
+            // Update video count display
+            updateVideoCountDisplay(filteredVideos.length);
+        } catch (error) {
+            console.error('Error loading videos:', error);
+            renderErrorState(target, 'Unable to load videos right now.');
+        }
+    }
+
+    async function loadMyPlaylists({ container, counterId, forceRefresh } = {}) {
+        const target = container || document.getElementById('myPlaylists');
+        if (!target) return;
+
+        if (!forceRefresh && target.dataset.loaded === 'true') {
+            updateTabCounter(counterId, target.dataset.itemCount || 0);
+            return;
+        }
+
+        setLoadingState(target, 'Fetching your playlists...');
+
+        try {
+            const response = await fetch('/api/playlists/my', { credentials: 'include' });
+
+            if (response.status === 401) {
+                renderErrorState(target, 'Please log in to manage playlists.');
+                showAlert('Please log in to manage playlists.', 'warning');
+                return;
+            }
+
+            if (!response.ok) {
+                const message = await response.text();
+                throw new Error(message || 'Failed to load playlists.');
+            }
+
+            const playlists = await response.json();
+
+            if (!Array.isArray(playlists) || playlists.length === 0) {
+                renderEmptyState(target, 'Create your first playlist to organize favorite videos.');
+                target.dataset.itemCount = 0;
+                updateTabCounter(counterId, 0);
+                return;
+            }
+
+            target.innerHTML = '';
+            playlists.forEach(playlist => {
+                target.appendChild(renderPlaylistCard(playlist));
+            });
+
+            target.dataset.loaded = 'true';
+            target.dataset.itemCount = playlists.length;
+            updateTabCounter(counterId, playlists.length);
+        } catch (error) {
+            console.error('Error loading playlists:', error);
+            renderErrorState(target, 'Unable to load your playlists right now.');
+        }
+    }
+
+    async function loadWatchLaterVideos({ container, counterId, forceRefresh } = {}) {
+        const target = container || document.getElementById('watchLaterVideos');
+        if (!target) return;
+
+        if (!forceRefresh && target.dataset.loaded === 'true') {
+            updateTabCounter(counterId, target.dataset.itemCount || 0);
+            return;
+        }
+
+        setLoadingState(target, 'Fetching your Watch Later list...');
+
+        try {
+            const response = await fetch('/api/watch-later', { credentials: 'include' });
+
+            if (response.status === 401) {
+                renderErrorState(target, 'Please log in to see your Watch Later videos.');
+                showAlert('Please log in to see your Watch Later videos.', 'warning');
+                return;
+            }
+
+            if (!response.ok) {
+                const message = await response.text();
+                throw new Error(message || 'Failed to load Watch Later videos.');
+            }
+
+            const items = await response.json();
+
+            if (!Array.isArray(items) || items.length === 0) {
+                renderEmptyState(target, 'Save videos to Watch Later and they will appear here.');
+                target.dataset.itemCount = 0;
+                updateTabCounter(counterId, 0);
+                return;
+            }
+
+            target.innerHTML = '';
+            items.forEach(item => {
+                target.appendChild(renderWatchLaterCard(item));
+            });
+
+            target.dataset.loaded = 'true';
+            target.dataset.itemCount = items.length;
+            updateTabCounter(counterId, items.length);
+        } catch (error) {
+            console.error('Error loading watch later videos:', error);
+            renderErrorState(target, 'Unable to load your Watch Later list right now.');
+        }
+    }
+
+    function renderPlaylistCard(playlist = {}) {
+        const card = document.createElement('article');
+        card.className = 'playlist-card';
+
+        const title = escapeHtml(playlist.name || 'Untitled playlist');
+        const description = escapeHtml(playlist.description || 'No description yet.');
+        const videoCount = formatNumber(playlist.videoCount || (playlist.videos?.length ?? 0));
+        const updated = formatDate(playlist.updatedAt || playlist.updated_at || playlist.createdAt);
+        const creator = playlist.canEdit ? 'You' : escapeHtml(playlist.ownerDisplayName || 'Unknown creator');
+
+        card.innerHTML = `
+            <div class="playlist-card-header">
+                <div class="playlist-icon">📋</div>
+                <div>
+                    <h3>${title}</h3>
+                    <p class="playlist-meta">${videoCount} video${Number(videoCount) === 1 ? '' : 's'} • Updated ${updated}</p>
+                </div>
+            </div>
+            <p class="playlist-description">${description}</p>
+            <div class="playlist-footer">
+                <span class="playlist-owner">By ${creator}</span>
+                <div class="playlist-actions">
+                    <a class="btn btn-secondary" href="/playlist?id=${playlist.id || ''}" ${playlist.id ? '' : 'style="pointer-events:none;opacity:0.6;"'}>View details</a>
+                    ${playlist.canEdit ? `<button class="btn btn-secondary" type="button" data-action="open-playlist-reorder" data-playlist-id="${playlist.id}">Reorder</button>` : ''}
+                </div>
+            </div>
+
+            card.dataset.playlistId = playlist.id;
+            card.dataset.canEdit = playlist.canEdit ? 'true' : 'false';
+            card.dataset.videoCount = playlist.videoCount ?? (playlist.videos?.length ?? 0);
+        `;
+
+        return card;
+    }
+
+    function renderLikedVideoCard(video = {}) {
+        const card = document.createElement('article');
+        card.className = 'video-card liked-video-card';
+
+        const title = escapeHtml(video.title || 'Untitled video');
+        const description = escapeHtml(video.description || 'No description provided.');
+        const duration = formatVideoDuration(video.duration);
+        const views = formatNumber(video.viewCount || 0);
+        const likes = formatNumber(video.likeCount || 0);
+        const likedAt = formatDateTime(video.likedAt);
+        const thumbnail = video.thumbnailUrl || video.thumbnailPath || '/images/default-thumbnail.jpg';
+        const videoId = video.id;
+
+        card.innerHTML = `
+            <div class="video-card-media">
+                <img src="${thumbnail}" alt="${title}" onerror="this.src='/images/default-thumbnail.jpg'">
+            </div>
+            <div class="video-card-body">
+                <h3>${title}</h3>
+                <p class="video-description">${description}</p>
+                <div class="video-meta-row">
+                    <span>Duration: ${duration}</span>
+                    <span>Views: ${views}</span>
+                    <span>Likes: ${likes}</span>
+                </div>
+                <div class="video-meta-row">
+                    <span>Liked: ${likedAt || 'Recently'}</span>
+                    <a class="btn btn-secondary" href="/video-show?id=${videoId || ''}" ${videoId ? '' : 'style="pointer-events:none;opacity:0.6;"'}>▶ Watch Again</a>
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    async function loadLikedVideos({ container, counterId, forceRefresh } = {}) {
+        const target = container || document.getElementById('likedVideos');
+        if (!target) return;
+
+        if (!forceRefresh && target.dataset.loaded === 'true') {
+            updateTabCounter(counterId, target.dataset.itemCount || 0);
+            return;
+        }
+
+        setLoadingState(target, 'Fetching your liked videos...');
+
+        try {
+            const response = await fetch('/api/videos/liked', { credentials: 'include' });
+
+            if (response.status === 401) {
+                renderErrorState(target, 'Please log in to see liked videos.');
+                showAlert('Please log in to see liked videos.', 'warning');
+                return;
+            }
+
+            if (!response.ok) {
+                const message = await response.text();
+                throw new Error(message || 'Failed to load liked videos.');
+            }
+
+            const videos = await response.json();
+
+            if (!Array.isArray(videos) || videos.length === 0) {
+                renderEmptyState(target, 'Like videos to build your collection here.');
+                target.dataset.itemCount = 0;
+                updateTabCounter(counterId, 0);
+                return;
+            }
+
+            target.innerHTML = '';
+            videos.forEach(video => {
+                target.appendChild(renderLikedVideoCard(video));
+            });
+
+            target.dataset.loaded = 'true';
+            target.dataset.itemCount = videos.length;
+            updateTabCounter(counterId, videos.length);
+        } catch (error) {
+            console.error('Error loading liked videos:', error);
+            renderErrorState(target, 'Unable to load liked videos right now.');
+        }
+    }
+
+    async function loadMyReports({ container, counterId, forceRefresh } = {}) {
+        const target = container || document.getElementById('reportsContent');
+        if (!target) return;
+
+        if (!forceRefresh && target.dataset.loaded === 'true') {
+            return;
+        }
+
+        // Show loading
+        target.innerHTML = '<div style="text-align: center; padding: 40px;"><p style="color: #a5a5a5;">Loading your reports...</p></div>';
+
+        try {
+            const response = await fetch('/api/reports/my-reports', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load reports');
+            }
+
+            const reports = await response.json();
+
+            if (reports.length === 0) {
+                target.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #a5a5a5;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">📢</div>
+                        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Reports Yet</h3>
+                        <p>You haven't submitted any reports. If you encounter inappropriate content or have concerns, please report them.</p>
+                    </div>
+                `;
+                target.dataset.loaded = 'true';
+                updateTabCounter(counterId, 0);
+                return;
+            }
+
+            // Sort reports: Active (PENDING, REVIEWING) at TOP, then RESOLVED, then DISMISSED/DELETED at BOTTOM
+            const sortedReports = [...reports].sort((a, b) => {
+                const priority = {
+                    'PENDING': 1,
+                    'REVIEWING': 2,
+                    'RESOLVED': 3,
+                    'DISMISSED': 4,
+                    'DELETED': 5
+                };
+                const aPriority = priority[a.status] || 10;
+                const bPriority = priority[b.status] || 10;
+                
+                if (aPriority !== bPriority) {
+                    return aPriority - bPriority;
+                }
+                // Within same priority, newer first
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+
+            // Count active reports (not deleted/dismissed)
+            const activeCount = reports.filter(r => r.status !== 'DELETED' && r.status !== 'DISMISSED').length;
+
+            // Render reports
+            target.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    ${sortedReports.map(report => {
+                        const isDeleted = report.status === 'DELETED';
+                        const statusIcon = getReportStatusIcon(report.status);
+                        
+                        return `
+                        <div class="report-card" style="
+                            background: ${isDeleted ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.05)'}; 
+                            border-radius: 12px; 
+                            padding: 20px; 
+                            border-left: 4px solid ${getReportStatusColor(report.status)};
+                            opacity: ${isDeleted ? '0.6' : '1'};
+                            position: relative;
+                        ">
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="margin: 0 0 8px 0; font-size: 1.2rem; ${isDeleted ? 'text-decoration: line-through; opacity: 0.7;' : ''}">
+                                        Report #${report.id}
+                                    </h3>
+                                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <span style="display: inline-block; padding: 4px 12px; background: rgba(255,255,255,0.1); border-radius: 12px; font-size: 0.85rem;">
+                                            ${report.reportType.replace(/_/g, ' ')}
+                                        </span>
+                                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: ${getReportStatusColor(report.status)}; border-radius: 12px; font-size: 0.85rem; color: white; font-weight: bold;">
+                                            ${statusIcon} ${report.status}
+                                        </span>
+                                    </div>
+                                </div>
+                                <span style="color: #a5a5a5; font-size: 0.9rem;">${formatReportDate(report.createdAt)}</span>
+                            </div>
+
+                            ${isDeleted ? `
+                                <div style="background: linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(244, 67, 54, 0.1) 100%); padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 3px solid #f44336;">
+                                    <p style="margin: 0; color: #f44336; font-weight: bold; font-size: 0.9rem;">🗑️ This report was deleted by admin</p>
+                                    ${report.deletionReason ? `<p style="margin: 8px 0 0 0; color: #e0e0e0; font-size: 0.85rem;">Reason: ${report.deletionReason}</p>` : ''}
+                                </div>
+                            ` : ''}
+
+                            ${report.videoTitle ? `
+                                <div style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                                    <p style="margin: 0; color: #a5a5a5; font-size: 0.85rem;">Related Video:</p>
+                                    <p style="margin: 5px 0 0 0; font-weight: 500;">${report.videoTitle}</p>
+                                </div>
+                            ` : ''}
+
+                            <div style="margin-bottom: 15px;">
+                                <p style="margin: 0 0 5px 0; color: #a5a5a5; font-size: 0.85rem;">Your Report:</p>
+                                <p style="margin: 0; line-height: 1.6; white-space: pre-wrap;">${report.description || 'No description provided'}</p>
+                            </div>
+
+                            ${report.adminNotes ? `
+                                <div style="background: linear-gradient(135deg, rgba(98, 0, 234, 0.2) 0%, rgba(98, 0, 234, 0.1) 100%); padding: 15px; border-radius: 8px; border-left: 3px solid #6200ea;">
+                                    <p style="margin: 0 0 8px 0; color: #bb86fc; font-weight: bold; font-size: 0.9rem;">📝 Admin Response:</p>
+                                    <p style="margin: 0; line-height: 1.6; white-space: pre-wrap; color: #e0e0e0;">${report.adminNotes}</p>
+                                </div>
+                            ` : ''}
+
+                            ${report.resolvedAt ? `
+                                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                    <div style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.1) 100%); border-radius: 20px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                                        <span style="font-size: 1.1rem;">🎉</span>
+                                        <span style="color: #4caf50; font-weight: bold; font-size: 0.9rem;">Problem Finished!</span>
+                                        <span style="color: #a5a5a5; font-size: 0.85rem;">${formatReportDate(report.resolvedAt)}</span>
+                                        ${report.resolvedByUsername ? `<span style="color: #a5a5a5; font-size: 0.85rem;">by Admin</span>` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    }).join('')}
+                </div>
+            `;
+
+            target.dataset.loaded = 'true';
+            updateTabCounter(counterId, activeCount); // Show only active reports count
+        } catch (error) {
+            console.error('Error loading reports:', error);
+            target.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #f44336;">
+                    <p>Unable to load reports. Please try again later.</p>
+                </div>
+            `;
+        }
+    }
+
+    // Helper function to check if report is new (within 24 hours)
+    function isReportNew(createdAt) {
+        const reportDate = new Date(createdAt);
+        const now = new Date();
+        const hoursDiff = (now - reportDate) / (1000 * 60 * 60);
+        return hoursDiff < 24;
+    }
+
+    // Helper function to get status icon
+    function getReportStatusIcon(status) {
+        switch (status) {
+            case 'PENDING': return '⏳';           // Waiting
+            case 'REVIEWING': return '👀';         // Admin checking
+            case 'RESOLVED': return '🎉';          // Problem finished! Celebration
+            case 'DISMISSED': return '❌';         // Not applicable
+            case 'DELETED': return '🗑️';          // Removed
+            default: return '📋';
+        }
+    }
+
+    function getReportStatusColor(status) {
+        switch (status) {
+            case 'PENDING': return '#ff5722';
+            case 'REVIEWING': return '#2196f3';
+            case 'RESOLVED': return '#4caf50';
+            case 'DISMISSED': return '#9e9e9e';
+            default: return '#757575';
+        }
+    }
+
+    function formatReportDate(dateString) {
+        if (!dateString) return '';
+        try {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) {
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                if (diffHours === 0) {
+                    const diffMins = Math.floor(diffMs / (1000 * 60));
+                    return diffMins <= 1 ? 'Just now' : `${diffMins} minutes ago`;
+                }
+                return diffHours === 1 ? '1 hour ago' : `${diffHours} hours ago`;
+            } else if (diffDays === 1) {
+                return 'Yesterday';
+            } else if (diffDays < 7) {
+                return `${diffDays} days ago`;
+            } else {
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            }
+        } catch (e) {
+            return dateString;
+        }
+    }
+
+    function loadAdminDashboard({ container, forceRefresh } = {}) {
+        const sectionIds = ['userList', 'videoList', 'playlistList'];
+        sectionIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (forceRefresh || el.dataset.loaded !== 'true') {
+                renderEmptyState(el, 'Admin insights will appear here once configured.');
+            }
+        });
+
+        // Load reports
+        loadAdminReports();
+
+        setStatNumber('totalUsers', 0);
+        setStatNumber('totalVideos', 0);
+        setStatNumber('totalPlaylists', 0);
+        setStatNumber('totalViews', 0);
+
+        const containerEl = container || document.getElementById('adminTab');
+        if (containerEl) {
+            containerEl.dataset.loaded = 'true';
+        }
+    }
+
+    async function loadAdminReports() {
+        const reportListEl = document.getElementById('reportList');
+        if (!reportListEl) return;
+
+        reportListEl.innerHTML = '<div class="loading">Loading reports...</div>';
+
+        try {
+            const response = await fetch('/api/reports/admin', {
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load reports');
+            }
+
+            const reports = await response.json();
+            
+            if (!Array.isArray(reports) || reports.length === 0) {
+                reportListEl.innerHTML = '<div class="empty-state">No reports submitted yet.</div>';
+                updateReportBadge(0);
+                return;
+            }
+
+            // Count pending reports
+            const pendingCount = reports.filter(r => r.status === 'PENDING').length;
+            updateReportBadge(pendingCount);
+
+            // Render reports
+            reportListEl.innerHTML = '';
+            reports.forEach(report => {
+                const reportCard = createReportCard(report);
+                reportListEl.appendChild(reportCard);
+            });
+
+            reportListEl.dataset.loaded = 'true';
+        } catch (error) {
+            console.error('Error loading reports:', error);
+            reportListEl.innerHTML = '<div class="error-text">Unable to load reports right now.</div>';
+        }
+    }
+
+    function createReportCard(report) {
+        const card = document.createElement('div');
+        card.className = 'report-card';
+        card.style.cssText = `
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        `;
+
+        const statusColors = {
+            'PENDING': '#f59e0b',
+            'UNDER_REVIEW': '#3b82f6',
+            'RESOLVED': '#10b981',
+            'DISMISSED': '#6b7280'
+        };
+
+        const statusColor = statusColors[report.status] || '#8a8a8a';
+
+        card.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h4 style="color: #ffffff; margin: 0 0 0.5rem 0;">
+                        ${escapeHtml(report.reportType || 'General Report')}
+                    </h4>
+                    <div style="color: #8a8a8a; font-size: 0.9rem;">
+                        Reported by: ${escapeHtml(report.reportedByUsername || 'Anonymous')}
+                        <br>
+                        Date: ${formatDateTime(report.createdAt)}
+                    </div>
+                </div>
+                <span style="
+                    background: ${statusColor}22;
+                    color: ${statusColor};
+                    border: 1px solid ${statusColor}44;
+                    padding: 0.35rem 0.85rem;
+                    border-radius: 999px;
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                ">
+                    ${report.status}
+                </span>
+            </div>
+            
+            ${report.videoTitle ? `
+                <div style="margin-bottom: 0.75rem;">
+                    <strong style="color: #ffffff;">Video:</strong>
+                    <span style="color: #8a8a8a;">${escapeHtml(report.videoTitle)}</span>
+                </div>
+            ` : ''}
+            
+            <div style="color: #b0b0b0; margin-bottom: 1rem;">
+                ${escapeHtml(report.description || 'No description provided')}
+            </div>
+            
+            ${report.status === 'PENDING' || report.status === 'UNDER_REVIEW' ? `
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary" onclick="updateReportStatus(${report.id}, 'RESOLVED')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        ✅ Resolve
+                    </button>
+                    <button class="btn btn-secondary" onclick="updateReportStatus(${report.id}, 'DISMISSED')" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        ❌ Dismiss
+                    </button>
+                </div>
+            ` : ''}
+        `;
+
+        return card;
+    }
+
+    async function updateReportStatus(reportId, status) {
+        try {
+            const response = await fetch(`/api/reports/admin/${reportId}/status?status=${status}`, {
+                method: 'PUT',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                showAlert(`Report ${status.toLowerCase()} successfully!`, 'success');
+                loadAdminReports(); // Reload reports
+            } else {
+                throw new Error('Failed to update report status');
+            }
+        } catch (error) {
+            console.error('Error updating report status:', error);
+            showAlert('Failed to update report status', 'error');
+        }
+    }
+
+    function updateReportBadge(count) {
+        const adminTabButton = document.querySelector('[onclick*="showTab(\'admin\'"]');
+        if (!adminTabButton) return;
+
+        // Remove existing badge if any
+        const existingBadge = adminTabButton.querySelector('.report-badge');
+        if (existingBadge) {
+            existingBadge.remove();
+        }
+
+        // Add new badge if count > 0
+        if (count > 0) {
+            const badge = document.createElement('span');
+            badge.className = 'report-badge';
+            badge.textContent = count;
+            badge.style.cssText = `
+                background: linear-gradient(135deg, #ff3e3e 0%, #ff6b6b 100%);
+                color: white;
+                font-size: 0.75rem;
+                font-weight: 700;
+                padding: 0.25rem 0.5rem;
+                border-radius: 999px;
+                margin-left: 0.5rem;
+                display: inline-block;
+                min-width: 20px;
+                text-align: center;
+            `;
+            adminTabButton.appendChild(badge);
+        }
+    }
+
+    function showManageReports() {
+        loadAdminReports();
+        const reportSection = document.getElementById('reportManagementSection');
+        if (reportSection) {
+            reportSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function setStatNumber(elementId, value) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.textContent = formatNumber(value ?? 0);
+        }
+    }
+
+    // Tab Switching Functions
+    function showTab(tabName, btnElement) {
+        // Hide all tab contents
+        const tabContents = document.querySelectorAll('.tab-content');
+        tabContents.forEach(tab => {
+            tab.style.display = 'none';
+        });
+
+        // Remove active class from all tab buttons
+        const tabButtons = document.querySelectorAll('.tab-button');
+        tabButtons.forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show the selected tab content
+        document.getElementById(tabName + 'Tab').style.display = 'block';
+
+        // Add active class to the clicked button
+        btnElement.classList.add('active');
+
+        runTabLoader(tabName);
+    }
+
+    // Initialize profile based on user role
+    async function initializeProfile() {
+        try {
+            // Check if viewing a creator's profile
+            const creatorId = window.__CREATOR_ID__;
+            console.log('[Profile] Initializing profile, creatorId:', creatorId);
+            
+            let apiUrl = '/api/users/profile';
+            
+            if (creatorId) {
+                // Viewing another user's (creator's) profile
+                apiUrl = `/api/users/${creatorId}`;
+                console.log('[Profile] Viewing creator profile, fetching from:', apiUrl);
+            } else {
+                console.log('[Profile] Viewing own profile, fetching from:', apiUrl);
+            }
+            
+            const res = await fetch(apiUrl, { credentials: 'include' });
+            if (res.ok) {
+                const user = await res.json();
+                console.log('[Profile] User data received:', user);
+
+                populateProfileHeader(user);
+
+                // If viewing creator profile, hide edit options and show only their videos
+                if (creatorId) {
+                    console.log('[Profile] Hiding personal elements for creator view');
+                    
+                    // Hide all personal/edit buttons (with null checks)
+                    const editBtn = document.getElementById('editProfileBtn');
+                    if (editBtn) editBtn.style.display = 'none';
+                    
+                    const creatorActionsEl = document.getElementById('creatorActions');
+                    if (creatorActionsEl) creatorActionsEl.style.display = 'none';
+                    
+                    const adminTabEl = document.getElementById('adminTabContainer');
+                    if (adminTabEl) adminTabEl.style.display = 'none';
+                    
+                    // Hide "Create Playlist" button
+                    const playlistTabControls = document.getElementById('playlistTabControls');
+                    if (playlistTabControls) {
+                        playlistTabControls.style.display = 'none';
+                    }
+                    
+                    // Hide personal tabs (Playlists, Watch Later, Liked)
+                    const playlistsBtn = document.getElementById('playlistsTabButton');
+                    if (playlistsBtn) playlistsBtn.style.display = 'none';
+                    
+                    const watchLaterBtn = document.getElementById('watchLaterTabButton');
+                    if (watchLaterBtn) watchLaterBtn.style.display = 'none';
+                    
+                    const likedBtn = document.getElementById('likedTabButton');
+                    if (likedBtn) likedBtn.style.display = 'none';
+                    
+                    // Hide control buttons in video tab (sort/filter by status - private/public)
+                    const videoStatusFilter = document.getElementById('videoStatusFilter');
+                    if (videoStatusFilter) {
+                        videoStatusFilter.style.display = 'none';
+                    }
+                    
+                    // Only show videos tab for creator profile
+                    if (user.role === 'CONTENT_CREATOR' || user.role === 'ADMIN') {
+                        console.log('[Profile] User is creator, showing videos tab');
+                        
+                        const videosBtn = document.getElementById('videosTabButton');
+                        if (videosBtn) {
+                            videosBtn.style.display = 'block';
+                            videosBtn.innerHTML = '📹 Videos (<span id="videoTabCount">0</span>)';
+                        }
+                        
+                        // Change title from "My Videos" to "Videos"
+                        const videosTitle = document.getElementById('videosTabTitle');
+                        if (videosTitle) {
+                            videosTitle.textContent = '📹 Videos';
+                        }
+                        
+                        // Show the video count display
+                        const countDisplay = document.getElementById('videosCountDisplay');
+                        if (countDisplay) {
+                            countDisplay.style.display = 'block';
+                        }
+                        
+                        const currentActive = document.querySelector('.tab-button.active');
+                        if (currentActive) {
+                            currentActive.classList.remove('active');
+                        }
+                        if (videosBtn) videosBtn.classList.add('active');
+                        
+                        const playlistsTab = document.getElementById('playlistsTab');
+                        if (playlistsTab) playlistsTab.style.display = 'none';
+                        
+                        const videosTab = document.getElementById('videosTab');
+                        if (videosTab) videosTab.style.display = 'block';
+                        
+                        console.log('[Profile] Loading videos for creator ID:', creatorId);
+                        runTabLoader('videos', { userId: creatorId });
+                    } else {
+                        // Regular user viewing (not a creator) - show empty state
+                        console.log('[Profile] User is not a creator, showing empty state');
+                        const videosTab = document.getElementById('videosTab');
+                        if (videosTab) {
+                            videosTab.innerHTML = '<div class="empty-state">This user hasn\'t uploaded any videos yet.</div>';
+                            videosTab.style.display = 'block';
+                        }
+                    }
+                } else {
+                    // Show/hide tabs based on logged-in user's role
+                    console.log('[Profile] Viewing own profile, role:', user.role);
+                    
+                    if (user.role === 'CONTENT_CREATOR') {
+                        // Show My Videos tab for content creators
+                        const videosBtn = document.getElementById('videosTabButton');
+                        if (videosBtn) {
+                            videosBtn.style.display = 'block';
+                            // Make My Videos the first active tab for content creators
+                            const currentActive = document.querySelector('.tab-button.active');
+                            if (currentActive) {
+                                currentActive.classList.remove('active');
+                            }
+                            videosBtn.classList.add('active');
+                        }
+                        
+                        const playlistsTab = document.getElementById('playlistsTab');
+                        if (playlistsTab) playlistsTab.style.display = 'none';
+                        
+                        const videosTab = document.getElementById('videosTab');
+                        if (videosTab) videosTab.style.display = 'block';
+                        
+                        runTabLoader('videos');
+                    } else {
+                        // Hide My Videos tab for regular users
+                        const videosBtn = document.getElementById('videosTabButton');
+                        if (videosBtn) videosBtn.style.display = 'none';
+                        // Keep Playlists as default for regular users
+                        runTabLoader('playlists');
+                    }
+
+                    // Show admin tab if admin
+                    if (user.role === 'ADMIN') {
+                        const adminTabEl = document.getElementById('adminTabContainer');
+                        if (adminTabEl) adminTabEl.style.display = 'block';
+                        runTabLoader('admin');
+                    }
+
+                    // Show creator actions if content creator
+                    if (user.role === 'CONTENT_CREATOR') {
+                        const creatorActionsEl = document.getElementById('creatorActions');
+                        if (creatorActionsEl) creatorActionsEl.style.display = 'block';
+                    }
+                }
+            } else if (res.status === 401) {
+                showAlert('Please log in to view your profile.', 'error');
+                setTimeout(() => window.location.href = '/login', 1500);
+            }
+        } catch (error) {
+            console.error('Error initializing profile:', error);
+        }
+    }
+
+    function formatUserRole(role) {
+        if (!role) return 'Member';
+        const normalized = role.toString().toUpperCase();
+        switch (normalized) {
+            case 'ADMIN':
+                return 'Administrator';
+            case 'CONTENT_CREATOR':
+                return 'Content Creator';
+            case 'REGISTERED_USER':
+                return 'Member';
+            default:
+                return normalized
+                    .toLowerCase()
+                    .split('_')
+                    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                    .join(' ');
+        }
+    }
+
+    function populateProfileHeader(user) {
+        if (!user) return;
+
+        const name = buildDisplayName(user);
+        const username = user.username || 'anonymous';
+        const email = user.email || 'No email provided';
+        const phone = normalizePhone(user.phone);
+        const roleLabel = formatUserRole(user.role);
+        const bio = user.bio && user.bio.trim().length > 0 ? user.bio.trim() : 'No bio provided yet.';
+        const joinDate = formatMemberSince(user.createdAt || user.created_at || user.joinedAt || user.createdOn);
+        const status = user.isActive === false ? 'Inactive' : 'Active';
+
+        const nameEl = document.getElementById('profileName');
+        const usernameEl = document.getElementById('profileUsername');
+        const roleEl = document.getElementById('profileRole');
+        const bioEl = document.getElementById('profileBio');
+        const emailEl = document.getElementById('profileEmail');
+        const phoneEl = document.getElementById('profilePhone');
+        const joinDateEl = document.getElementById('profileJoinDate');
+        const statusEl = document.getElementById('profileStatus');
+
+        if (nameEl) nameEl.textContent = name;
+        if (usernameEl) usernameEl.textContent = `@${username}`;
+        if (roleEl) roleEl.textContent = `Role: ${roleLabel}`;
+        if (bioEl) bioEl.textContent = bio;
+        if (emailEl) emailEl.textContent = email;
+        if (phoneEl) phoneEl.textContent = phone;
+        if (joinDateEl) joinDateEl.textContent = joinDate || '—';
+        if (statusEl) statusEl.textContent = status;
+
+        renderTags(user);
+        window.currentUserProfile = user;
+
+        updateProfileStats({
+            subscriberCount: Number(user.subscriberCount || 0),
+            subscriptionCount: Number(user.subscriptionCount || 0)
+        });
+    }
+
+    function normalizePhone(phone) {
+        if (!phone || phone.trim().length === 0) {
+            return 'No phone provided';
+        }
+        return phone.trim();
+    }
+
+    function formatMemberSince(dateValue) {
+        if (!dateValue) {
+            return '—';
+        }
+        const parsed = new Date(dateValue);
+        if (Number.isNaN(parsed.getTime())) {
+            return '—';
+        }
+        return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function buildDisplayName(user) {
+        const first = user.firstname || user.firstName || '';
+        const last = user.lastname || user.lastName || '';
+        const combo = `${first} ${last}`.trim();
+        if (combo.length > 0) {
+            return combo;
+        }
+        if (user.username && user.username.trim().length > 0) {
+            return user.username.trim();
+        }
+        if (user.email) {
+            return user.email.split('@')[0];
+        }
+        return 'User';
+    }
+
+    function renderTags(user) {
+        const tagsContainer = document.getElementById('profileTags');
+        if (!tagsContainer) return;
+
+        const tags = [];
+        if (user.role === 'CONTENT_CREATOR') {
+            tags.push('Content Creator');
+        }
+        if (user.role === 'ADMIN') {
+            tags.push('Administrator');
+        }
+        if (user.emailVerified) {
+            tags.push('Email Verified');
+        }
+        if (user.phoneVerified) {
+            tags.push('Phone Verified');
+        }
+
+        tagsContainer.innerHTML = '';
+        if (tags.length === 0) {
+            tagsContainer.style.display = 'none';
+            return;
+        }
+
+        tags.forEach(tag => {
+            const pill = document.createElement('span');
+            pill.className = 'tag-pill';
+            pill.textContent = tag;
+            tagsContainer.appendChild(pill);
+        });
+
+        tagsContainer.style.display = 'flex';
+    }
+
+    function showEditProfile() {
+        const modal = document.getElementById('editProfileModal');
+        if (!modal) return;
+
+        const user = window.currentUserProfile;
+        document.getElementById('editFirstName').value = user?.firstname || user?.firstName || '';
+        document.getElementById('editLastName').value = user?.lastname || user?.lastName || '';
+        document.getElementById('editEmail').value = user?.email || '';
+        document.getElementById('editPhone').value = user?.phone || '';
+        document.getElementById('editBio').value = user?.bio || '';
+
+        modal.style.display = 'flex';
+    }
+
+    function closeEditProfile() {
+        const modal = document.getElementById('editProfileModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    async function saveProfileChanges(event) {
+        if (event) {
+            event.preventDefault();
+        }
+
+        const payload = {
+            firstName: document.getElementById('editFirstName').value.trim() || null,
+            lastName: document.getElementById('editLastName').value.trim() || null,
+            email: document.getElementById('editEmail').value.trim(),
+            phone: document.getElementById('editPhone').value.trim() || null,
+            bio: document.getElementById('editBio').value.trim() || null
+        };
+
+        try {
+            const res = await fetch('/api/users/profile', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                const updatedUser = await res.json();
+                populateProfileHeader(updatedUser);
+                closeEditProfile();
+                showAlert('Profile updated successfully!', 'success');
+            } else {
+                const errorText = await res.text();
+                showAlert(errorText || 'Failed to update profile.', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            showAlert('Error updating profile.', 'error');
+        }
+    }
+
+    function showAlert(message, type = 'info') {
+        const existing = document.querySelector('.alert');
+        if (existing) {
+            existing.remove();
+        }
+
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        document.body.appendChild(alert);
+
+        setTimeout(() => alert.remove(), 4000);
+    }
+
+    // Initialize the profile when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeProfile();
+    });
+
+    // Logout function
+    async function logout() {
+        try {
+            const response = await fetch('/api/users/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                // Show success message
+                alert('You have been logged out successfully!');
+                // Redirect to home page
+                window.location.href = '/';
+            } else {
+                alert('Error logging out. Please try again.');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            alert('Error logging out. Please try again.');
+        }
+    }
+
+    // Delete Account function
+    async function confirmDeleteAccount() {
+        const confirmation = confirm(
+            '⚠️ WARNING: This will permanently delete your account and all associated data!\n\n' +
+            'This includes:\n' +
+            '• All your videos and uploads\n' +
+            '• All your playlists\n' +
+            '• All your comments and likes\n' +
+            '• Your profile and settings\n\n' +
+            'This action CANNOT be undone!\n\n' +
+            'Are you absolutely sure you want to delete your account?'
+        );
+
+        if (!confirmation) {
+            return;
+        }
+
+        const doubleConfirmation = prompt(
+            'To confirm account deletion, please type "DELETE MY ACCOUNT" (in capital letters):'
+        );
+
+        if (doubleConfirmation !== 'DELETE MY ACCOUNT') {
+            showAlert('Account deletion cancelled. The phrase did not match.', 'info');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/users/delete-account', {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                showAlert('Your account has been permanently deleted.', 'success');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                const errorText = await response.text();
+                showAlert(errorText || 'Failed to delete account. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            showAlert('Error deleting account. Please try again.', 'error');
         }
     }
 </script>
