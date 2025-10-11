@@ -1,106 +1,1794 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Browsing System</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>VideoHub - Discover Amazing Videos</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <script src="/js/auth-utils.js"></script>
+    <script src="/js/creator-utils.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -1000px 0;
+            }
+            100% {
+                background-position: 1000px 0;
+            }
+        }
+
+        /* Animation Classes */
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .animate-slide-left {
+            animation: slideInLeft 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .animate-slide-right {
+            animation: slideInRight 0.8s ease-out forwards;
+            opacity: 0;
+        }
+
+        .animate-scale {
+            animation: scaleIn 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Stagger Delays */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
+
+        /* Header Styles */
+        .navbar {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(0);
+        }
+
+        .navbar.scrolled {
+            background: rgba(0, 0, 0, 0.98);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            padding: 0.75rem 2rem;
+        }
+
+        .navbar.hide {
+            transform: translateY(-100%);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            cursor: pointer;
+            color: inherit;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background-clip: padding-box;
+            text-align: left;
+        }
+
+        .user-pill:hover,
+        .user-pill:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+            outline: none;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .user-avatar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.35);
+            color: #ffffff;
+        }
+
+        .user-avatar-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+
+        .user-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .user-greeting {
+            font-size: 0.75rem;
+            color: #9f9f9f;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #ffffff;
+            max-width: 160px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-search {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .nav-search input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-search input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-search input::placeholder {
+            color: #666666;
+        }
+
+        .category-filter-btn {
+            position: absolute;
+            left: 15px;
+            background: none;
+            border: none;
+            color: #8a8a8a;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .category-filter-btn:hover {
+            color: #ffffff;
+        }
+
+        .category-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            min-width: 200px;
+            z-index: 1001;
+            display: none;
+            margin-top: 0.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-dropdown.show {
+            display: block;
+        }
+
+        .category-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #cccccc;
+        }
+
+        .category-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+
+        .category-item:last-child {
+            border-bottom: none;
+        }
+
+        .nav-user {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 24px rgba(255, 255, 255, 0.25);
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b6b, #ff3e3e);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.9), rgba(26, 26, 26, 0.7)),
+                        url('https://images.unsplash.com/photo-1536240478700-b869070f9279?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 2rem;
+            margin-top: 80px;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(26, 26, 26, 0.6));
+            z-index: 1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: #cccccc;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            animation: fadeIn 1s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeIn 1s ease-out 0.6s forwards;
+            opacity: 0;
+        }
+
+        .hero-buttons .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+
+        /* Video Sections */
+        .video-sections {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .video-section {
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        .section-title.visible {
+            animation: slideInLeft 0.6s ease-out forwards;
+        }
+
+        .section-title h3 {
+            font-size: 1.8rem;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .view-all {
+            color: #8a8a8a;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-right: 20px;
+        }
+
+        .view-all::after {
+            content: '→';
+            position: absolute;
+            right: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .view-all:hover {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .view-all:hover::after {
+            transform: translateX(5px);
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .video-card {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .video-card.visible {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .video-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(255, 255, 255, 0.15), 
+                        0 0 60px rgba(255, 255, 255, 0.1);
+        }
+
+        .video-thumbnail {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .video-card:hover .video-thumbnail img {
+            transform: scale(1.1) rotate(1deg);
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .video-info {
+            padding: 1.5rem;
+        }
+
+        .video-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            color: #ffffff;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .video-uploader {
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .video-views {
+            color: #8a8a8a;
+        }
+
+        .video-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #8a8a8a;
+        }
+
+        .video-actions {
+            margin-top: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(20, 20, 20, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 4rem 2rem 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .footer.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            font-size: 1.2rem;
+        }
+
+        .footer-section p {
+            color: #8a8a8a;
+            line-height: 1.6;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: #8a8a8a;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #ffffff;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #666666;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+            color: #8a8a8a;
+            font-style: italic;
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal for Video Upload */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-modal {
+            max-width: 420px;
+        }
+
+        .profile-modal-body {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .profile-modal-icon {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.05));
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.35);
+            color: #ffffff;
+        }
+
+        .profile-modal-icon svg {
+            width: 48px;
+            height: 48px;
+            fill: currentColor;
+        }
+
+        .profile-modal-details {
+            flex: 1;
+        }
+
+        .profile-modal-details h3 {
+            margin: 0 0 0.35rem 0;
+            font-size: 1.4rem;
+            color: #ffffff;
+        }
+
+        .profile-modal-details p {
+            margin: 0.2rem 0;
+            color: #b5b5b5;
+            font-size: 0.95rem;
+        }
+
+        .profile-modal-actions {
+            margin-top: 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            color: #8a8a8a;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #ffffff;
+        }
+
+        .upload-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .upload-form input,
+        .upload-form textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-form input:focus,
+        .upload-form textarea:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+        }
+
+        .upload-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .upload-form .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-search {
+                order: 3;
+                margin: 0;
+                width: 100%;
+                max-width: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-buttons .btn {
+                width: 80%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .video-sections {
+                padding: 2rem 1rem;
+            }
+
+            .video-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .section-title {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .upload-form .btn {
+                width: 100%;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .video-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .video-card:nth-child(1) { animation-delay: 0.1s; }
+        .video-card:nth-child(2) { animation-delay: 0.2s; }
+        .video-card:nth-child(3) { animation-delay: 0.3s; }
+        .video-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Alert Styles */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            max-width: 350px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+    </style>
 </head>
 <body>
-<header>
-    <nav class="navbar">
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="nav-container">
         <div class="nav-brand">
-            <h1>VideoHub</h1>
+            <h1>🎬 VideoHub</h1>
         </div>
+
         <div class="nav-search">
-            <input type="text" id="searchInput" placeholder="Search videos...">
-            <select id="categoryFilter">
-                <option value="">All Categories</option>
-            </select>
-            <button onclick="searchVideos()">Search</button>
+            <input id="mainSearch" type="text" placeholder="Search videos, creators, categories..." data-guest-allowed>
+            <button class="btn" onclick="performSearch()" data-guest-allowed>🔍 Search</button>
         </div>
-        <div class="nav-user">
-            <div id="guestNav" style="display: none;">
-                <button onclick="showLogin()">Login</button>
-                <button onclick="showRegister()">Register</button>
+
+        <div class="nav-user" id="navUser">
+            <!-- User info will be injected here by JavaScript -->
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Discover Amazing Videos</h1>
+        <p>Explore thousands of high-quality videos from creators worldwide. From entertainment to education, find content that inspires you.</p>
+        <div class="hero-buttons">
+            <button class="btn" onclick="scrollToVideos()">🎬 Start Watching</button>
+            <button class="btn btn-primary" onclick="goToAllVideos()" style="background: linear-gradient(45deg, #ff6b6b, #ff3e3e); color: white;">🎯 View All Videos</button>
+                <!-- Become a Creator CTA (top nav or hero) removed -->
+        </div>
+    </div>
+</section>
+
+<!-- Video Sections -->
+<section class="video-sections" id="videoSections">
+    <!-- Trending Videos -->
+    <div class="video-section">
+        <div class="section-title">
+            <h3>🔥 Trending Now</h3>
+            <a href="javascript:void(0)" class="view-all" onclick="goToAllVideos('trending')">View All →</a>
+        </div>
+        <div class="video-grid" id="trendingVideos">
+            <div class="loading">Loading trending videos...</div>
+        </div>
+    </div>
+
+    <!-- Latest Videos -->
+    <div class="video-section">
+        <div class="section-title">
+            <h3>🆕 Latest Uploads</h3>
+            <a href="javascript:void(0)" class="view-all" onclick="goToAllVideos('latest')">View All →</a>
+        </div>
+        <div class="video-grid" id="latestVideos">
+            <div class="loading">Loading latest videos...</div>
+        </div>
+    </div>
+
+    <!-- Recommended Videos -->
+    <div class="video-section">
+        <div class="section-title">
+            <h3>⭐ Recommended For You</h3>
+            <a href="javascript:void(0)" class="view-all" onclick="goToAllVideos('recommended')">View All →</a>
+        </div>
+        <div class="video-grid" id="recommendedVideos">
+            <div class="loading">Loading recommended videos...</div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h3>VideoHub</h3>
+            <p>Your premier destination for amazing video content. Discover, watch, and share with our global community.</p>
+        </div>
+        <div class="footer-section">
+            <h3>Support</h3>
+            <ul class="footer-links">
+                <li><a href="/help-center" data-guest-allowed>Help Center</a></li>
+                <li><a href="#" onclick="showReportForm()">Report Issue</a></li>
+                <li><a href="#" onclick="showContactForm()">Contact Us</a></li>
+                <li><a href="/privacy" data-guest-allowed>Privacy Policy</a></li>
+            </ul>
+        </div>
+        <div class="footer-section">
+            <h3>Connect</h3>
+            <ul class="footer-links">
+                <li><a href="#">Twitter</a></li>
+                <li><a href="#">Facebook</a></li>
+                <li><a href="#">Instagram</a></li>
+                <li><a href="#">YouTube</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2024 VideoHub. All rights reserved. Made with ❤️ for video lovers.</p>
+    </div>
+</footer>
+
+<!-- Profile Modal -->
+<div id="profileModal" class="modal">
+    <div class="modal-content profile-modal">
+        <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+        <div class="profile-modal-body">
+            <div class="profile-modal-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true">
+                    <path d="M12 12c-2.761 0-5-2.239-5-5s2.239-5 5-5 5 2.239 5 5-2.239 5-5 5zm0 2c3.866 0 7 2.239 7 5v1H5v-1c0-2.761 3.134-5 7-5z"/>
+                </svg>
             </div>
-            <div id="userNav" style="display: none;">
-                <span id="welcomeUser"></span>
-                <button onclick="goToProfile()">Profile</button>
-                <button onclick="logout()">Logout</button>
+            <div class="profile-modal-details">
+                <h3 id="profileModalName">User</h3>
+                <p id="profileModalEmail">user@example.com</p>
+                <p id="profileModalRole">Role: Registered User</p>
+                <p id="profileModalMemberSince">Member since —</p>
+                <div class="profile-modal-actions">
+                    <button class="btn btn-secondary" type="button" onclick="window.location.href='/profile'">Open Full Profile</button>
+                    <button class="btn" type="button" onclick="closeProfileModal(); logout();">Logout</button>
+                </div>
             </div>
         </div>
-    </nav>
-</header>
+    </div>
+</div>
 
-<main>
-    <section class="video-sections">
-        <div class="section">
-            <h2>Latest Videos</h2>
-            <div id="latestVideos" class="video-grid"></div>
-        </div>
-
-        <div class="section">
-            <h2>Top Rated Videos</h2>
-            <div id="topRatedVideos" class="video-grid"></div>
-        </div>
-
-        <div class="section">
-            <h2>Search Results</h2>
-            <div id="searchResults" class="video-grid" style="display: none;"></div>
-        </div>
-    </section>
-</main>
-
-<!-- Login Modal -->
-<div id="loginModal" class="modal" style="display: none;">
+<!-- Video Upload Modal -->
+<div id="uploadModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeModal('loginModal')">&times;</span>
-        <h2>Login</h2>
-        <form onsubmit="login(event)">
-            <input type="text" id="loginUsername" placeholder="Username or Email" required>
-            <input type="password" id="loginPassword" placeholder="Password" required>
-            <button type="submit">Login</button>
+        <span class="close-modal" onclick="closeUploadModal()">&times;</span>
+        <h2>📤 Upload a Video</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="videoTitle">Title:</label>
+                <input type="text" id="videoTitle" required placeholder="Enter video title" maxlength="100">
+            </div>
+            <div class="form-group">
+                <label for="videoFile">Video File:</label>
+                <input type="file" id="videoFile" accept="video/*" required>
+            </div>
+            <div class="form-group">
+                <label for="videoDescription">Description:</label>
+                <textarea id="videoDescription" placeholder="Enter video description" maxlength="1000"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="videoCategory">Category:</label>
+                <select id="videoCategory" required>
+                    <option value="">Select category</option>
+                    <option value="Documentary">Documentary</option>
+                    <option value="Education">Education</option>
+                    <option value="Gaming">Gaming</option>
+                    <option value="Cooking">Cooking</option>
+                    <option value="Science">Science</option>
+                    <option value="Fitness">Fitness</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">📤 Upload</button>
         </form>
-        <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
     </div>
 </div>
 
-<!-- Register Modal -->
-<div id="registerModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('registerModal')">&times;</span>
-        <h2>Register</h2>
-        <form onsubmit="register(event)">
-            <input type="text" id="regUsername" placeholder="Username" required>
-            <input type="email" id="regEmail" placeholder="Email" required>
-            <input type="password" id="regPassword" placeholder="Password" required>
-            <input type="text" id="regFirstName" placeholder="First Name">
-            <input type="text" id="regLastName" placeholder="Last Name">
-            <input type="tel" id="regPhone" placeholder="Phone Number">
-            <select id="regRole">
-                <option value="REGISTERED_USER">Regular User</option>
-                <option value="CONTENT_CREATOR">Content Creator</option>
-            </select>
-            <label>
-                <input type="checkbox" id="agreeTerms" required>
-                I agree to the Terms and Conditions
-            </label>
-            <button type="submit">Register</button>
-        </form>
-        <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
-    </div>
-</div>
+<script>
+    window.currentUserProfile = null;
+    let currentCategoryFilter = '';
 
-<!-- Video Detail Modal -->
-<div id="videoModal" class="modal" style="display: none;">
-    <div class="modal-content video-modal">
-        <span class="close" onclick="closeModal('videoModal')">&times;</span>
-        <div id="videoContent"></div>
-    </div>
-</div>
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value ?? '';
+        return div.innerHTML;
+    }
 
-<script src="/js/app.js"></script>
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+        loadTrendingVideos();
+        loadLatestVideos();
+        loadRecommendedVideos();
+        setupNavbarScroll();
+        updateNavUser();
+        setupClickOutside();
+        initScrollAnimations();
+
+        const profileModal = document.getElementById('profileModal');
+        if (profileModal) {
+            profileModal.addEventListener('click', function(event) {
+                if (event.target === profileModal) {
+                    closeProfileModal();
+                }
+            });
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeProfileModal();
+                closeUploadModal();
+            }
+        });
+    });
+
+    // Intersection Observer for scroll animations
+    function initScrollAnimations() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Add stagger effect for video cards
+                    if (entry.target.classList.contains('video-card')) {
+                        const cards = entry.target.parentElement.querySelectorAll('.video-card');
+                        cards.forEach((card, index) => {
+                            setTimeout(() => {
+                                card.classList.add('visible');
+                            }, index * 100);
+                        });
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe section titles
+        document.querySelectorAll('.section-title').forEach(title => {
+            observer.observe(title);
+        });
+
+        // Observe video cards
+        document.querySelectorAll('.video-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Observe footer
+        const footer = document.querySelector('.footer');
+        if (footer) {
+            observer.observe(footer);
+        }
+    }
+
+    // Re-observe new elements after loading videos
+    function observeNewElements() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.video-card:not(.visible)').forEach(card => {
+            observer.observe(card);
+        });
+    }
+
+    // Fetch and load videos dynamically
+    async function loadTrendingVideos() {
+        const container = document.getElementById('trendingVideos');
+        try {
+            const response = await fetch('/api/videos?sort=views&limit=4');
+            if (!response.ok) {
+                throw new Error('Request failed');
+            }
+            const videos = await response.json();
+            container.innerHTML = Array.isArray(videos) && videos.length > 0
+                ? videos.map(createVideoCard).join('')
+                : '<div class="loading">No trending videos available.</div>';
+            
+            // Trigger animations for new cards
+            setTimeout(() => {
+                observeNewElements();
+                animateCardsStagger(container);
+            }, 100);
+        } catch (error) {
+            console.error('Error loading trending videos:', error);
+            container.innerHTML = '<div class="loading">Failed to load trending videos.</div>';
+        }
+    }
+
+    async function loadLatestVideos() {
+        const container = document.getElementById('latestVideos');
+        try {
+            const response = await fetch('/api/videos?sort=latest&limit=4');
+            if (!response.ok) {
+                throw new Error('Request failed');
+            }
+            const videos = await response.json();
+            container.innerHTML = Array.isArray(videos) && videos.length > 0
+                ? videos.map(createVideoCard).join('')
+                : '<div class="loading">No latest videos available.</div>';
+            
+            // Trigger animations for new cards
+            setTimeout(() => {
+                observeNewElements();
+                animateCardsStagger(container);
+            }, 100);
+        } catch (error) {
+            console.error('Error loading latest videos:', error);
+            container.innerHTML = '<div class="loading">Failed to load latest videos.</div>';
+        }
+    }
+
+    async function loadRecommendedVideos() {
+        const container = document.getElementById('recommendedVideos');
+        try {
+            const response = await fetch('/api/videos?sort=likes&limit=4');
+            if (!response.ok) {
+                throw new Error('Request failed');
+            }
+            const videos = await response.json();
+            container.innerHTML = Array.isArray(videos) && videos.length > 0
+                ? videos.map(createVideoCard).join('')
+                : '<div class="loading">No recommended videos available.</div>';
+            
+            // Trigger animations for new cards
+            setTimeout(() => {
+                observeNewElements();
+                animateCardsStagger(container);
+            }, 100);
+        } catch (error) {
+            console.error('Error loading recommended videos:', error);
+            container.innerHTML = '<div class="loading">Failed to load recommended videos.</div>';
+        }
+    }
+
+    // Stagger animation for video cards
+    function animateCardsStagger(container) {
+        const cards = container.querySelectorAll('.video-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.animation = `fadeIn 0.6s ease-out forwards`;
+                card.style.opacity = '1';
+            }, index * 150);
+        });
+    }
+
+    function createVideoCard(video) {
+        const rawVideoId = video?.id ?? null;
+        const videoIdString = rawVideoId !== null && rawVideoId !== undefined ? String(rawVideoId) : '';
+        const escapedVideoId = videoIdString.replace(/'/g, "\\'");
+        const safeTitle = escapeHtml(video?.title || 'Untitled Video');
+        const thumbnail = video?.thumbnailUrl || video?.thumbnailPath || 'https://via.placeholder.com/320x180?text=No+Thumbnail';
+        const duration = formatDuration(video?.duration);
+        const safeUploader = escapeHtml(video?.uploaderName || 'Unknown Creator');
+        const viewsLabel = formatViews(video?.viewCount);
+        const likesLabel = formatViews(video?.likeCount);
+        const safeCategory = escapeHtml(video?.categoryName || 'Uncategorized');
+
+        return `
+            <div class="video-card" data-video-id="${escapedVideoId}" onclick="openVideo('${escapedVideoId}')">
+                <div class="video-thumbnail">
+                    <img src="${thumbnail}" alt="${safeTitle}" onerror="this.src='https://via.placeholder.com/320x180?text=No+Thumbnail'">
+                    <div class="video-duration">${duration}</div>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">${safeTitle}</h3>
+                    <div class="video-meta">
+                        <span class="video-uploader">${safeUploader}</span>
+                        <span class="video-views">${viewsLabel} views</span>
+                    </div>
+                    <div class="video-stats">
+                        <span>👍 ${likesLabel}</span>
+                        <span>${safeCategory}</span>
+                    </div>
+                    <div class="video-actions">
+                        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); openVideo('${escapedVideoId}');">▶ View</button>
+                        <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); goToAllVideos();">🎞️ All Videos</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function formatDuration(seconds) {
+        const totalSeconds = Number(seconds);
+        if (!Number.isFinite(totalSeconds) || totalSeconds <= 0) {
+            return '0:00';
+        }
+
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const secs = Math.floor(totalSeconds % 60);
+
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function formatViews(value) {
+        const views = Number(value) || 0;
+        if (views >= 1_000_000) {
+            return (views / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+        }
+        if (views >= 1_000) {
+            return (views / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+        }
+        return views.toString();
+    }
+
+    function formatLikes(likes) {
+        return formatViews(likes);
+    }
+
+    function goToAllVideos(section) {
+        if (section === 'trending') {
+            if (window.requireAuth) {
+                window.requireAuth(() => window.location.href = '/trending.html', 'browse trending videos');
+                return;
+            }
+            window.location.href = '/trending.html';
+            return;
+        }
+
+        const navigate = () => {
+            let url = '/all-videos';
+            if (section) {
+                const params = new URLSearchParams();
+                params.set('section', section);
+                url += `?${params.toString()}`;
+            }
+            window.location.href = url;
+        };
+
+        if (window.requireAuth) {
+            window.requireAuth(navigate, 'browse all videos');
+            return;
+        }
+
+        navigate();
+    }
+
+    function openVideo(videoId) {
+        const normalizedId = (videoId ?? '').toString().trim();
+
+        if (!normalizedId || normalizedId === 'undefined' || normalizedId === 'null') {
+            console.warn('openVideo called without a valid video id', videoId);
+            if (typeof window.alert === 'function') {
+                window.alert('We could not find that video. Please try another one.');
+            }
+            return;
+        }
+
+        const encodedId = encodeURIComponent(normalizedId);
+        const navigate = () => {
+            window.location.href = `/video-show?id=${encodedId}`;
+        };
+
+        if (typeof window.requireAuth === 'function') {
+            const allowed = window.requireAuth(navigate, 'watch videos');
+            if (!allowed) {
+                return;
+            }
+            return;
+        }
+
+        navigate();
+    }
+
+    function setupNavbarScroll() {
+        let lastScroll = 0;
+        
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            const currentScroll = window.scrollY;
+            
+            if (currentScroll > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            // Hide navbar on scroll down, show on scroll up
+            if (currentScroll > lastScroll && currentScroll > 300) {
+                navbar.classList.add('hide');
+            } else {
+                navbar.classList.remove('hide');
+            }
+            
+            lastScroll = currentScroll;
+        });
+    }
+
+    // User profile display logic
+    async function updateNavUser() {
+        const navUser = document.getElementById('navUser');
+
+        try {
+            const response = await fetch('/api/users/profile', {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                const rawName = userData.firstname || userData.firstName || userData.username || userData.email || 'User';
+                const displayName = rawName.trim().length > 0 ? rawName.trim() : 'User';
+                const avatar = userData.profilePicture && userData.profilePicture.trim().length > 0
+                    ? userData.profilePicture
+                    : '/images/default-avatar.jpg';
+
+                if (window.setAuthState) {
+                    setAuthState(true, {
+                        id: userData.id,
+                        username: userData.username,
+                        role: userData.role,
+                        firstName: userData.firstname || userData.firstName,
+                        lastName: userData.lastname || userData.lastName,
+                        profilePicture: avatar
+                    });
+                }
+
+                window.currentUserProfile = userData;
+
+                const actions = [];
+                const normalizedRole = (userData.role || 'REGISTERED_USER').toUpperCase();
+
+                actions.push(`<button class="btn btn-secondary" onclick="window.location.href='/playlist'">📋 Playlists</button>`);
+
+                if (normalizedRole === 'REGISTERED_USER') {
+                    actions.push(`<button class="btn btn-primary" type="button" onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>`);
+                } else {
+                    actions.push(`<button class="btn btn-primary" type="button" onclick="showUploadModal()">📤 Upload Video</button>`);
+                }
+
+                if (normalizedRole === 'ADMIN') {
+                    actions.push(`<button class="btn btn-secondary" type="button" onclick="window.location.href='/admin-dashboard'">�️ Admin</button>`);
+                }
+
+                actions.push(`<button class="btn" onclick="logout()">🚪 Logout</button>`);
+
+                navUser.innerHTML = `
+                    <div class="user-actions">
+                        ${actions.join('')}
+                    </div>
+                    <button type="button" class="user-pill" title="View profile" onclick="openProfileModal()">
+                        <div class="user-avatar-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true">
+                                <path d="M12 12c-2.761 0-5-2.239-5-5s2.239-5 5-5 5 2.239 5 5-2.239 5-5 5zm0 2c3.866 0 7 2.239 7 5v1H5v-1c0-2.761 3.134-5 7-5z" />
+                            </svg>
+                        </div>
+                        <div class="user-meta">
+                            <span class="user-greeting">Welcome back</span>
+                            <span class="user-name">${escapeHtml(displayName)}</span>
+                        </div>
+                    </button>
+                `;
+            } else {
+                window.currentUserProfile = null;
+                if (window.setAuthState) {
+                    setAuthState(false, null);
+                }
+                navUser.innerHTML = `
+                    <button class="btn btn-secondary" data-guest-allowed onclick="goToLogin()">🔑 Login</button>
+                    <button class="btn" onclick="goToRegister()">📝 Register</button>
+                    <button class="btn btn-primary" data-guest-allowed onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>
+                `;
+            }
+        } catch (error) {
+            console.error('Error checking auth status:', error);
+            if (window.setAuthState) {
+                setAuthState(false, null);
+            }
+            window.currentUserProfile = null;
+            navUser.innerHTML = `
+                <button class="btn btn-secondary" data-guest-allowed onclick="goToLogin()">🔑 Login</button>
+                <button class="btn" onclick="goToRegister()">📝 Register</button>
+                <button class="btn btn-primary" data-guest-allowed onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>
+            `;
+        }
+    }
+
+    function toggleCategoryFilter() {
+        const dropdown = document.getElementById('categoryDropdown');
+        dropdown.classList.toggle('show');
+    }
+
+    function filterByCategory(category) {
+        currentCategoryFilter = category;
+        const dropdown = document.getElementById('categoryDropdown');
+        dropdown.classList.remove('show');
+
+        const searchInput = document.getElementById('mainSearch');
+        if (category) {
+            searchInput.placeholder = `Search in ${category}...`;
+        } else {
+            searchInput.placeholder = 'Search videos, creators, categories...';
+        }
+
+        if (searchInput.value.trim()) {
+            performSearch();
+        }
+    }
+
+    function performSearch() {
+        const searchTerm = document.getElementById('mainSearch').value.trim();
+        if (searchTerm || currentCategoryFilter) {
+            let searchUrl = '/search';
+            let params = new URLSearchParams();
+
+            if (searchTerm) {
+                params.append('keyword', searchTerm);
+            }
+            if (currentCategoryFilter) {
+                params.append('category', currentCategoryFilter);
+            }
+
+            searchUrl += '?' + params.toString();
+            window.location.href = searchUrl;
+        } else {
+            window.location.href = '/search';
+        }
+    }
+
+    function showReportForm() {
+        window.location.href = '/report-issue';
+    }
+
+    function showContactForm() {
+        window.location.href = '/help-center#contact';
+    }
+
+    function scrollToVideos() {
+        document.getElementById('videoSections').scrollIntoView({
+            behavior: 'smooth'
+        });
+    }
+
+    function setupClickOutside() {
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('categoryDropdown');
+            const filterBtn = document.querySelector('.category-filter-btn');
+
+            if (!dropdown.contains(event.target) && !filterBtn.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    }
+
+    document.getElementById('mainSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            performSearch();
+        }
+    });
+
+    function showAlert(message, type) {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        document.body.appendChild(alert);
+
+        setTimeout(() => {
+            alert.remove();
+        }, 5000);
+    }
+
+    async function logout() {
+        try {
+            const response = await fetch('/api/users/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                showAlert('You have been logged out successfully!', 'success');
+                if (window.setAuthState) {
+                    setAuthState(false, null);
+                }
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                showAlert('Error logging out. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            showAlert('Error logging out. Please try again.', 'error');
+        }
+    }
+
+    function goToLogin() {
+        window.location.href = '/login';
+    }
+
+    function goToRegister() {
+        window.location.href = '/register';
+    }
+
+    function formatUserRole(role) {
+        if (!role) {
+            return 'Registered User';
+        }
+        const formatted = role.toString().toLowerCase().replace(/_/g, ' ');
+        return formatted.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+
+    function formatMemberSince(dateValue) {
+        if (!dateValue) {
+            return 'Member since —';
+        }
+        const parsed = new Date(dateValue);
+        if (Number.isNaN(parsed.getTime())) {
+            return 'Member since —';
+        }
+        return 'Member since ' + parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
+    }
+
+    function openProfileModal() {
+        const user = window.currentUserProfile;
+        if (!user) {
+            window.location.href = '/profile';
+            return;
+        }
+
+        const modal = document.getElementById('profileModal');
+        if (!modal) {
+            window.location.href = '/profile';
+            return;
+        }
+
+        const rawName = user.firstname || user.firstName || user.username || user.email || 'User';
+        const displayName = rawName.trim().length > 0 ? rawName.trim() : 'User';
+        const email = user.email || 'Email not available';
+        const roleLabel = 'Role: ' + formatUserRole(user.role);
+        const memberText = formatMemberSince(user.createdAt || user.created_at || user.joinedAt || user.createdOn);
+
+        const nameEl = document.getElementById('profileModalName');
+        const emailEl = document.getElementById('profileModalEmail');
+        const roleEl = document.getElementById('profileModalRole');
+        const memberEl = document.getElementById('profileModalMemberSince');
+
+        if (nameEl) {
+            nameEl.textContent = displayName;
+        }
+        if (emailEl) {
+            emailEl.textContent = email;
+        }
+        if (roleEl) {
+            roleEl.textContent = roleLabel;
+        }
+        if (memberEl) {
+            memberEl.textContent = memberText;
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeProfileModal() {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Video Upload Modal Functions
+    function showUploadModal() {
+        const navigate = () => {
+            window.location.href = '/video-upload';
+        };
+
+        if (window.requireAuth) {
+            window.requireAuth(navigate, 'upload videos');
+            return;
+        }
+
+        navigate();
+    }
+
+    function closeUploadModal() {
+        document.getElementById('uploadModal').style.display = 'none';
+        document.getElementById('uploadForm').reset();
+    }
+
+    async function uploadVideo(event) {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append('title', document.getElementById('videoTitle').value);
+        formData.append('video', document.getElementById('videoFile').files[0]);
+        formData.append('description', document.getElementById('videoDescription').value);
+        formData.append('category', document.getElementById('videoCategory').value);
+
+        try {
+            const response = await fetch('/api/videos/upload', {
+                method: 'POST',
+                credentials: 'include',
+                body: formData
+            });
+
+            if (response.ok) {
+                showAlert('Video uploaded successfully! It will be available soon.', 'success');
+                closeUploadModal();
+                // Refresh video sections
+                loadTrendingVideos();
+                loadLatestVideos();
+                loadRecommendedVideos();
+            } else {
+                const error = await response.json();
+                showAlert(`Error uploading video: ${error.message || 'Please try again.'}`, 'error');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            showAlert('Error uploading video. Please try again.', 'error');
+        }
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', uploadVideo);
+</script>
 </body>
 </html>

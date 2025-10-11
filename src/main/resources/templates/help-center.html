@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center - VideoHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/js/auth-utils.js"></script>
+    <script src="/js/creator-utils.js"></script>
+    <style>
+        /* Dark Theme Variables */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #888888;
+            --accent-primary: #ff3e3e;
+            --accent-secondary: #ff6b6b;
+            --border-color: #2a2a2a;
+            --hover-color: #252525;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --gradient-primary: linear-gradient(135deg, #ff3e3e 0%, #ff6b6b 100%);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-brand h1 a {
+            font-size: 1.8rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-user {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 62, 62, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hover-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        /* Main Layout */
+        .main-container {
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            padding: 2rem;
+        }
+
+        .help-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 0;
+        }
+
+        .help-header h1 {
+            font-size: 3rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .help-header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Help Sections */
+        .help-sections {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .help-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .help-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .section-icon {
+            font-size: 2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .faq-item {
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: var(--hover-color);
+        }
+
+        .faq-answer {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            display: none;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        .contact-info {
+            background: var(--bg-tertiary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+        }
+
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-icon {
+            color: var(--accent-primary);
+            font-size: 1.2rem;
+        }
+
+        /* Sidebar */
+        .help-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .sidebar-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-section h3 {
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quick-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .quick-link:hover {
+            background: var(--hover-color);
+            border-color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        /* Report Form */
+        .report-form {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(255, 62, 62, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .help-sections {
+                grid-template-columns: 1fr;
+            }
+
+            .help-sidebar {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .help-header h1 {
+                font-size: 2rem;
+            }
+
+            .help-header p {
+                font-size: 1rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .help-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-play-circle"></i>
+            <h1><a href="/">VideoHub</a></h1>
+        </div>
+        <div class="nav-user" id="navUser">
+            <!-- User info will be injected here by JavaScript -->
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="help-header">
+            <h1>❓ Help & Support Center</h1>
+            <p>Get help with VideoHub, report issues, or contact our support team. We're here to help you have the best experience possible.</p>
+        </div>
+
+        <!-- Help Sections -->
+        <div class="help-sections">
+            <div class="help-content">
+                <!-- FAQ Section -->
+                <div class="help-section" id="faq">
+                    <div class="section-title">
+                        <span class="section-icon">❓</span>
+                        <h2>Frequently Asked Questions</h2>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I upload a video?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            To upload a video, you need to create an account and become a content creator. Once logged in, click on "Upload Video" in the navigation menu, fill out the video details, select your video file, and click submit. Your video will be processed and made available to viewers.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I create playlists?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            You can create playlists by going to your profile page and clicking on "Create New Playlist". Give your playlist a name, description, and set privacy settings. You can then add videos to your playlist while watching them or from your video management page.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I report inappropriate content?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            You can report inappropriate content using the report form below. Select "Inappropriate Content" as the report type and provide details about the content. Our moderation team will review the report within 24 hours.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>How do I change my account settings?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            Go to your profile page by clicking on your username in the navigation menu. From there, you can edit your profile information, change your password, update privacy settings, and manage your account preferences.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">
+                            <span>What video formats are supported?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            We support most common video formats including MP4, AVI, MOV, WMV, and FLV. For best compatibility and quality, we recommend uploading MP4 files with H.264 encoding. Maximum file size is 500MB per video.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Section -->
+                <div class="help-section" id="contact">
+                    <div class="section-title">
+                        <span class="section-icon">📞</span>
+                        <h2>Contact Information</h2>
+                    </div>
+
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="contact-icon fas fa-envelope"></i>
+                            <div>
+                                <strong>Email Support</strong>
+                                <p>support@videohub.com</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="contact-icon fas fa-phone"></i>
+                            <div>
+                                <strong>Phone Support</strong>
+                                <p>+1 (555) 123-4567</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="contact-icon fas fa-clock"></i>
+                            <div>
+                                <strong>Support Hours</strong>
+                                <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="contact-icon fas fa-comments"></i>
+                            <div>
+                                <strong>Live Chat</strong>
+                                <p>Available during support hours</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Form Section -->
+                <div class="help-section" id="report">
+                    <div class="section-title">
+                        <span class="section-icon">🚨</span>
+                        <h2>Report an Issue</h2>
+                    </div>
+
+                    <div class="alert alert-success" id="successAlert">
+                        <i class="fas fa-check-circle"></i>
+                        Your report has been submitted successfully! Our team will review it within 24 hours.
+                    </div>
+
+                    <div class="alert alert-error" id="errorAlert">
+                        <i class="fas fa-exclamation-circle"></i>
+                        There was an error submitting your report. Please try again.
+                    </div>
+
+                    <div class="report-form">
+                        <form id="reportForm" onsubmit="submitReport(event)">
+                            <div class="form-group">
+                                <label for="reportType">Report Type:</label>
+                                <select id="reportType" required>
+                                    <option value="">Select report type...</option>
+                                    <option value="inappropriate_content">Inappropriate Content</option>
+                                    <option value="copyright">Copyright Violation</option>
+                                    <option value="spam">Spam or Misleading Content</option>
+                                    <option value="harassment">Harassment or Bullying</option>
+                                    <option value="technical_issue">Technical Issue</option>
+                                    <option value="account_issue">Account Issue</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reportedContent">Content URL (if applicable):</label>
+                                <input type="url" id="reportedContent" placeholder="https://videohub.com/video/123">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reportSubject">Subject:</label>
+                                <input type="text" id="reportSubject" required placeholder="Brief description of the issue" maxlength="100">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reportDescription">Detailed Description:</label>
+                                <textarea id="reportDescription" required placeholder="Please provide detailed information about the issue..." maxlength="1000"></textarea>
+                                <small style="color: var(--text-muted);">
+                                    <span id="descriptionCount">0</span>/1000 characters
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reporterEmail">Your Email (optional):</label>
+                                <input type="email" id="reporterEmail" placeholder="your.email@example.com">
+                                <small style="color: var(--text-muted);">
+                                    We'll use this to follow up on your report if needed
+                                </small>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                    🔄 Reset Form
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    🚨 Submit Report
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="help-sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-link"></i> Quick Links</h3>
+                    <div class="quick-links">
+                        <a href="#faq" class="quick-link">
+                            <i class="fas fa-question-circle"></i>
+                            FAQ
+                        </a>
+                        <a href="#contact" class="quick-link">
+                            <i class="fas fa-envelope"></i>
+                            Contact Us
+                        </a>
+                        <a href="#report" class="quick-link">
+                            <i class="fas fa-flag"></i>
+                            Report Issue
+                        </a>
+                        <a href="/" class="quick-link">
+                            <i class="fas fa-home"></i>
+                            Back to Home
+                        </a>
+                        <a href="/trending.html" class="quick-link">
+                            <i class="fas fa-fire"></i>
+                            Trending Videos
+                        </a>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-book"></i> Documentation</h3>
+                    <div class="quick-links">
+                        <a href="#" class="quick-link">
+                            <i class="fas fa-upload"></i>
+                            Upload Guidelines
+                        </a>
+                        <a href="#" class="quick-link">
+                            <i class="fas fa-shield-alt"></i>
+                            Community Rules
+                        </a>
+                        <a href="#" class="quick-link">
+                            <i class="fas fa-file-alt"></i>
+                            Terms of Service
+                        </a>
+                        <a href="#" class="quick-link">
+                            <i class="fas fa-user-shield"></i>
+                            Privacy Policy
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateNavUser();
+            setupDescriptionCounter();
+            checkHashNavigation();
+        });
+
+        // Update navigation user info
+        async function updateNavUser() {
+            const navUser = document.getElementById('navUser');
+            try {
+                const res = await fetch('/api/users/me', { credentials: 'include' });
+                if (res.ok) {
+                    const user = await res.json();
+                    if (window.setAuthState) {
+                        setAuthState(true, user);
+                    }
+
+                    const role = (user.role || 'REGISTERED_USER').toUpperCase();
+                    const buttons = [];
+
+                    buttons.push(`<a href="/" class="btn btn-secondary btn-small">🏠 Home</a>`);
+                    buttons.push(`<a href="/profile.html" class="btn btn-secondary btn-small">👤 Profile</a>`);
+
+                    if (role === 'REGISTERED_USER') {
+                        buttons.push(`<button class="btn btn-primary btn-small" onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>`);
+                    } else {
+                        buttons.push(`<a href="/video-upload" class="btn btn-primary btn-small">� Upload</a>`);
+                    }
+
+                    if (role === 'ADMIN') {
+                        buttons.push(`<a href="/admin-dashboard.html" class="btn btn-secondary btn-small">�️ Admin</a>`);
+                    }
+
+                    buttons.push(`<button class="btn btn-secondary btn-small" onclick="logout()">🚪 Logout</button>`);
+                    navUser.innerHTML = buttons.join('');
+                } else {
+                    if (window.setAuthState) {
+                        setAuthState(false, null);
+                    }
+                    navUser.innerHTML = `
+                        <a href="/login.html" class="btn btn-secondary btn-small">🔑 Login</a>
+                        <button class="btn btn-primary btn-small" data-guest-allowed onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>
+                    `;
+                }
+            } catch (e) {
+                if (window.setAuthState) {
+                    setAuthState(false, null);
+                }
+                navUser.innerHTML = `
+                    <a href="/login.html" class="btn btn-secondary btn-small">🔑 Login</a>
+                    <button class="btn btn-primary btn-small" data-guest-allowed onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>
+                `;
+            }
+        }
+
+        // Toggle FAQ items
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('i');
+
+            if (answer.classList.contains('active')) {
+                answer.classList.remove('active');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            } else {
+                // Close all other FAQs
+                document.querySelectorAll('.faq-answer.active').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelectorAll('.faq-question i').forEach(icon => {
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                });
+
+                // Open this FAQ
+                answer.classList.add('active');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+        }
+
+        // Setup description character counter
+        function setupDescriptionCounter() {
+            const textarea = document.getElementById('reportDescription');
+            const counter = document.getElementById('descriptionCount');
+
+            textarea.addEventListener('input', function() {
+                counter.textContent = this.value.length;
+            });
+        }
+
+        // Check for hash navigation
+        function checkHashNavigation() {
+            const hash = window.location.hash;
+            if (hash) {
+                const element = document.querySelector(hash);
+                if (element) {
+                    setTimeout(() => {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                }
+            }
+        }
+
+        // Submit report form
+        async function submitReport(event) {
+            event.preventDefault();
+
+            const formData = {
+                type: document.getElementById('reportType').value,
+                contentUrl: document.getElementById('reportedContent').value,
+                subject: document.getElementById('reportSubject').value,
+                description: document.getElementById('reportDescription').value,
+                reporterEmail: document.getElementById('reporterEmail').value
+            };
+
+            // Hide previous alerts
+            document.getElementById('successAlert').classList.remove('show');
+            document.getElementById('errorAlert').classList.remove('show');
+
+            try {
+                const response = await fetch('/api/reports/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    document.getElementById('successAlert').classList.add('show');
+                    document.getElementById('reportForm').reset();
+                    document.getElementById('descriptionCount').textContent = '0';
+
+                    // Scroll to success message
+                    document.getElementById('successAlert').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    throw new Error('Failed to submit report');
+                }
+            } catch (error) {
+                console.error('Error submitting report:', error);
+                document.getElementById('errorAlert').classList.add('show');
+                document.getElementById('errorAlert').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        async function logout() {
+            try {
+                const response = await fetch('/api/users/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    if (window.setAuthState) {
+                        setAuthState(false, null);
+                    }
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        }
+
+        // Reset form
+        function resetForm() {
+            document.getElementById('reportForm').reset();
+            document.getElementById('descriptionCount').textContent = '0';
+            document.getElementById('successAlert').classList.remove('show');
+            document.getElementById('errorAlert').classList.remove('show');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
