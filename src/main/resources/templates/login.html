@@ -1,21 +1,420 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - VideoHub</title>
-    <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .back-nav {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+        }
+
+        .back-link {
+            color: #8a8a8a;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .back-link:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-form-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+        }
+
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-brand h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-brand h1 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .auth-brand p {
+            color: #8a8a8a;
+            font-size: 1rem;
+        }
+
+        .auth-form {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #ffffff;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #666666;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            accent-color: #ffffff;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #8a8a8a;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(255, 255, 255, 0.3);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .auth-links {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .auth-links a {
+            color: #8a8a8a;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .auth-links a:hover {
+            color: #ffffff;
+        }
+
+        .auth-divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #666666;
+            font-size: 0.9rem;
+        }
+
+        .auth-side {
+            flex: 1;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-side::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .auth-side-content {
+            position: relative;
+            z-index: 2;
+            max-width: 500px;
+        }
+
+        .auth-side-content h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .feature-item h3 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .feature-item p {
+            color: #8a8a8a;
+            line-height: 1.5;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 20, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close {
+            color: #8a8a8a;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ffffff;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .modal-content p {
+            margin-bottom: 1.5rem;
+            color: #8a8a8a;
+            line-height: 1.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+            }
+
+            .auth-side {
+                display: none;
+            }
+
+            .auth-form-container {
+                padding: 1rem;
+            }
+
+            .auth-form {
+                padding: 1.5rem;
+            }
+
+            .back-nav {
+                position: static;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+    </style>
 </head>
 <body class="auth-page">
 <div class="auth-container">
+    <!-- Navigation Back to Home -->
+    <div class="back-nav">
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+
     <div class="auth-form-container">
         <div class="auth-brand">
-            <h1>🎬 VideoHub</h1>
+            <h1><a href="/" style="color: inherit; text-decoration: none;">🎬 VideoHub</a></h1>
             <p>Welcome back! Please sign in to your account.</p>
         </div>
 
-        <form class="auth-form" onsubmit="loginPage(event)">
+        <!-- Display error message if login fails -->
+        <div th:if="${param.error}" class="alert alert-danger">
+            Invalid username or password. Please try again.
+        </div>
+
+        <!-- Display logout message if user just logged out -->
+        <div th:if="${param.logout}" class="alert alert-success">
+            You have been logged out successfully.
+        </div>
+
+        <!-- Spring Security expects form action to be "/login" by default -->
+        <form class="auth-form" action="/login" method="post">
             <h2>🔐 Sign In</h2>
 
             <div class="form-group">
@@ -29,21 +428,21 @@
             </div>
 
             <div class="form-group checkbox-group">
-                <input type="checkbox" id="remember" name="remember">
-                <label for="remember">Remember me for 30 days</label>
+                <input type="checkbox" id="remember-me" name="remember-me">
+                <label for="remember-me">Remember me for 30 days</label>
             </div>
 
             <button type="submit" class="btn auth-btn">🚀 Sign In</button>
 
             <div class="auth-links">
-                <a href="#" onclick="showForgotPasswordPage()">Forgot your password?</a>
+                <a href="#" onclick="showForgotPasswordModal()">Forgot your password?</a>
             </div>
 
             <div class="auth-divider">
                 <span>Don't have an account?</span>
             </div>
 
-            <a href="/register.html" class="btn btn-secondary auth-btn">📝 Create Account</a>
+            <a href="/register" class="btn btn-secondary auth-btn">📝 Create Account</a>
         </form>
     </div>
 
@@ -90,114 +489,35 @@
         <span class="close" onclick="closeModal('forgotPasswordModal')">&times;</span>
         <h2>🔄 Reset Password</h2>
         <p>Enter your email address and we'll send you a link to reset your password.</p>
-        <form onsubmit="resetPasswordPage(event)">
+        <form id="resetPasswordForm">
             <div class="form-group">
                 <label for="resetEmail">Email Address</label>
                 <input type="email" id="resetEmail" placeholder="Enter your email address" required>
             </div>
-            <button type="submit" class="btn">📧 Send Reset Link</button>
+            <button type="submit" class="btn auth-btn">📧 Send Reset Link</button>
             <button type="button" class="btn btn-secondary" onclick="closeModal('forgotPasswordModal')">Cancel</button>
         </form>
     </div>
 </div>
 
-<script src="/js/app.js"></script>
 <script>
-    async function loginPage(event) {
-        event.preventDefault();
-
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value;
-        const remember = document.getElementById('remember').checked;
-
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = '🔄 Signing in...';
-        submitBtn.disabled = true;
-
-        try {
-            const response = await fetch('/api/users/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({ username, password, remember })
-            });
-
-            if (response.ok) {
-                showAlert('🎉 Login successful! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1500);
-            } else {
-                const error = await response.text();
-                showAlert(`❌ ${error}`, 'error');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            showAlert('🚫 Login failed. Please try again.', 'error');
-        } finally {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }
-    }
-
-    function showForgotPasswordPage() {
+    function showForgotPasswordModal() {
         document.getElementById('forgotPasswordModal').style.display = 'flex';
-    }
-
-    async function resetPasswordPage(event) {
-        event.preventDefault();
-
-        const email = document.getElementById('resetEmail').value.trim();
-
-        if (!email) {
-            showAlert('Please enter your email address.', 'error');
-            return;
-        }
-
-        try {
-            // Simulate password reset API call
-            showAlert('📧 Password reset link sent to your email!', 'success');
-            closeModal('forgotPasswordModal');
-            document.getElementById('resetEmail').value = '';
-        } catch (error) {
-            showAlert('❌ Failed to send reset link. Please try again.', 'error');
-        }
     }
 
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
     }
 
-    function showAlert(message, type) {
-        // Create alert element
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type}`;
-        alert.textContent = message;
-        alert.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            padding: 15px;
-            border-radius: 4px;
-            color: white;
-            font-weight: bold;
-            max-width: 300px;
-            ${type === 'success' ? 'background-color: #28a745;' : ''}
-            ${type === 'error' ? 'background-color: #dc3545;' : ''}
-        `;
+    document.getElementById('resetPasswordForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const email = document.getElementById('resetEmail').value.trim();
 
-        document.body.appendChild(alert);
-
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.parentNode.removeChild(alert);
-            }
-        }, 3000);
-    }
+        // Here you would typically call a password reset API endpoint
+        alert('Password reset link would be sent to: ' + email);
+        closeModal('forgotPasswordModal');
+        document.getElementById('resetEmail').value = '';
+    });
 </script>
 </body>
 </html>
