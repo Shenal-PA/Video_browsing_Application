@@ -4,14 +4,291 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - VideoHub</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <style>
+        /* Black Theme Styles */
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #1c1c1c;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        .nav-brand h1 a {
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 24px;
+        }
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .admin-indicator {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+        .btn {
+            background-color: #6200ea;
+            color: #ffffff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #7f39fb;
+        }
+        .btn-secondary {
+            background-color: #424242;
+            color: #e0e0e0;
+        }
+        .btn-secondary:hover {
+            background-color: #616161;
+        }
+        .admin-main {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .admin-header h1 {
+            color: #ffffff;
+            font-size: 28px;
+        }
+        .system-status {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #424242;
+        }
+        .status-indicator.online {
+            background-color: #00e676;
+        }
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .stat-card.primary {
+            border-left: 4px solid #6200ea;
+        }
+        .stat-card.secondary {
+            border-left: 4px solid #03a9f4;
+        }
+        .stat-card.tertiary {
+            border-left: 4px solid #ffeb3b;
+        }
+        .stat-card.warning {
+            border-left: 4px solid #ff5722;
+        }
+        .stat-icon {
+            font-size: 24px;
+        }
+        .stat-info h3 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 20px;
+        }
+        .stat-info p {
+            margin: 5px 0;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+        .stat-change {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+        .stat-change.positive {
+            background-color: #1b5e20;
+            color: #4caf50;
+        }
+        .stat-change.urgent {
+            background-color: #b71c1c;
+            color: #ef5350;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        .admin-tab-button {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .admin-tab-button.active, .admin-tab-button:hover {
+            background-color: #6200ea;
+            color: #ffffff;
+        }
+        .admin-tab-content {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .overview-section h3 {
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+        .activity-list, .top-videos-list, .users-list, .videos-list {
+            background-color: #242424;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+        .loading {
+            color: #b0b0b0;
+            text-align: center;
+            padding: 20px;
+        }
+        .health-metrics .health-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            color: #e0e0e0;
+        }
+        .progress-bar {
+            background-color: #424242;
+            border-radius: 4px;
+            height: 10px;
+            width: 100px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background-color: #6200ea;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+        .action-btn {
+            background-color: #242424;
+            color: #e0e0e0;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: background-color 0.3s;
+        }
+        .action-btn:hover {
+            background-color: #6200ea;
+            color: #ffffff;
+        }
+        .action-btn span {
+            font-size: 20px;
+        }
+        .action-btn strong {
+            display: block;
+            color: #ffffff;
+        }
+        .action-btn small {
+            color: #b0b0b0;
+            font-size: 12px;
+        }
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .tab-header h2 {
+            color: #ffffff;
+        }
+        .tab-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .tab-controls input, .tab-controls select {
+            background-color: #242424;
+            color: #e0e0e0;
+            border: 1px solid #424242;
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .tab-controls input::placeholder {
+            color: #b0b0b0;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .pagination button {
+            background-color: #242424;
+            color: #e0e0e0;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pagination button:hover {
+            background-color: #6200ea;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
 <header>
     <nav class="navbar">
         <div class="nav-brand">
-            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub Admin</a></h1>
+            <h1><a href="/">🎬 VideoHub Admin</a></h1>
         </div>
         <div class="nav-user">
             <span class="admin-indicator">⚙️ Admin Panel</span>
@@ -147,36 +424,116 @@
                 <div class="overview-section">
                     <h3>⚡ Quick Actions</h3>
                     <div class="quick-actions">
-                        <button class="action-btn" onclick="moderateContent()">
-                            <span>🛡️</span>
+                        <button class="action-btn" onclick="showAdminTab('reports', document.querySelector('[data-tab=reports]'))">
+                            <span>⚠️</span>
                             <div>
-                                <strong>Moderate Content</strong>
-                                <small>Review flagged videos</small>
+                                <strong>Review Reports</strong>
+                                <small>Check pending reports</small>
                             </div>
                         </button>
-                        <button class="action-btn" onclick="manageUsers()">
+                        <button class="action-btn" onclick="showAdminTab('users', document.querySelector('[data-tab=users]'))">
                             <span>👥</span>
                             <div>
                                 <strong>Manage Users</strong>
                                 <small>User administration</small>
                             </div>
                         </button>
-                        <button class="action-btn" onclick="systemSettings()">
+                        <button class="action-btn" onclick="showAdminTab('videos', document.querySelector('[data-tab=videos]'))">
+                            <span>📹</span>
+                            <div>
+                                <strong>Content Review</strong>
+                                <small>Video moderation</small>
+                            </div>
+                        </button>
+                        <button class="action-btn" onclick="showAdminTab('settings', document.querySelector('[data-tab=settings]'))">
                             <span>⚙️</span>
                             <div>
                                 <strong>System Settings</strong>
                                 <small>Configure platform</small>
                             </div>
                         </button>
-                        <button class="action-btn" onclick="viewAnalytics()">
-                            <span>📊</span>
-                            <div>
-                                <strong>View Analytics</strong>
-                                <small>Platform insights</small>
-                            </div>
-                        </button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reportsTab" class="admin-tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>⚠️ Reports Management</h2>
+                <div class="tab-controls">
+                    <select id="reportStatusFilter" onchange="filterReports()">
+                        <option value="">All Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="REVIEWING">Under Review</option>
+                        <option value="RESOLVED">Resolved</option>
+                        <option value="DISMISSED">Dismissed</option>
+                    </select>
+                    <select id="reportTypeFilter" onchange="filterReports()">
+                        <option value="">All Types</option>
+                        <option value="INAPPROPRIATE_CONTENT">Inappropriate Content</option>
+                        <option value="COPYRIGHT">Copyright</option>
+                        <option value="SPAM">Spam</option>
+                        <option value="HARASSMENT">Harassment</option>
+                        <option value="TECHNICAL_ISSUE">Technical Issue</option>
+                        <option value="ACCOUNT_ISSUE">Account Issue</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                    <input type="text" id="reportSearch" placeholder="Search reports..." onkeyup="searchReports()">
+                    <button class="btn" onclick="refreshReports()">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div class="reports-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="stat-card warning" style="padding: 15px;">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <h3 id="pendingReportsCount">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+                <div class="stat-card primary" style="padding: 15px;">
+                    <div class="stat-icon">👁️</div>
+                    <div class="stat-info">
+                        <h3 id="reviewingReportsCount">0</h3>
+                        <p>Under Review</p>
+                    </div>
+                </div>
+                <div class="stat-card secondary" style="padding: 15px;">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <h3 id="resolvedReportsCount">0</h3>
+                        <p>Resolved</p>
+                    </div>
+                </div>
+                <div class="stat-card tertiary" style="padding: 15px;">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-info">
+                        <h3 id="totalReportsCount">0</h3>
+                        <p>Total Reports</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reports-table" style="background: #242424; border-radius: 8px; overflow: hidden;">
+                <div class="table-header" style="background: #1e1e1e; padding: 15px; border-bottom: 1px solid #424242; display: grid; grid-template-columns: 80px 150px 180px 120px 140px 120px 140px; gap: 10px; font-weight: bold; color: #fff;">
+                    <span>ID</span>
+                    <span>Type</span>
+                    <span>Description</span>
+                    <span>Status</span>
+                    <span>Submitted</span>
+                    <span>Reporter</span>
+                    <span>Actions</span>
+                </div>
+                <div id="reportsTableBody" class="table-body">
+                    <div class="loading" style="padding: 30px; text-align: center;">Loading reports...</div>
+                </div>
+            </div>
+
+            <div class="pagination" id="reportsPagination" style="display: none;">
+                <button onclick="changePage(-1)">« Previous</button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button onclick="changePage(1)">Next »</button>
             </div>
         </div>
 
@@ -185,7 +542,7 @@
             <div class="tab-header">
                 <h2>👥 User Management</h2>
                 <div class="tab-controls">
-                    <input type="text" id="userSearchInput" placeholder="Search users..." style="width: 250px;">
+                    <input type="text" id="userSearchInput" placeholder="Search users...">
                     <select id="userRoleFilter">
                         <option value="">All Roles</option>
                         <option value="REGISTERED_USER">Regular Users</option>
@@ -207,7 +564,7 @@
             <div class="tab-header">
                 <h2>📹 Video Management</h2>
                 <div class="tab-controls">
-                    <input type="text" id="videoSearchInput" placeholder="Search videos..." style="width: 250px;">
+                    <input type="text" id="videoSearchInput" placeholder="Search videos...">
                     <select id="videoStatusFilter">
                         <option value="">All Status</option>
                         <option value="PUBLIC">Public</option>
@@ -225,8 +582,977 @@
             <div class="pagination" id="videosPagination"></div>
         </div>
 
-        <!-- Reports Tab -->
-        <div id="reportsTab" class="admin-tab-content" style="display: none;">
+        <!-- Categories Tab -->
+        <div id="categoriesTab" class="admin-tab-content" style="display: none;">
             <div class="tab-header">
-                <h2>⚠️ Report Management</h2>
-                <div class
+                <h2>📁 Category Management</h2>
+                <div class="tab-controls">
+                    <input type="text" id="categorySearchInput" placeholder="Search categories..." onkeyup="searchCategoriesTable()">
+                    <button class="btn" onclick="openAddCategoryModal()">➕ Add Category</button>
+                    <button class="btn btn-secondary" onclick="loadCategories()">🔄 Refresh</button>
+                </div>
+            </div>
+            
+            <!-- Categories Stats -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="stat-card primary" style="padding: 15px;">
+                    <div class="stat-icon">📁</div>
+                    <div class="stat-info">
+                        <h3 id="totalCategoriesCount">0</h3>
+                        <p>Total Categories</p>
+                    </div>
+                </div>
+                <div class="stat-card secondary" style="padding: 15px;">
+                    <div class="stat-icon">📹</div>
+                    <div class="stat-info">
+                        <h3 id="categoriesWithVideos">0</h3>
+                        <p>Categories with Videos</p>
+                    </div>
+                </div>
+                <div class="stat-card tertiary" style="padding: 15px;">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <h3 id="categoriesWithDesc">0</h3>
+                        <p>With Description</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Table -->
+            <div class="table-container" style="background: #1e1e1e; border-radius: 8px; padding: 20px;">
+                <div class="table-header" style="display: grid; grid-template-columns: 80px 200px 1fr 150px 180px; gap: 15px; padding: 12px; background: #242424; border-radius: 6px; font-weight: bold; margin-bottom: 10px;">
+                    <div>ID</div>
+                    <div>Category Name</div>
+                    <div>Description</div>
+                    <div>Created By</div>
+                    <div>Actions</div>
+                </div>
+                <div id="categoriesTableBody">
+                    <div class="loading">Loading categories...</div>
+                </div>
+            </div>
+            
+            <div class="pagination" id="categoriesPagination"></div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analyticsTab" class="admin-tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>📈 Analytics</h2>
+                <div class="tab-controls">
+                    <select id="analyticsPeriod">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                    <button class="btn" onclick="refreshAnalytics()">🔄 Refresh</button>
+                </div>
+            </div>
+            <div id="analyticsContent" class="analytics-content">
+                <div class="loading">Loading analytics...</div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settingsTab" class="admin-tab-content" style="display: none;">
+            <div class="tab-header">
+                <h2>⚙️ Settings</h2>
+            </div>
+            <div id="settingsContent" class="settings-content">
+                <div class="loading">Loading settings...</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Report Detail Modal -->
+<div id="reportModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; padding: 20px; overflow-y: auto;">
+    <div style="background: #1e1e1e; border-radius: 12px; max-width: 900px; margin: 30px auto; padding: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 2px solid #6200ea; padding-bottom: 15px;">
+            <h2 style="color: #fff; margin: 0; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 28px;">📋</span>
+                <span>Report Management</span>
+            </h2>
+            <button onclick="closeReportModal()" style="background: #424242; border: none; color: #fff; font-size: 24px; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; transition: all 0.3s;" onmouseover="this.style.background='#d32f2f'" onmouseout="this.style.background='#424242'">×</button>
+        </div>
+
+        <div id="reportDetails" style="color: #e0e0e0;">
+            <!-- Report details will be loaded here dynamically -->
+        </div>
+
+        <!-- Admin Notes Section -->
+        <div style="margin: 25px 0; background: #242424; padding: 20px; border-radius: 8px; border-left: 4px solid #6200ea;">
+            <h3 style="color: #fff; margin: 0 0 15px 0; font-size: 18px;">📝 Admin Notes</h3>
+            <textarea id="adminNotesInput" rows="4" 
+                      style="width: 100%; padding: 12px; background: #1e1e1e; border: 1px solid #424242; border-radius: 6px; color: #e0e0e0; font-size: 14px; resize: vertical; font-family: Arial, sans-serif;"
+                      placeholder="Add internal notes about this report (only visible to admins)..."></textarea>
+            <p style="color: #9e9e9e; font-size: 12px; margin: 8px 0 0 0;">These notes are for administrative purposes and will not be shared with the reporter.</p>
+        </div>
+
+        <!-- Action Buttons Section -->
+        <div style="background: #242424; padding: 20px; border-radius: 8px; margin-top: 25px;">
+            <h3 style="color: #fff; margin: 0 0 15px 0; font-size: 16px;">⚡ Actions</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <!-- Action 1: Resolve Report -->
+                <button onclick="updateReportWithAction('RESOLVED')" 
+                        style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(76,175,80,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <span style="font-size: 18px;">✅</span>
+                    <span>Resolve Report</span>
+                </button>
+                
+                <!-- Action 2: Dismiss Report -->
+                <button onclick="updateReportWithAction('DISMISSED')" 
+                        style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255,152,0,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <span style="font-size: 18px;">❌</span>
+                    <span>Dismiss Report</span>
+                </button>
+                
+                <!-- Action 3: Mark Under Review -->
+                <button onclick="updateReportWithAction('REVIEWING')" 
+                        style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; border: none; padding: 14px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(33,150,243,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <span style="font-size: 18px;">👁️</span>
+                    <span>Under Review</span>
+                </button>
+            </div>
+            
+            <!-- Additional Actions -->
+            <div style="display: flex; gap: 12px; margin-top: 15px; padding-top: 15px; border-top: 1px solid #424242;">
+                <button onclick="saveAdminNotes()" 
+                        style="flex: 1; background: #6200ea; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.3s;"
+                        onmouseover="this.style.background='#7f39fb'"
+                        onmouseout="this.style.background='#6200ea'">
+                    <span>💾</span>
+                    <span>Save Notes Only</span>
+                </button>
+                
+                <button onclick="deleteReport()" 
+                        style="background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s, box-shadow 0.2s;"
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(211,47,47,0.4)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                    <span>🗑️</span>
+                    <span>Delete Report</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Close Button -->
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="closeReportModal()" class="btn btn-secondary" style="padding: 12px 30px;">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Category Modal (Add/Edit) -->
+<div id="categoryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; padding: 20px;">
+    <div style="background: #1e1e1e; border-radius: 12px; max-width: 600px; margin: 100px auto; padding: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #fff; margin: 0;" id="categoryModalTitle">➕ Add New Category</h2>
+            <button onclick="closeCategoryModal()" style="background: none; border: none; color: #ccc; font-size: 24px; cursor: pointer;">×</button>
+        </div>
+
+        <form id="categoryForm" onsubmit="saveCategoryForm(event)" style="color: #e0e0e0;">
+            <input type="hidden" id="categoryId">
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Category Name *</label>
+                <input type="text" id="categoryName" required 
+                       style="width: 100%; padding: 12px; background: #242424; border: 1px solid #424242; border-radius: 6px; color: #e0e0e0; font-size: 14px;"
+                       placeholder="Enter category name (e.g., Gaming, Education, Music)">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Description</label>
+                <textarea id="categoryDescription" rows="4"
+                          style="width: 100%; padding: 12px; background: #242424; border: 1px solid #424242; border-radius: 6px; color: #e0e0e0; font-size: 14px; resize: vertical;"
+                          placeholder="Enter a brief description of this category"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 30px;">
+                <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Cancel</button>
+                <button type="submit" class="btn" style="background: #6200ea;">
+                    <span id="categorySaveBtn">💾 Save Category</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let currentReports = [];
+    let currentReportId = null;
+    let currentPage = 1;
+    const reportsPerPage = 10;
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+        loadReports();
+        updateSystemStatus();
+    });
+
+    function loadDashboardData() {
+        // Simulate loading dashboard statistics
+        setTimeout(() => {
+            document.getElementById('totalUsers').textContent = '1,234';
+            document.getElementById('totalVideos').textContent = '5,678';
+            document.getElementById('totalViews').textContent = '89.2K';
+            document.getElementById('userGrowth').textContent = '+12%';
+            document.getElementById('videoGrowth').textContent = '+8%';
+            document.getElementById('viewGrowth').textContent = '+25%';
+        }, 1000);
+    }
+
+    function updateSystemStatus() {
+        // Simulate system status checks
+        document.getElementById('dbStatus').className = 'status-indicator online';
+        document.getElementById('storageStatus').className = 'status-indicator online';
+    }
+
+    // Load reports from backend
+    async function loadReports() {
+        try {
+            const response = await fetch('/api/reports/admin', {
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                currentReports = await response.json();
+                updateReportsStats();
+                displayReports();
+            } else {
+                console.error('Failed to load reports');
+                displayReportsError();
+            }
+        } catch (error) {
+            console.error('Error loading reports:', error);
+            displayReportsError();
+        }
+    }
+
+    function updateReportsStats() {
+        const pending = currentReports.filter(r => r.status === 'PENDING').length;
+        const reviewing = currentReports.filter(r => r.status === 'REVIEWING').length;
+        const resolved = currentReports.filter(r => r.status === 'RESOLVED').length;
+
+        document.getElementById('pendingReports').textContent = pending;
+        document.getElementById('pendingReportsCount').textContent = pending;
+        document.getElementById('reviewingReportsCount').textContent = reviewing;
+        document.getElementById('resolvedReportsCount').textContent = resolved;
+        document.getElementById('totalReportsCount').textContent = currentReports.length;
+    }
+
+    function displayReports() {
+        const tableBody = document.getElementById('reportsTableBody');
+
+        if (currentReports.length === 0) {
+            tableBody.innerHTML = '<div style="padding: 30px; text-align: center; color: #b0b0b0;">No reports found</div>';
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * reportsPerPage;
+        const endIndex = startIndex + reportsPerPage;
+        const paginatedReports = currentReports.slice(startIndex, endIndex);
+
+        tableBody.innerHTML = paginatedReports.map(report => `
+            <div class="report-row" style="display: grid; grid-template-columns: 80px 150px 180px 120px 140px 120px 140px; gap: 10px; padding: 15px; border-bottom: 1px solid #424242; align-items: center; color: #e0e0e0;">
+                <span style="font-weight: bold; color: #6200ea;">#${report.id}</span>
+                <span style="background: #424242; padding: 4px 8px; border-radius: 12px; font-size: 11px; text-transform: uppercase;">${report.reportType.replace('_', ' ')}</span>
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${report.description}">${report.description.substring(0, 40)}${report.description.length > 40 ? '...' : ''}</span>
+                <span class="status-badge status-${report.status.toLowerCase()}" style="padding: 4px 8px; border-radius: 12px; font-size: 11px; text-transform: uppercase; background: ${getStatusColor(report.status)};">${report.status}</span>
+                <span style="font-size: 13px; color: #b0b0b0;">${formatDate(report.createdAt)}</span>
+                <span style="font-size: 13px; color: #b0b0b0;">${report.reportedByUsername || 'Anonymous'}</span>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="viewReport(${report.id})" style="background: #6200ea; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">View</button>
+                    <button onclick="quickDeleteReport(${report.id})" style="background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;" title="Delete report">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+
+        updatePagination();
+    }
+
+    function displayReportsError() {
+        const tableBody = document.getElementById('reportsTableBody');
+        tableBody.innerHTML = '<div style="padding: 30px; text-align: center; color: #f44336;">Error loading reports. Please try again.</div>';
+    }
+
+    function getStatusColor(status) {
+        switch (status) {
+            case 'PENDING': return '#ff5722';
+            case 'REVIEWING': return '#2196f3';
+            case 'RESOLVED': return '#4caf50';
+            case 'DISMISSED': return '#9e9e9e';
+            default: return '#424242';
+        }
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
+
+    function updatePagination() {
+        const totalPages = Math.ceil(currentReports.length / reportsPerPage);
+        const pagination = document.getElementById('reportsPagination');
+        const pageInfo = document.getElementById('pageInfo');
+
+        if (totalPages > 1) {
+            pagination.style.display = 'flex';
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        } else {
+            pagination.style.display = 'none';
+        }
+    }
+
+    function changePage(direction) {
+        const totalPages = Math.ceil(currentReports.length / reportsPerPage);
+        const newPage = currentPage + direction;
+
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            displayReports();
+        }
+    }
+
+    async function viewReport(reportId) {
+        currentReportId = reportId;
+        const report = currentReports.find(r => r.id === reportId);
+
+        if (!report) return;
+
+        // Calculate processing period
+        const submittedDate = new Date(report.createdAt);
+        const now = new Date();
+        const processingDays = Math.floor((now - submittedDate) / (1000 * 60 * 60 * 24));
+        const processingHours = Math.floor((now - submittedDate) / (1000 * 60 * 60)) % 24;
+        
+        let processingPeriod = '';
+        if (processingDays > 0) {
+            processingPeriod = `${processingDays} day${processingDays > 1 ? 's' : ''}`;
+            if (processingHours > 0) {
+                processingPeriod += ` ${processingHours} hour${processingHours > 1 ? 's' : ''}`;
+            }
+        } else if (processingHours > 0) {
+            processingPeriod = `${processingHours} hour${processingHours > 1 ? 's' : ''}`;
+        } else {
+            const processingMinutes = Math.floor((now - submittedDate) / (1000 * 60));
+            processingPeriod = `${processingMinutes} minute${processingMinutes !== 1 ? 's' : ''}`;
+        }
+
+        const reportDetails = document.getElementById('reportDetails');
+        reportDetails.innerHTML = `
+            <!-- Report Header Card -->
+            <div style="background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%); padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid ${getStatusColor(report.status)};">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div>
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Report ID</p>
+                        <p style="color: #fff; font-size: 20px; font-weight: bold; margin: 0;">#${report.id}</p>
+                    </div>
+                    <div>
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Status</p>
+                        <p style="margin: 0;">
+                            <span style="display: inline-block; padding: 6px 12px; background: ${getStatusColor(report.status)}; color: white; border-radius: 16px; font-size: 13px; font-weight: bold;">
+                                ${report.status}
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Type</p>
+                        <p style="color: #fff; font-size: 15px; font-weight: 500; margin: 0;">${report.reportType.replace(/_/g, ' ')}</p>
+                    </div>
+                    <div>
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Processing Period</p>
+                        <p style="color: ${processingDays > 7 ? '#ff5722' : processingDays > 3 ? '#ff9800' : '#4caf50'}; font-size: 15px; font-weight: bold; margin: 0;">
+                            ${processingPeriod}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Information Card -->
+            <div style="background: #242424; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="color: #fff; margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                    <span>👤</span>
+                    <span>Reporter Information</span>
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div style="background: #1e1e1e; padding: 15px; border-radius: 6px;">
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0;">Username</p>
+                        <p style="color: #fff; font-size: 15px; margin: 0; font-weight: 500;">${report.reportedByUsername || '<em style="color: #757575;">Anonymous</em>'}</p>
+                    </div>
+                    <div style="background: #1e1e1e; padding: 15px; border-radius: 6px;">
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0;">User ID</p>
+                        <p style="color: #fff; font-size: 15px; margin: 0; font-weight: 500;">${report.reportedById ? '#' + report.reportedById : '<em style="color: #757575;">N/A</em>'}</p>
+                    </div>
+                    <div style="background: #1e1e1e; padding: 15px; border-radius: 6px;">
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0;">Submitted Date</p>
+                        <p style="color: #fff; font-size: 15px; margin: 0; font-weight: 500;">${formatDate(report.createdAt)}</p>
+                    </div>
+                    ${report.reporterEmail ? `
+                    <div style="background: #1e1e1e; padding: 15px; border-radius: 6px;">
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0;">📧 Contact Email</p>
+                        <p style="color: #4caf50; font-size: 15px; margin: 0; font-weight: 500;">${report.reporterEmail}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+
+            <!-- Report Content Card -->
+            <div style="background: #242424; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="color: #fff; margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                    <span>📄</span>
+                    <span>Report Details</span>
+                </h3>
+                ${report.videoTitle ? `
+                    <div style="background: #1e1e1e; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                        <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0;">Related Video</p>
+                        <p style="color: #6200ea; font-size: 15px; margin: 0; font-weight: 500;">
+                            <a href="/video/${report.videoId}" target="_blank" style="color: #6200ea; text-decoration: none;">
+                                ${report.videoTitle} <span style="font-size: 12px;">🔗</span>
+                            </a>
+                        </p>
+                    </div>
+                ` : ''}
+                <div style="background: #1e1e1e; padding: 15px; border-radius: 6px;">
+                    <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 10px 0;">Description</p>
+                    <p style="color: #e0e0e0; font-size: 14px; line-height: 1.7; margin: 0; white-space: pre-wrap;">${report.description || '<em style="color: #757575;">No description provided</em>'}</p>
+                </div>
+            </div>
+
+            <!-- Resolution Information (if resolved) -->
+            ${report.resolvedAt ? `
+                <div style="background: #1e3a1e; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+                    <h3 style="color: #fff; margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                        <span>✅</span>
+                        <span>Resolution Information</span>
+                    </h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div>
+                            <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0;">Resolved By</p>
+                            <p style="color: #fff; font-size: 15px; margin: 0; font-weight: 500;">${report.resolvedByUsername || 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p style="color: #9e9e9e; font-size: 12px; margin: 0 0 5px 0;">Resolved Date</p>
+                            <p style="color: #fff; font-size: 15px; margin: 0; font-weight: 500;">${formatDate(report.resolvedAt)}</p>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- Existing Admin Notes (if any) -->
+            ${report.adminNotes ? `
+                <div style="background: #242424; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                    <h4 style="color: #fff; margin: 0 0 10px 0; font-size: 14px;">Previous Admin Notes:</h4>
+                    <p style="color: #e0e0e0; font-size: 13px; line-height: 1.6; margin: 0; white-space: pre-wrap; font-style: italic;">${report.adminNotes}</p>
+                </div>
+            ` : ''}
+        `;
+
+        // Pre-fill admin notes if they exist
+        document.getElementById('adminNotesInput').value = report.adminNotes || '';
+
+        document.getElementById('reportModal').style.display = 'block';
+    }
+
+    function closeReportModal() {
+        document.getElementById('reportModal').style.display = 'none';
+        currentReportId = null;
+        document.getElementById('adminNotesInput').value = '';
+    }
+
+    // New function to update report with action and notes
+    async function updateReportWithAction(status) {
+        if (!currentReportId) return;
+
+        const adminNotes = document.getElementById('adminNotesInput').value.trim();
+
+        // Confirm action
+        const actionText = status === 'RESOLVED' ? 'resolve' : status === 'DISMISSED' ? 'dismiss' : 'mark as under review';
+        if (!confirm(`Are you sure you want to ${actionText} this report?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/reports/admin/${currentReportId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    status: status,
+                    adminNotes: adminNotes
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(result.message || `Report ${status.toLowerCase()} successfully!`);
+                closeReportModal();
+                loadReports(); // Reload reports to show updated data
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || 'Failed to update report');
+            }
+        } catch (error) {
+            console.error('Error updating report:', error);
+            alert('Error updating report. Please try again.');
+        }
+    }
+
+    // Function to save admin notes without changing status
+    async function saveAdminNotes() {
+        if (!currentReportId) return;
+
+        const adminNotes = document.getElementById('adminNotesInput').value.trim();
+
+        if (!adminNotes) {
+            alert('Please enter some notes before saving.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/reports/admin/${currentReportId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    adminNotes: adminNotes
+                })
+            });
+
+            if (response.ok) {
+                alert('Admin notes saved successfully!');
+                // Update the current report in memory
+                const report = currentReports.find(r => r.id === currentReportId);
+                if (report) {
+                    report.adminNotes = adminNotes;
+                }
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || 'Failed to save admin notes');
+            }
+        } catch (error) {
+            console.error('Error saving admin notes:', error);
+            alert('Error saving admin notes. Please try again.');
+        }
+    }
+
+    // Legacy function for compatibility (if needed elsewhere)
+    async function updateReportStatus(status) {
+        if (!currentReportId) return;
+
+        try {
+            const response = await fetch(`/api/reports/admin/${currentReportId}/status?status=${status}`, {
+                method: 'PUT',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                closeReportModal();
+                loadReports(); // Reload reports
+                alert(`Report status updated to ${status}`);
+            } else {
+                alert('Failed to update report status');
+            }
+        } catch (error) {
+            console.error('Error updating report status:', error);
+            alert('Error updating report status');
+        }
+    }
+
+    async function deleteReport() {
+        if (!currentReportId) return;
+
+        // Get current report to show email in confirmation
+        const report = currentReports.find(r => r.id === currentReportId);
+        const notificationEmail = report?.reporterEmail || report?.reportedByEmail || 'the reporter';
+        const emailDisplay = notificationEmail !== 'the reporter' ? `\n\n📧 Notification will be sent to: ${notificationEmail}` : '';
+
+        // Confirm deletion
+        if (!confirm(`Are you sure you want to permanently delete this report? This action cannot be undone.\n\nThe user will be notified via email.${emailDisplay}`)) {
+            return;
+        }
+
+        // Ask for deletion reason
+        const deletionReason = prompt('Please provide a reason for deleting this report (will be sent to user):\n\n(Optional, press Cancel to skip)');
+        
+        // User clicked cancel on confirm, abort
+        if (deletionReason === null && !confirm('Delete without providing a reason?')) {
+            return;
+        }
+
+        try {
+            const requestBody = deletionReason ? { deletionReason: deletionReason } : {};
+            
+            const response = await fetch(`/api/reports/admin/${currentReportId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (response.ok) {
+                const successMsg = notificationEmail !== 'the reporter' 
+                    ? `✅ Report deleted successfully.\n\n📧 Email notification sent to:\n${notificationEmail}\n\nThe user has been informed about the deletion.`
+                    : '✅ Report deleted successfully.\n\n📧 User has been notified via email.';
+                
+                closeReportModal();
+                loadReports(); // Reload reports
+                alert(successMsg);
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || 'Failed to delete report');
+            }
+        } catch (error) {
+            console.error('Error deleting report:', error);
+            alert('Error deleting report. Please try again.');
+        }
+    }
+
+    async function quickDeleteReport(reportId) {
+        // Get report details to show email
+        const report = currentReports.find(r => r.id === reportId);
+        const notificationEmail = report?.reporterEmail || report?.reportedByEmail || 'the reporter';
+        const emailDisplay = notificationEmail !== 'the reporter' ? `\n\n📧 Email notification will be sent to: ${notificationEmail}` : '';
+
+        // Confirm deletion
+        if (!confirm(`Are you sure you want to delete Report #${reportId}? This action cannot be undone.\n\nThe user will be notified via email.${emailDisplay}`)) {
+            return;
+        }
+
+        // Ask for deletion reason
+        const deletionReason = prompt('Please provide a reason for deleting this report (will be sent to user):\n\n(Optional, press Cancel to skip)');
+        
+        // User clicked cancel on confirm, abort
+        if (deletionReason === null && !confirm('Delete without providing a reason?')) {
+            return;
+        }
+
+        try {
+            const requestBody = deletionReason ? { deletionReason: deletionReason } : {};
+            
+            const response = await fetch(`/api/reports/admin/${reportId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (response.ok) {
+                const successMsg = notificationEmail !== 'the reporter' 
+                    ? `✅ Report deleted successfully.\n\n📧 Email notification sent to:\n${notificationEmail}\n\nThe user has been informed about the deletion.`
+                    : '✅ Report deleted successfully.\n\n📧 User has been notified via email.';
+                
+                loadReports(); // Reload reports
+                alert(successMsg);
+            } else {
+                const errorData = await response.json();
+                alert(errorData.error || 'Failed to delete report');
+            }
+        } catch (error) {
+            console.error('Error deleting report:', error);
+            alert('Error deleting report. Please try again.');
+        }
+    }
+
+    function filterReports() {
+        const statusFilter = document.getElementById('reportStatusFilter').value;
+        const typeFilter = document.getElementById('reportTypeFilter').value;
+
+        // Apply filters (implementation would filter currentReports array)
+        currentPage = 1;
+        displayReports();
+    }
+
+    function searchReports() {
+        const searchTerm = document.getElementById('reportSearch').value.toLowerCase();
+
+        // Apply search (implementation would filter currentReports array)
+        currentPage = 1;
+        displayReports();
+    }
+
+    function refreshReports() {
+        loadReports();
+    }
+
+    // Tab management
+    function showAdminTab(tabName, buttonElement) {
+        // Hide all tab contents
+        document.querySelectorAll('.admin-tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+
+        // Remove active class from all buttons
+        document.querySelectorAll('.admin-tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Show selected tab and mark button as active
+        document.getElementById(tabName + 'Tab').style.display = 'block';
+        buttonElement.classList.add('active');
+
+        // Load data for specific tabs
+        if (tabName === 'reports') {
+            loadReports();
+        } else if (tabName === 'categories') {
+            loadCategories();
+        } else if (tabName === 'users') {
+            // loadUsers(); // You can implement this
+        } else if (tabName === 'videos') {
+            // loadVideos(); // You can implement this
+        }
+    }
+
+    // Other functions
+    function refreshDashboard() {
+        loadDashboardData();
+        loadReports();
+        updateSystemStatus();
+    }
+
+    function exportSystemReport() {
+        alert('Exporting system report...');
+    }
+
+    function exportUsers() {
+        alert('Exporting user data...');
+    }
+
+    function exportVideos() {
+        alert('Exporting video data...');
+    }
+
+    // ==================== CATEGORY MANAGEMENT ====================
+
+    let allCategories = [];
+    let currentEditingCategoryId = null;
+
+    async function loadCategories() {
+        try {
+            const response = await fetch('/api/categories', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                allCategories = await response.json();
+                displayCategories(allCategories);
+                updateCategoryStats(allCategories);
+            } else {
+                console.error('Failed to load categories');
+                document.getElementById('categoriesTableBody').innerHTML = 
+                    '<div style="padding: 20px; text-align: center; color: #f44336;">Failed to load categories</div>';
+            }
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            document.getElementById('categoriesTableBody').innerHTML = 
+                '<div style="padding: 20px; text-align: center; color: #f44336;">Error loading categories</div>';
+        }
+    }
+
+    function displayCategories(categories) {
+        const tableBody = document.getElementById('categoriesTableBody');
+        
+        if (categories.length === 0) {
+            tableBody.innerHTML = '<div style="padding: 20px; text-align: center; color: #b0b0b0;">No categories found</div>';
+            return;
+        }
+
+        tableBody.innerHTML = categories.map(category => `
+            <div class="report-row" style="display: grid; grid-template-columns: 80px 200px 1fr 150px 180px; gap: 15px; padding: 12px; background: #242424; border-radius: 6px; margin-bottom: 8px; align-items: center;">
+                <div style="font-weight: bold; color: #6200ea;">#${category.id}</div>
+                <div style="font-weight: bold; color: #ffffff;">${escapeHtml(category.name)}</div>
+                <div style="color: #b0b0b0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    ${category.description ? escapeHtml(category.description) : '<em style="color: #757575;">No description</em>'}
+                </div>
+                <div style="font-size: 12px; color: #9e9e9e;">
+                    ${category.createdBy ? escapeHtml(category.createdBy.username) : 'System'}
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="editCategory(${category.id})" 
+                            style="background: #2196f3; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;"
+                            title="Edit category">✏️ Edit</button>
+                    <button onclick="deleteCategory(${category.id}, '${escapeHtml(category.name)}')" 
+                            style="background: #d32f2f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;"
+                            title="Delete category">🗑️ Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateCategoryStats(categories) {
+        document.getElementById('totalCategoriesCount').textContent = categories.length;
+        
+        // Count categories with descriptions
+        const withDesc = categories.filter(c => c.description && c.description.trim() !== '').length;
+        document.getElementById('categoriesWithDesc').textContent = withDesc;
+        
+        // You can add logic to count categories with videos if needed
+        document.getElementById('categoriesWithVideos').textContent = categories.length;
+    }
+
+    function searchCategoriesTable() {
+        const searchTerm = document.getElementById('categorySearchInput').value.toLowerCase();
+        
+        if (!searchTerm) {
+            displayCategories(allCategories);
+            return;
+        }
+
+        const filtered = allCategories.filter(category => 
+            category.name.toLowerCase().includes(searchTerm) ||
+            (category.description && category.description.toLowerCase().includes(searchTerm))
+        );
+
+        displayCategories(filtered);
+    }
+
+    function openAddCategoryModal() {
+        currentEditingCategoryId = null;
+        document.getElementById('categoryModalTitle').textContent = '➕ Add New Category';
+        document.getElementById('categoryId').value = '';
+        document.getElementById('categoryName').value = '';
+        document.getElementById('categoryDescription').value = '';
+        document.getElementById('categorySaveBtn').textContent = '💾 Save Category';
+        document.getElementById('categoryModal').style.display = 'block';
+    }
+
+    async function editCategory(categoryId) {
+        currentEditingCategoryId = categoryId;
+        
+        // Find category in loaded data
+        const category = allCategories.find(c => c.id === categoryId);
+        
+        if (category) {
+            document.getElementById('categoryModalTitle').textContent = '✏️ Edit Category';
+            document.getElementById('categoryId').value = category.id;
+            document.getElementById('categoryName').value = category.name;
+            document.getElementById('categoryDescription').value = category.description || '';
+            document.getElementById('categorySaveBtn').textContent = '💾 Update Category';
+            document.getElementById('categoryModal').style.display = 'block';
+        } else {
+            alert('Category not found');
+        }
+    }
+
+    async function saveCategoryForm(event) {
+        event.preventDefault();
+
+        const categoryId = document.getElementById('categoryId').value;
+        const name = document.getElementById('categoryName').value.trim();
+        const description = document.getElementById('categoryDescription').value.trim();
+
+        if (!name) {
+            alert('Category name is required');
+            return;
+        }
+
+        const isEdit = categoryId !== '';
+        const url = isEdit ? `/api/categories/${categoryId}` : '/api/categories';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({ name, description })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message || (isEdit ? 'Category updated successfully!' : 'Category created successfully!'));
+                closeCategoryModal();
+                loadCategories();
+            } else {
+                alert(data.error || 'Failed to save category');
+            }
+        } catch (error) {
+            console.error('Error saving category:', error);
+            alert('Error saving category. Please try again.');
+        }
+    }
+
+    async function deleteCategory(categoryId, categoryName) {
+        if (!confirm(`Are you sure you want to delete the category "${categoryName}"?\n\nWarning: This may affect videos in this category.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/categories/${categoryId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(data.message || 'Category deleted successfully!');
+                loadCategories();
+            } else {
+                alert(data.error || 'Failed to delete category');
+            }
+        } catch (error) {
+            console.error('Error deleting category:', error);
+            alert('Error deleting category. Please try again.');
+        }
+    }
+
+    function closeCategoryModal() {
+        document.getElementById('categoryModal').style.display = 'none';
+        currentEditingCategoryId = null;
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ==================== END CATEGORY MANAGEMENT ====================
+
+    function refreshAnalytics() {
+        alert('Refreshing analytics...');
+    }
+
+    async function logout() {
+        try {
+            const response = await fetch('/api/users/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                alert('You have been logged out successfully!');
+                window.location.href = '/';
+            } else {
+                alert('Error logging out. Please try again.');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            alert('Error logging out. Please try again.');
+        }
+    }
+</script>
+</body>
+</html>
+
