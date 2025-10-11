@@ -1,14 +1,16 @@
 package com.example.videobrowsing.service;
 
 
-import com.example.videobrowsing.entity.Video;
-import com.example.videobrowsing.entity.Category;
-import com.example.videobrowsing.repository.VideoRepository;
-import com.example.videobrowsing.repository.CategoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.videobrowsing.entity.Category;
+import com.example.videobrowsing.entity.Video;
+import com.example.videobrowsing.repository.CategoryRepository;
+import com.example.videobrowsing.repository.VideoRepository;
 
 @Service
 public class SearchService {
@@ -22,13 +24,18 @@ public class SearchService {
     public List<Video> searchVideos(String keyword, Long categoryId) {
         if (categoryId != null && categoryId > 0) {
             // Search within specific category
-            return videoRepository.findByCategoryId(categoryId);
+            return videoRepository.findByCategoryIdAndPrivacyOrderByCreatedAtDesc(categoryId, Video.Privacy.PUBLIC);
         } else if (keyword != null && !keyword.trim().isEmpty()) {
-            // General search
-            return videoRepository.searchVideos(keyword.trim());
+            // General search - search only in title
+            String trimmed = keyword.trim();
+            return videoRepository
+                    .findByTitleContainingIgnoreCase(trimmed)
+                    .stream()
+                    .filter(video -> video.getPrivacy() == Video.Privacy.PUBLIC)
+                    .toList();
         } else {
             // Return all public videos if no criteria
-            return videoRepository.findPublicVideos();
+            return videoRepository.findByPrivacyOrderByCreatedAtDesc(Video.Privacy.PUBLIC);
         }
     }
 
@@ -77,5 +84,12 @@ public class SearchService {
 
     public Optional<Category> getCategoryById(Long id) {
         return categoryRepository.findById(id);
+    }
+
+    public Optional<Category> getCategoryByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return Optional.empty();
+        }
+        return categoryRepository.findByName(name.trim());
     }
 }

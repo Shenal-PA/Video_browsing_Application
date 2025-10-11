@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Videos - VideoHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/js/auth-utils.js"></script>
+    <script src="/js/creator-utils.js"></script>
+    <style>
+        body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+        .navbar { background: #111; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .nav-brand { display: flex; align-items: center; gap: 0.5rem; }
+    .nav-brand h1 { font-size: 1.5rem; background: linear-gradient(135deg, #ff3e3e 0%, #ff6b6b 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
+        .nav-user { display: flex; gap: 1rem; align-items: center; }
+        .search-bar { margin: 2rem auto 1rem; max-width: 600px; display: flex; gap: 1rem; }
+        .search-bar input { flex: 1; padding: 0.75rem 1.5rem; border-radius: 25px; border: 1px solid #2a2a2a; background: #1a1a1a; color: #fff; }
+        .search-bar button { padding: 0.75rem 1.5rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ff3e3e 0%, #ff6b6b 100%); color: #fff; font-weight: 600; cursor: pointer; }
+        .filters { max-width: 600px; margin: 0 auto 2rem; display: flex; gap: 1rem; flex-wrap: wrap; }
+        .filters select { padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #2a2a2a; background: #1a1a1a; color: #fff; }
+        .trending-videos { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+        .video-card { background: #1a1a1a; border-radius: 12px; overflow: hidden; border: 1px solid #2a2a2a; cursor: pointer; transition: box-shadow 0.3s; }
+        .video-card:hover { box-shadow: 0 8px 32px rgba(255,62,62,0.2); }
+        .video-thumbnail { position: relative; height: 180px; overflow: hidden; }
+        .video-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        .video-duration { position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+        .video-info { padding: 1.2rem; }
+        .video-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .video-meta { color: #b0b0b0; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .video-uploader { color: #ff6b6b; font-weight: 500; }
+        .video-stats { color: #888; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-brand">
+        <i class="fas fa-play-circle"></i>
+        <h1>VideoHub</h1>
+    </div>
+    <div class="nav-user" id="navUser"></div>
+</nav>
+<div class="search-bar">
+    <label for="searchInput" style="position:absolute;left:-9999px;">Search trending videos</label>
+    <input type="text" id="searchInput" placeholder="Search trending videos...">
+    <button onclick="performSearch()">🔍 Search</button>
+</div>
+<div class="filters">
+    <label for="categoryFilter" style="position:absolute;left:-9999px;">Category Filter</label>
+    <select id="categoryFilter">
+        <option value="">All Categories</option>
+        <option value="Gaming">Gaming</option>
+        <option value="Music">Music</option>
+        <option value="Technology">Technology</option>
+        <option value="Sports">Sports</option>
+        <option value="Cooking">Cooking</option>
+        <option value="Education">Education</option>
+        <option value="Science">Science</option>
+        <option value="Fitness">Fitness</option>
+    </select>
+    <button onclick="window.location.href='/all-videos'" style="padding: 0.5rem 1rem; border-radius: 8px; border: none; background: linear-gradient(135deg, #ff3e3e 0%, #ff6b6b 100%); color: #fff; font-weight: 600; cursor: pointer;">🎯 View All Videos</button>
+</div>
+<div class="trending-videos" id="trendingVideos"></div>
+<script>
+// User profile display logic (reuse from index)
+async function updateNavUser() {
+    const navUser = document.getElementById('navUser');
+    try {
+        const res = await fetch('/api/users/me', { credentials: 'include' });
+        if (res.ok) {
+            const user = await res.json();
+            const role = (user.role || 'REGISTERED_USER').toUpperCase();
+            const buttons = [];
+
+            buttons.push(`<a href="/" class="btn btn-secondary btn-small">🏠 Home</a>`);
+
+            if (role === 'REGISTERED_USER') {
+                buttons.push(`<button class="btn btn-primary btn-small" onclick="handleBecomeCreatorCTA()">� Become a Creator</button>`);
+            } else {
+                buttons.push(`<a href="/video-upload" class="btn btn-primary btn-small">⬆️ Upload Video</a>`);
+            }
+
+            if (role === 'ADMIN') {
+                buttons.push(`<a href="/admin-dashboard" class="btn btn-secondary btn-small">🛡️ Admin</a>`);
+            }
+
+            buttons.push(`<a href="/profile" class="btn btn-secondary btn-small"><i class="fas fa-user-circle"></i> ${user.firstName || user.username || 'Profile'}</a>`);
+            buttons.push(`<button class="btn btn-secondary btn-small" onclick="logout()">🚪 Logout</button>`);
+            navUser.innerHTML = buttons.join('');
+        } else {
+            navUser.innerHTML = `
+                <a href="/login" class="btn btn-secondary btn-small">🔑 Login</a>
+                <a href="/register" class="btn btn-primary btn-small">👤 Sign Up</a>
+                <button class="btn btn-primary btn-small" data-guest-allowed onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>
+            `;
+        }
+    } catch (e) {
+        navUser.innerHTML = `
+            <a href="/login" class="btn btn-secondary btn-small">🔑 Login</a>
+            <a href="/register" class="btn btn-primary btn-small">👤 Sign Up</a>
+            <button class="btn btn-primary btn-small" data-guest-allowed onclick="handleBecomeCreatorCTA()">📹 Become a Creator</button>
+        `;
+    }
+}
+updateNavUser();
+
+// Sample video data (reuse or fetch from backend)
+const videoData = [
+    { id: 1, title: "Amazing Nature Documentary 2024 - Wildlife Adventure", thumbnail: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", duration: 1845, uploader: "NatureWorld", views: 125000, likes: 8500, category: "Documentary" },
+    { id: 2, title: "Learn JavaScript in 30 Minutes - Beginner Tutorial", thumbnail: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", duration: 1860, uploader: "CodeMaster", views: 89000, likes: 4200, category: "Education" },
+    { id: 3, title: "Epic Gaming Moments Compilation - Best Plays 2024", thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", duration: 1520, uploader: "GameZone", views: 256000, likes: 12800, category: "Gaming" },
+    { id: 4, title: "Cooking Italian Pasta from Scratch - Chef's Secret", thumbnail: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", duration: 1260, uploader: "ChefLife", views: 75000, likes: 3800, category: "Cooking" },
+    { id: 5, title: "Space Exploration - Journey Through the Universe", thumbnail: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", duration: 2145, uploader: "SpaceChannel", views: 189000, likes: 9200, category: "Science" },
+    { id: 6, title: "Yoga for Beginners - 20 Minute Daily Routine", thumbnail: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80", duration: 1260, uploader: "WellnessGuide", views: 68000, likes: 3100, category: "Fitness" }
+];
+
+function renderTrendingVideos() {
+    const container = document.getElementById('trendingVideos');
+    let filtered = [...videoData];
+    const search = document.getElementById('searchInput').value.trim().toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+    if (search) filtered = filtered.filter(v => v.title.toLowerCase().includes(search));
+    if (category) filtered = filtered.filter(v => v.category === category);
+    container.innerHTML = filtered.map(video => `
+        <div class="video-card" onclick="openVideo(${video.id})">
+            <div class="video-thumbnail">
+                <img src="${video.thumbnail}" alt="${video.title}">
+                <div class="video-duration">${formatDuration(video.duration)}</div>
+            </div>
+            <div class="video-info">
+                <h3 class="video-title">${video.title}</h3>
+                <div class="video-meta"><span class="video-uploader">${video.uploader}</span> • <span>${formatViews(video.views)} views</span></div>
+                <div class="video-stats">👍 ${formatViews(video.likes)} • ${video.category}</div>
+            </div>
+        </div>
+    `).join('');
+}
+function formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    if (hours > 0) return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+function formatViews(views) {
+    if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
+    if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
+    return views.toString();
+}
+function performSearch() { renderTrendingVideos(); }
+document.getElementById('searchInput').addEventListener('input', renderTrendingVideos);
+document.getElementById('categoryFilter').addEventListener('change', renderTrendingVideos);
+window.openVideo = function(videoId) {
+    const normalizedId = (videoId ?? '').toString().trim();
+    if (!normalizedId || normalizedId === 'null' || normalizedId === 'undefined') {
+        console.warn('openVideo called without a valid id', videoId);
+        return;
+    }
+
+    const encodedId = encodeURIComponent(normalizedId);
+    const navigate = () => {
+    window.location.href = `/video-show?id=${encodedId}`;
+    };
+
+    if (typeof window.requireAuth === 'function') {
+        const allowed = window.requireAuth(navigate, 'watch videos');
+        if (!allowed) {
+            return;
+        }
+        return;
+    }
+
+    navigate();
+};
+
+async function logout() {
+    try {
+        await fetch('/api/users/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+    } catch (error) {
+        console.error('Logout failed:', error);
+    } finally {
+        if (window.setAuthState) {
+            setAuthState(false, null);
+        }
+        window.location.href = '/login';
+    }
+}
+document.addEventListener('DOMContentLoaded', renderTrendingVideos);
+</script>
+</body>
+</html>
