@@ -26,6 +26,8 @@ public class UserDTO {
     private String profilePicture;
     private String role;
     private Boolean termsAgreed;
+    private Long subscriberCount;
+    private Long subscriptionCount;
 
     public UserDTO(){}
 
@@ -67,6 +69,12 @@ public class UserDTO {
 
     public Boolean getTermsAgreed() {return termsAgreed;}
     public void setTermsAgreed(Boolean termsAgreed) {this.termsAgreed = termsAgreed;}
+
+    public Long getSubscriberCount() {return subscriberCount;}
+    public void setSubscriberCount(Long subscriberCount) {this.subscriberCount = subscriberCount;}
+
+    public Long getSubscriptionCount() {return subscriptionCount;}
+    public void setSubscriptionCount(Long subscriptionCount) {this.subscriptionCount = subscriptionCount;}
 
 
 }

@@ -1,11 +1,25 @@
 package com.example.videobrowsing.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotBlank;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="videos")
@@ -21,8 +35,10 @@ public class Video {
     private String description;
 
     @NotBlank
+    @Column(name = "file_path")
     private String filepath;
 
+    @Column(name = "thumbnail_path")
     private String thumbnail;
     private Integer duration;
     private Long fileSize;
@@ -113,6 +129,14 @@ public class Video {
     public void setFilePath(String filePath) {
         this.filepath = filePath;
     }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
     public String getThumbnailPath() {
         return thumbnail;
     }

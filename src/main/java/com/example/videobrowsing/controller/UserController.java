@@ -1,15 +1,28 @@
 package com.example.videobrowsing.controller;
 
 
-import com.example.videobrowsing.entity.User;
-import com.example.videobrowsing.dto.UserDTO;
-import com.example.videobrowsing.service.UserService;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-        import jakarta.servlet.http.HttpSession;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.videobrowsing.dto.UserDTO;
+import com.example.videobrowsing.entity.User;
+import com.example.videobrowsing.service.UserService;
+
+import jakarta.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping("/api/users")
@@ -22,7 +35,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
         try {
-            User user = userService.registerUser(userDTO);
+            userService.registerUser(userDTO);
             return ResponseEntity.ok("User registered successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -66,7 +79,16 @@ public class UserController {
             return ResponseEntity.badRequest().body("Not logged in");
         }
 
-        Optional<User> user = userService.findById(userId);
+        Optional<User> user = userService.findByIdWithMetrics(userId);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        }
+        return ResponseEntity.badRequest().body("User not found");
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        Optional<User> user = userService.findByIdWithMetrics(id);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
         }
@@ -99,48 +121,66 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long userId, HttpSession session) {
-        String role = (String) session.getAttribute("role");
-        if (!"ADMIN".equals(role)) {
-            return ResponseEntity.badRequest().body("Admin access required");
-        }
-
-        try {
-            userService.deleteUser(userId);
-            return ResponseEntity.ok("User deleted successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
     @GetMapping("/search")
     public ResponseEntity<List<User>> searchUsers(@RequestParam String keyword) {
         List<User> users = userService.searchUsers(keyword);
         return ResponseEntity.ok(users);
     }
 
-    @GetMapping("/current")
+    @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return ResponseEntity.badRequest().body("Not logged in");
+        Optional<User> userOpt = userService.resolveCurrentUser(session);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(401).body("Not logged in");
         }
 
-        Optional<User> user = userService.findById(userId);
-        if (user.isPresent()) {
-            UserDTO userDTO = new UserDTO();
-            User u = user.get();
-            userDTO.setId(u.getId());
-            userDTO.setUsername(u.getUsername());
-            userDTO.setEmail(u.getEmail());
-            userDTO.setFirstName(u.getFirstName());
-            userDTO.setLastName(u.getLastName());
-            userDTO.setBio(u.getBio());
-            userDTO.setProfilePicture(u.getProfilePicture());
-            userDTO.setRole(u.getRole().toString());
-            return ResponseEntity.ok(userDTO);
+        User currentUser = userOpt.get();
+        UserDTO userResponse = new UserDTO();
+        userResponse.setId(currentUser.getId());
+        userResponse.setUsername(currentUser.getUsername());
+        userResponse.setFirstName(currentUser.getFirstname());
+        userResponse.setLastName(currentUser.getLastname());
+        userResponse.setEmail(currentUser.getEmail());
+        userResponse.setPhone(currentUser.getPhone());
+        userResponse.setBio(currentUser.getBio());
+        userResponse.setProfilePicture(currentUser.getProfilePicture());
+        userResponse.setRole(currentUser.getRole() != null ? currentUser.getRole().toString() : null);
+        userResponse.setTermsAgreed(currentUser.getTermsAgreed());
+        userResponse.setSubscriberCount(currentUser.getSubscriberCount());
+        userResponse.setSubscriptionCount(currentUser.getSubscriptionCount());
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PostMapping("/become-creator")
+    public ResponseEntity<?> becomeCreator(@RequestBody Map<String, String> creatorDetails, HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body("Not logged in");
         }
-        return ResponseEntity.badRequest().body("User not found");
+
+        try {
+            User updatedUser = userService.upgradeToContentCreator(userId, creatorDetails);
+            // Update the session role
+            session.setAttribute("role", updatedUser.getRole().toString());
+            return ResponseEntity.ok("Successfully upgraded to content creator");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/delete-account")
+    public ResponseEntity<?> deleteAccount(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body("Not logged in");
+        }
+
+        try {
+            userService.deleteUserAccount(userId);
+            session.invalidate();
+            return ResponseEntity.ok("Account deleted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

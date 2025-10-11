@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Settings - VideoHub</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: "PPSupplyMono";
+            src: url("https://assets.codepen.io/7558/PPSupplyMono-Variable.woff2") format("woff2");
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        /* Preloader Styles */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+
+        .preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .preloader-content {
+            text-align: center;
+            color: #e0e0e0;
+        }
+
+        .ghost-loader {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ghost-svg {
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+            animation: ghostFloat 3s ease-in-out infinite;
+        }
+
+        .ghost-body {
+            fill: white;
+            opacity: 0.9;
+        }
+
+        .ghost-eye {
+            fill: black;
+            animation: eyePulse 2s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .left-eye {
+            animation-delay: 0s;
+        }
+
+        .right-eye {
+            animation-delay: 0.1s;
+        }
+
+        @keyframes ghostFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes eyePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .loading-text {
+            font-family: "PPSupplyMono", monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 1;
+            margin-bottom: 12px;
+            animation: textPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.1; }
+        }
+
+        .loading-progress {
+            width: 96px;
+            height: 1px;
+            margin: 0 auto;
+            border-radius: 1px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff80, #00cc66);
+            opacity: 0.1;
+            width: 0%;
+            transition: width 0.8s ease;
+        }
+
+        .page-content {
+            opacity: 0;
+            transition: opacity 1.5s ease-in;
+        }
+
+        .page-content.fade-in {
+            opacity: 1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-brand a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Navigation Buttons */
+        .home-btn {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .home-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.1);
+        }
+
+        .scroll-buttons {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999;
+        }
+
+        .scroll-btn {
+            width: 50px;
+            height: 50px;
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scroll-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.1);
+        }
+
+        .back-to-top {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Main Upload Content */
+        .upload-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .upload-container {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .upload-header {
+            text-align: center;
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .upload-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-header p {
+            color: #8a8a8a;
+            font-size: 1.1rem;
+        }
+
+        .upload-content {
+            padding: 2rem;
+        }
+
+        /* Steps Progress */
+        .upload-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .upload-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+        }
+
+        .step.completed {
+            background: rgba(40, 167, 69, 0.1);
+            border-color: #28a745;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: linear-gradient(135deg, #ffffff, #cccccc);
+            color: #000000;
+        }
+
+        .step.completed .step-number {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #ffffff;
+        }
+
+        .step.completed .step-number::after {
+            content: "✓";
+            font-weight: bold;
+        }
+
+        .step-info h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-info p {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+        }
+
+        /* Form Styles */
+        .upload-form {
+            position: relative;
+        }
+
+        .form-step {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Settings Styles */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .setting-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .setting-group:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .setting-group h4 {
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .radio-option input,
+        .checkbox-option input {
+            width: auto;
+            margin: 0;
+            accent-color: #ffffff;
+        }
+
+        .radio-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .radio-icon {
+            font-size: 1.5rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .radio-content strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .radio-content p {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .checkbox-option span {
+            color: #cccccc;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .schedule-options {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .schedule-options label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .schedule-options input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .schedule-options input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Summary Section */
+        .upload-summary {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .upload-summary h4 {
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-label {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .summary-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-actions .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #ffffff;
+            font-size: 1.1rem;
+            padding: 14px 28px;
+        }
+
+        .upload-btn:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Alert Styles */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            max-width: 350px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .loading-content {
+            text-align: center;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .upload-main {
+                padding: 1rem;
+            }
+
+            .upload-content {
+                padding: 1rem;
+            }
+
+            .upload-header {
+                padding: 1rem;
+            }
+
+            .upload-header h1 {
+                font-size: 2rem;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .setting-group {
+                padding: 1.5rem;
+            }
+
+            .upload-steps {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .upload-steps::before {
+                display: none;
+            }
+
+            .step {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 1rem;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .upload-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-section h3 {
+                font-size: 1.2rem;
+            }
+
+            .setting-group {
+                padding: 1rem;
+            }
+
+            .radio-option,
+            .checkbox-option {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Preloader -->
+<div id="preloader" class="preloader">
+    <div class="preloader-content">
+        <div class="ghost-loader">
+            <svg class="ghost-svg" height="80" viewBox="0 0 512 512" width="80" xmlns="http://www.w3.org/2000/svg">
+                <path class="ghost-body" d="m508.374 432.802s-46.6-39.038-79.495-275.781c-8.833-87.68-82.856-156.139-172.879-156.139-90.015 0-164.046 68.458-172.879 156.138-32.895 236.743-79.495 275.782-79.495 275.782-15.107 25.181 20.733 28.178 38.699 27.94 35.254-.478 35.254 40.294 70.516 40.294 35.254 0 35.254-35.261 70.508-35.261s37.396 45.343 72.65 45.343 37.389-45.343 72.651-45.343c35.254 0 35.254 35.261 70.508 35.261s35.27-40.772 70.524-40.294c17.959.238 53.798-2.76 38.692-27.94z" fill="white" />
+                <circle class="ghost-eye left-eye" cx="208" cy="225" r="22" fill="black" />
+                <circle class="ghost-eye right-eye" cx="297" cy="225" r="22" fill="black" />
+            </svg>
+        </div>
+        <div class="loading-text">Loading video settings</div>
+        <div class="loading-progress">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="page-content" id="main-content">
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><a href="/" style="color: inherit; text-decoration: none;">🎬 VideoHub</a></h1>
+        </div>
+        <div class="nav-user">
+            <button class="btn btn-secondary" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">👤 Profile</button>
+            <button class="btn" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+</header>
+
+<!-- Navigation Buttons -->
+
+
+<div class="scroll-buttons">
+    <button class="scroll-btn back-to-top" id="backToTop" onclick="scrollToTop()" title="Back to Top">
+        ⬆️
+    </button>
+    <button class="scroll-btn" onclick="scrollToBottom()" title="Go to Bottom">
+        ⬇️
+    </button>
+</div>
+
+<main class="upload-main">
+    <div class="upload-container">
+        <div class="upload-header">
+            <h1>⚙️ Video Settings</h1>
+            <p>Step 3: Configure privacy settings and publishing options</p>
+        </div>
+
+        <div class="upload-content">
+            <div class="upload-steps">
+                <div class="step completed" id="step1">
+                    <div class="step-number">1</div>
+                    <div class="step-info">
+                        <h3>Video Details</h3>
+                        <p>Basic information about your video</p>
+                    </div>
+                </div>
+                <div class="step completed" id="step2">
+                    <div class="step-number">2</div>
+                    <div class="step-info">
+                        <h3>Upload Files</h3>
+                        <p>Video file and thumbnail</p>
+                    </div>
+                </div>
+                <div class="step active" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-info">
+                        <h3>Settings</h3>
+                        <p>Privacy and additional settings</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-summary">
+                <h4>📋 Upload Summary</h4>
+                <div class="summary-grid" id="uploadSummary">
+                    <!-- Summary items will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <form id="settingsForm" class="upload-form" onsubmit="finalizeUpload(event)">
+                <div class="form-step">
+                    <div class="form-section">
+                        <h3>⚙️ Video Settings</h3>
+
+                        <div class="settings-grid">
+                            <div class="setting-group">
+                                <h4>🔒 Privacy Settings</h4>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="privacy" value="PUBLIC" checked>
+                                        <div class="radio-content">
+                                            <div class="radio-icon">🌍</div>
+                                            <div>
+                                                <strong>Public</strong>
+                                                <p>Anyone can search for and view your video</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="privacy" value="PRIVATE">
+                                        <div class="radio-content">
+                                            <div class="radio-icon">🔒</div>
+                                            <div>
+                                                <strong>Private</strong>
+                                                <p>Only you can view this video</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="privacy" value="UNLISTED">
+                                        <div class="radio-content">
+                                            <div class="radio-icon">🔗</div>
+                                            <div>
+                                                <strong>Unlisted</strong>
+                                                <p>Anyone with the link can view</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>💬 Interaction Settings</h4>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="allowComments" checked>
+                                        <span>💬 Allow comments</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="allowRatings" checked>
+                                        <span>⭐ Allow ratings (likes/dislikes)</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="allowSharing" checked>
+                                        <span>🔗 Allow sharing</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="allowDownload">
+                                        <span>📥 Allow download</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>🔔 Notification Settings</h4>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="notifySubscribers" checked>
+                                        <span>📢 Notify subscribers</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="addToFeed" checked>
+                                        <span>📰 Add to public feed</span>
+                                    </label>
+                                    <label class="checkbox-option">
+                                        <input type="checkbox" name="sendEmail">
+                                        <span>📧 Send email notification</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>📅 Publishing Options</h4>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="publishTime" value="now" checked>
+                                        <div class="radio-content">
+                                            <div class="radio-icon">⚡</div>
+                                            <div>
+                                                <strong>Publish Now</strong>
+                                                <p>Make video available immediately after upload</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="publishTime" value="schedule">
+                                        <div class="radio-content">
+                                            <div class="radio-icon">📅</div>
+                                            <div>
+                                                <strong>Schedule for Later</strong>
+                                                <p>Set a specific publish date and time</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="schedule-options" id="scheduleOptions" style="display: none;">
+                                    <label for="scheduleDate">Schedule Date & Time:</label>
+                                    <input type="datetime-local" id="scheduleDate" name="scheduleDate">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="window.location.href='/video-files.html'">← Previous</button>
+                        <button type="submit" class="btn upload-btn" id="uploadBtn">🚀 Upload Video</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h3>Uploading Your Video...</h3>
+        <p>Please wait while we process your video. This may take a few minutes.</p>
+    </div>
+</div>
+
+<script>
+    let currentStep = 3; // This is the settings page (step 3)
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        loadFormProgress();
+        setupScheduleOptions();
+        setupScrollButtons();
+        checkAuthStatus();
+        populateUploadSummary();
+    });
+
+    // Check authentication status
+    async function checkAuthStatus() {
+        try {
+            const response = await fetch('/api/users/current');
+            if (!response.ok) {
+                showAlert('Please log in to upload videos', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error checking auth status:', error);
+            showAlert('Please log in to upload videos', 'error');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+        }
+    }
+
+    // Setup scroll buttons functionality
+    function setupScrollButtons() {
+        const backToTopBtn = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+    }
+
+    function scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    function scrollToBottom() {
+        window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+
+    // Setup schedule options
+    function setupScheduleOptions() {
+        const publishTimeInputs = document.querySelectorAll('input[name="publishTime"]');
+        const scheduleOptions = document.getElementById('scheduleOptions');
+
+        publishTimeInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if (this.value === 'schedule') {
+                    scheduleOptions.style.display = 'block';
+
+                    // Set minimum date to current date/time
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    document.getElementById('scheduleDate').min = now.toISOString().slice(0, 16);
+                } else {
+                    scheduleOptions.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Load form progress from session storage
+    function loadFormProgress() {
+        const videoDetails = JSON.parse(sessionStorage.getItem('videoDetails')) || {};
+        const fileUpload = JSON.parse(sessionStorage.getItem('fileUpload')) || {};
+
+        // Populate video details
+        document.getElementById('videoTitle').value = videoDetails.title || '';
+        document.getElementById('videoDescription').value = videoDetails.description || '';
+        document.getElementById('videoTags').value = (videoDetails.tags || []).join(', ');
+
+        // Populate file upload
+        document.getElementById('videoFileName').textContent = fileUpload.videoFile ? fileUpload.videoFile.name : 'No file chosen';
+        document.getElementById('thumbnailFileName').textContent = fileUpload.thumbnailFile ? fileUpload.thumbnailFile.name : 'No file chosen';
+
+        // Update summary
+        updateUploadSummary();
+    }
+
+    // Update the upload summary section
+    function updateUploadSummary() {
+        const videoDetails = JSON.parse(sessionStorage.getItem('videoDetails')) || {};
+        const fileUpload = JSON.parse(sessionStorage.getItem('fileUpload')) || {};
+
+        const summaryGrid = document.getElementById('uploadSummary');
+        summaryGrid.innerHTML = '';
+
+        // Video Title
+        const titleItem = document.createElement('div');
+        titleItem.className = 'summary-item';
+        titleItem.innerHTML = `
+            <div class="summary-label">Video Title</div>
+            <div class="summary-value" id="summaryTitle">${videoDetails.title || 'N/A'}</div>
+        `;
+        summaryGrid.appendChild(titleItem);
+
+        // Video Description
+        const descriptionItem = document.createElement('div');
+        descriptionItem.className = 'summary-item';
+        descriptionItem.innerHTML = `
+            <div class="summary-label">Description</div>
+            <div class="summary-value" id="summaryDescription">${videoDetails.description || 'N/A'}</div>
+        `;
+        summaryGrid.appendChild(descriptionItem);
+
+        // Video Tags
+        const tagsItem = document.createElement('div');
+        tagsItem.className = 'summary-item';
+        tagsItem.innerHTML = `
+            <div class="summary-label">Tags</div>
+            <div class="summary-value" id="summaryTags">${(videoDetails.tags || []).join(', ') || 'N/A'}</div>
+        `;
+        summaryGrid.appendChild(tagsItem);
+
+        // Video File
+        const videoFileItem = document.createElement('div');
+        videoFileItem.className = 'summary-item';
+        videoFileItem.innerHTML = `
+            <div class="summary-label">Video File</div>
+            <div class="summary-value" id="summaryVideoFile">${fileUpload.videoFile ? fileUpload.videoFile.name : 'No file chosen'}</div>
+        `;
+        summaryGrid.appendChild(videoFileItem);
+
+        // Thumbnail File
+        const thumbnailFileItem = document.createElement('div');
+        thumbnailFileItem.className = 'summary-item';
+        thumbnailFileItem.innerHTML = `
+            <div class="summary-label">Thumbnail File</div>
+            <div class="summary-value" id="summaryThumbnailFile">${fileUpload.thumbnailFile ? fileUpload.thumbnailFile.name : 'No file chosen'}</div>
+        `;
+        summaryGrid.appendChild(thumbnailFileItem);
+
+        // Privacy Setting
+        const privacySetting = document.querySelector('input[name="privacy"]:checked');
+        const privacyItem = document.createElement('div');
+        privacyItem.className = 'summary-item';
+        privacyItem.innerHTML = `
+            <div class="summary-label">Privacy Setting</div>
+            <div class="summary-value" id="summaryPrivacy">${privacySetting ? privacySetting.nextElementSibling.querySelector('strong').textContent : 'N/A'}</div>
+        `;
+        summaryGrid.appendChild(privacyItem);
+
+        // Interaction Settings
+        const allowComments = document.querySelector('input[name="allowComments"]');
+        const allowRatings = document.querySelector('input[name="allowRatings"]');
+        const allowSharing = document.querySelector('input[name="allowSharing"]');
+        const allowDownload = document.querySelector('input[name="allowDownload"]');
+
+        const interactionItem = document.createElement('div');
+        interactionItem.className = 'summary-item';
+        interactionItem.innerHTML = `
+            <div class="summary-label">Interaction Settings</div>
+            <div class="summary-value" id="summaryInteraction">
+                ${allowComments.checked ? '💬 Comments allowed' : '💬 Comments disallowed'}<br>
+                ${allowRatings.checked ? '⭐ Ratings allowed' : '⭐ Ratings disallowed'}<br>
+                ${allowSharing.checked ? '🔗 Sharing allowed' : '🔗 Sharing disallowed'}<br>
+                ${allowDownload.checked ? '📥 Download allowed' : '📥 Download disallowed'}
+            </div>
+        `;
+        summaryGrid.appendChild(interactionItem);
+
+        // Notification Settings
+        const notifySubscribers = document.querySelector('input[name="notifySubscribers"]');
+        const addToFeed = document.querySelector('input[name="addToFeed"]');
+        const sendEmail = document.querySelector('input[name="sendEmail"]');
+
+        const notificationItem = document.createElement('div');
+        notificationItem.className = 'summary-item';
+        notificationItem.innerHTML = `
+            <div class="summary-label">Notification Settings</div>
+            <div class="summary-value" id="summaryNotification">
+                ${notifySubscribers.checked ? '📢 Subscribers will be notified' : '📢 Subscribers will not be notified'}<br>
+                ${addToFeed.checked ? '📰 Added to public feed' : '📰 Not added to public feed'}<br>
+                ${sendEmail.checked ? '📧 Email notifications enabled' : '📧 Email notifications disabled'}
+            </div>
+        `;
+        summaryGrid.appendChild(notificationItem);
+
+        // Publishing Options
+        const publishTimeNow = document.querySelector('input[name="publishTime"][value="now"]');
+        const publishTimeSchedule = document.querySelector('input[name="publishTime"][value="schedule"]');
+        const scheduleDate = document.getElementById('scheduleDate');
+
+        const publishItem = document.createElement('div');
+        publishItem.className = 'summary-item';
+        publishItem.innerHTML = `
+            <div class="summary-label">Publishing Options</div>
+            <div class="summary-value" id="summaryPublish">
+                ${publishTimeNow.checked ? '⚡ Publish immediately' : '📅 Scheduled for ' + (scheduleDate.value ? new Date(scheduleDate.value).toLocaleString() : 'N/A')}
+            </div>
+        `;
+        summaryGrid.appendChild(publishItem);
+    }
+
+    // Finalize upload and submit form
+    async function finalizeUpload(event) {
+        event.preventDefault();
+
+        // Show loading overlay
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        // Gather form data
+        const formData = new FormData(event.target);
+
+        // Append video and thumbnail files
+        const fileUpload = JSON.parse(sessionStorage.getItem('fileUpload')) || {};
+        if (fileUpload.videoFile) {
+            formData.append('videoFile', fileUpload.videoFile);
+        }
+        if (fileUpload.thumbnailFile) {
+            formData.append('thumbnailFile', fileUpload.thumbnailFile);
+        }
+
+        try {
+            // Submit form data to server
+            const response = await fetch('/api/videos/upload', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const result = await response.json();
+            console.log('Upload result:', result);
+
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').style.display = 'none';
+
+            // Show success alert
+            showAlert('Video uploaded successfully!', 'success');
+
+            // Redirect to video details page after a short delay
+            setTimeout(() => {
+                window.location.href = `/video-show?id=${result.videoId}`;
+            }, 2000);
+        } catch (error) {
+            console.error('Error uploading video:', error);
+
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').style.display = 'none';
+
+            // Show error alert
+            showAlert('Error uploading video. Please try again.', 'error');
+        }
+    }
+
+    // Show alert message
+    function showAlert(message, type) {
+        const alertBox = document.createElement('div');
+        alertBox.className = `alert alert-${type}`;
+        alertBox.innerHTML = message;
+
+        document.body.appendChild(alertBox);
+
+        // Auto-remove alert after 3 seconds
+        setTimeout(() => {
+            alertBox.remove();
+        }, 3000);
+    }
+
+    // Preloader management
+    window.addEventListener('load', function() {
+        const preloader = document.getElementById('preloader');
+        const mainContent = document.getElementById('main-content');
+        const progressBar = document.querySelector('.progress-bar');
+        
+        // Simulate loading progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 20;
+            progressBar.style.width = progress + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                
+                // Wait a moment then fade out preloader
+                setTimeout(() => {
+                    preloader.classList.add('fade-out');
+                    mainContent.classList.add('fade-in');
+                    
+                    // Remove preloader from DOM after animation
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                    }, 1000);
+                }, 500);
+            }
+        }, 200);
+    });
+</script>
+</div> <!-- Close page-content -->
+</body>
+</html>

@@ -4,18 +4,819 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Video - VideoHub</title>
-    <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Boldonse&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: "PPSupplyMono";
+            src: url("https://assets.codepen.io/7558/PPSupplyMono-Variable.woff2") format("woff2");
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        /* Preloader Styles */
+        .preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+
+        .preloader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .preloader-content {
+            text-align: center;
+            color: #e0e0e0;
+        }
+
+        .ghost-loader {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ghost-svg {
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+            animation: ghostFloat 3s ease-in-out infinite;
+        }
+
+        .ghost-body {
+            fill: white;
+            opacity: 0.9;
+        }
+
+        .ghost-eye {
+            fill: black;
+            animation: eyePulse 2s ease-in-out infinite;
+            transform-origin: center;
+        }
+
+        .left-eye {
+            animation-delay: 0s;
+        }
+
+        .right-eye {
+            animation-delay: 0.1s;
+        }
+
+        @keyframes ghostFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes eyePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .loading-text {
+            font-family: "PPSupplyMono", monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 1;
+            margin-bottom: 12px;
+            animation: textPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.1; }
+        }
+
+        .loading-progress {
+            width: 96px;
+            height: 1px;
+            margin: 0 auto;
+            border-radius: 1px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff80, #00cc66);
+            opacity: 0.1;
+            width: 0%;
+            transition: width 0.8s ease;
+        }
+
+        .page-content {
+            opacity: 0;
+            transition: opacity 1.5s ease-in;
+        }
+
+        .page-content.fade-in {
+            opacity: 1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-brand h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-brand a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
+            color: #000000;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Main Upload Content */
+        .upload-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .upload-container {
+            background: rgba(20, 20, 20, 0.9);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+        }
+
+        .upload-header {
+            text-align: center;
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .upload-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffffff, #8a8a8a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-header p {
+            color: #8a8a8a;
+            font-size: 1.1rem;
+        }
+
+        .upload-content {
+            padding: 2rem;
+        }
+
+        /* Steps Progress */
+        .upload-steps {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .upload-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 20%;
+            right: 20%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: linear-gradient(135deg, #ffffff, #cccccc);
+            color: #000000;
+        }
+
+        .step-info h3 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-info p {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+        }
+
+        /* Form Styles */
+        .upload-form {
+            position: relative;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section h3 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cccccc;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #666666;
+        }
+
+        .form-group select option {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .char-count {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #8a8a8a;
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.8rem;
+            color: #8a8a8a;
+        }
+
+        /* File Upload Styles */
+        .upload-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .file-upload-section {
+            position: relative;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 2rem;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-label h4 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .file-upload-label p {
+            color: #8a8a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-upload-label small {
+            color: #666666;
+            font-size: 0.8rem;
+        }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+
+        .file-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .file-name {
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .file-size {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+        }
+
+        .remove-file {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .remove-file:hover {
+            background: #dc3545;
+            color: #ffffff;
+        }
+
+        .thumbnail-preview {
+            margin-top: 1rem;
+        }
+
+        .thumbnail-preview img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* Upload Progress */
+        .upload-progress {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-header h4 {
+            color: #ffffff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff, #cccccc);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #8a8a8a;
+        }
+
+        /* Settings Styles */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .setting-group {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-group h4 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .radio-option,
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover,
+        .checkbox-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .radio-option input,
+        .checkbox-option input {
+            width: auto;
+            margin: 0;
+            accent-color: #ffffff;
+        }
+
+        .radio-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .radio-icon {
+            font-size: 1.5rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .radio-content strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .radio-content p {
+            color: #8a8a8a;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .checkbox-option span {
+            color: #cccccc;
+            font-size: 0.95rem;
+        }
+
+        .schedule-options {
+            margin-top: 1rem;
+        }
+
+        .schedule-options input {
+            padding: 8px 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .form-actions .btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+        }
+
+        /* Alert Styles */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            max-width: 350px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .upload-steps {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .upload-steps::before {
+                display: none;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+
+            .upload-main {
+                padding: 1rem;
+            }
+
+            .upload-content {
+                padding: 1rem;
+            }
+
+            .upload-header {
+                padding: 1rem;
+            }
+
+            .upload-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-area {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .step {
+                padding: 0.75rem 1rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .step-info {
+                text-align: center;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                gap: 1rem;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .upload-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .form-section h3 {
+                font-size: 1.2rem;
+            }
+
+            .file-upload-label {
+                padding: 1.5rem 1rem;
+            }
+
+            .upload-icon {
+                font-size: 2rem;
+            }
+
+            .setting-group {
+                padding: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
+<!-- Preloader -->
+<div id="preloader" class="preloader">
+    <div class="preloader-content">
+        <div class="ghost-loader">
+            <svg class="ghost-svg" height="80" viewBox="0 0 512 512" width="80" xmlns="http://www.w3.org/2000/svg">
+                <path class="ghost-body" d="m508.374 432.802s-46.6-39.038-79.495-275.781c-8.833-87.68-82.856-156.139-172.879-156.139-90.015 0-164.046 68.458-172.879 156.138-32.895 236.743-79.495 275.782-79.495 275.782-15.107 25.181 20.733 28.178 38.699 27.94 35.254-.478 35.254 40.294 70.516 40.294 35.254 0 35.254-35.261 70.508-35.261s37.396 45.343 72.65 45.343 37.389-45.343 72.651-45.343c35.254 0 35.254 35.261 70.508 35.261s35.27-40.772 70.524-40.294c17.959.238 53.798-2.76 38.692-27.94z" fill="white" />
+                <circle class="ghost-eye left-eye" cx="208" cy="225" r="22" fill="black" />
+                <circle class="ghost-eye right-eye" cx="297" cy="225" r="22" fill="black" />
+            </svg>
+        </div>
+        <div class="loading-text">Loading video upload</div>
+        <div class="loading-progress">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="page-content" id="main-content">
 <header>
     <nav class="navbar">
         <div class="nav-brand">
-            <h1><a href="/" style="color: #ffffff; text-decoration: none;">🎬 VideoHub</a></h1>
+            <h1><a href="/" style="color: inherit; text-decoration: none;">🎬 VideoHub</a></h1>
         </div>
         <div class="nav-user">
             <button class="btn btn-secondary" onclick="window.location.href='/'">🏠 Home</button>
-            <button class="btn btn-secondary" onclick="window.location.href='/profile.html'">👤 Profile</button>
+            <button class="btn btn-secondary" onclick="window.location.href='/profile'">👤 Profile</button>
             <button class="btn" onclick="logout()">🚪 Logout</button>
         </div>
     </nav>
@@ -107,9 +908,10 @@
                         </div>
                     </div>
 
-                    <div class="form-actions">
-                        <button type="button" class="btn" onclick="nextStep()">Next Step →</button>
-                    </div>
+                        <div class="form-actions">
+                            <div></div>
+                            <button type="button" class="btn" onclick="nextStep()">Next Step →</button>
+                        </div>
                 </div>
 
                 <!-- Step 2: File Upload -->
@@ -257,14 +1059,15 @@
                                         <div class="radio-content">
                                             <div class="radio-icon">📅</div>
                                             <div>
-                                                <strong>Schedule</strong>
+                                                <strong>Schedule for Later</strong>
                                                 <p>Set a specific publish time</p>
                                             </div>
                                         </div>
                                     </label>
                                 </div>
                                 <div class="schedule-options" id="scheduleOptions" style="display: none;">
-                                    <input type="datetime-local" id="scheduleDateTime" name="scheduleDateTime">
+                                    <label for="scheduleDate" style="display: block; margin-bottom: 0.5rem; color: #cccccc;">Schedule Date & Time:</label>
+                                    <input type="datetime-local" id="scheduleDate" name="scheduleDate">
                                 </div>
                             </div>
                         </div>
@@ -272,233 +1075,484 @@
 
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="prevStep()">← Previous</button>
-                        <button type="submit" class="btn" id="uploadSubmitBtn">🚀 Upload Video</button>
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="button" class="btn btn-secondary" onclick="goToAllVideos()">🎯 View All Videos</button>
+                            <button type="submit" class="btn" id="uploadBtn">📤 Upload Video</button>
+                        </div>
                     </div>
                 </div>
             </form>
+
+            <!-- Upload Success Message -->
+            <div id="uploadSuccess" style="display: none; text-align: center; padding: 3rem;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                <h2 style="color: #28a745; margin-bottom: 1rem;">Video Uploaded Successfully!</h2>
+                <p style="color: #8a8a8a; margin-bottom: 2rem;">Your video is now processing and will be available shortly.</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="uploadAnother()">📹 Upload Another</button>
+                    <button class="btn" onclick="goToAllVideos()">🎯 View All Videos</button>
+                    <button class="btn btn-secondary" onclick="goToProfile()">👤 My Profile</button>
+                </div>
+            </div>
         </div>
     </div>
 </main>
 
-<script src="/js/app.js"></script>
 <script>
     let currentStep = 1;
-    const totalSteps = 3;
+    let isUploading = false;
 
-    // Character counting
-    document.getElementById('videoTitle').addEventListener('input', function() {
-        document.getElementById('titleCount').textContent = this.value.length;
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        setupCharacterCounters();
+        setupFileUploads();
+        setupScheduleOptions();
+        checkAuthStatus();
     });
 
-    document.getElementById('videoDescription').addEventListener('input', function() {
-        document.getElementById('descCount').textContent = this.value.length;
-    });
+    // Check authentication status
+    async function checkAuthStatus() {
+        try {
+            const response = await fetch('/api/users/me', {
+                credentials: 'include'
+            });
 
-    // File upload handling
-    document.getElementById('videoFile').addEventListener('change', function(e) {
-        handleFileSelect(e, 'videoFile', 'videoFileInfo');
-    });
-
-    document.getElementById('thumbnailFile').addEventListener('change', function(e) {
-        handleFileSelect(e, 'thumbnailFile', 'thumbnailFileInfo');
-        if (e.target.files[0]) {
-            showThumbnailPreview(e.target.files[0]);
+            if (!response.ok) {
+                showAlert('Please log in to upload videos', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error checking auth status:', error);
+            showAlert('Please log in to upload videos', 'error');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
         }
-    });
+    }
 
-    // Publishing options
-    document.querySelectorAll('input[name="publishTime"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const scheduleOptions = document.getElementById('scheduleOptions');
-            if (this.value === 'schedule') {
-                scheduleOptions.style.display = 'block';
+    // Setup character counters
+    function setupCharacterCounters() {
+        const titleInput = document.getElementById('videoTitle');
+        const descInput = document.getElementById('videoDescription');
+        const titleCount = document.getElementById('titleCount');
+        const descCount = document.getElementById('descCount');
+
+        titleInput.addEventListener('input', function() {
+            titleCount.textContent = this.value.length;
+            if (this.value.length > 200) {
+                titleCount.style.color = '#ff6b6b';
             } else {
-                scheduleOptions.style.display = 'none';
+                titleCount.style.color = '#8a8a8a';
             }
         });
-    });
 
+        descInput.addEventListener('input', function() {
+            descCount.textContent = this.value.length;
+            if (this.value.length > 800) {
+                descCount.style.color = '#ff6b6b';
+            } else {
+                descCount.style.color = '#8a8a8a';
+            }
+        });
+    }
+
+    // Setup file upload functionality
+    function setupFileUploads() {
+        const videoFile = document.getElementById('videoFile');
+        const thumbnailFile = document.getElementById('thumbnailFile');
+
+        videoFile.addEventListener('change', function() {
+            handleFileSelection(this, 'video');
+        });
+
+        thumbnailFile.addEventListener('change', function() {
+            handleFileSelection(this, 'thumbnail');
+        });
+
+        // Drag and drop functionality
+        setupDragAndDrop();
+    }
+
+    // Handle file selection
+    function handleFileSelection(input, type) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const maxSize = type === 'video' ? 100 * 1024 * 1024 : 5 * 1024 * 1024; // 100MB for video, 5MB for thumbnail
+
+        if (file.size > maxSize) {
+            showAlert(`File too large. Maximum size: ${type === 'video' ? '100MB' : '5MB'}`, 'error');
+            input.value = '';
+            return;
+        }
+
+        const fileInfoId = type === 'video' ? 'videoFileInfo' : 'thumbnailFileInfo';
+        const fileInfo = document.getElementById(fileInfoId);
+        const fileName = fileInfo.querySelector('.file-name');
+        const fileSize = fileInfo.querySelector('.file-size');
+
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'flex';
+
+        // Show thumbnail preview
+        if (type === 'thumbnail') {
+            const preview = document.getElementById('thumbnailPreview');
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `<img src="${e.target.result}" alt="Thumbnail preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Setup drag and drop
+    function setupDragAndDrop() {
+        const uploadLabels = document.querySelectorAll('.file-upload-label');
+
+        uploadLabels.forEach(label => {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                label.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                label.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                label.addEventListener(eventName, unhighlight, false);
+            });
+
+            label.addEventListener('drop', handleDrop, false);
+        });
+    }
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight(e) {
+        e.target.closest('.file-upload-label').style.borderColor = '#ffffff';
+        e.target.closest('.file-upload-label').style.background = 'rgba(255, 255, 255, 0.1)';
+    }
+
+    function unhighlight(e) {
+        e.target.closest('.file-upload-label').style.borderColor = 'rgba(255, 255, 255, 0.3)';
+        e.target.closest('.file-upload-label').style.background = 'rgba(255, 255, 255, 0.05)';
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        const label = e.target.closest('.file-upload-label');
+        const input = label.querySelector('input[type="file"]');
+
+        if (files.length > 0) {
+            input.files = files;
+            const event = new Event('change', { bubbles: true });
+            input.dispatchEvent(event);
+        }
+    }
+
+    // Setup schedule options
+    function setupScheduleOptions() {
+        const publishTimeInputs = document.querySelectorAll('input[name="publishTime"]');
+        const scheduleOptions = document.getElementById('scheduleOptions');
+
+        publishTimeInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                if (this.value === 'schedule') {
+                    scheduleOptions.style.display = 'block';
+                } else {
+                    scheduleOptions.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Navigation functions
     function nextStep() {
-        if (currentStep < totalSteps) {
-            if (validateCurrentStep()) {
-                document.getElementById(`step${currentStep}`).classList.remove('active');
-                document.getElementById(`formStep${currentStep}`).classList.remove('active');
-
+        if (currentStep < 3) {
+            // Validate current step
+            if (validateStep(currentStep)) {
                 currentStep++;
-
-                document.getElementById(`step${currentStep}`).classList.add('active');
-                document.getElementById(`formStep${currentStep}`).classList.add('active');
+                updateSteps();
             }
         }
     }
 
     function prevStep() {
         if (currentStep > 1) {
-            document.getElementById(`step${currentStep}`).classList.remove('active');
-            document.getElementById(`formStep${currentStep}`).classList.remove('active');
-
             currentStep--;
-
-            document.getElementById(`step${currentStep}`).classList.add('active');
-            document.getElementById(`formStep${currentStep}`).classList.add('active');
+            updateSteps();
         }
     }
 
-    function validateCurrentStep() {
-        if (currentStep === 1) {
-            const title = document.getElementById('videoTitle').value.trim();
-            const category = document.getElementById('videoCategory').value;
+    function updateSteps() {
+        // Update step indicators
+        for (let i = 1; i <= 3; i++) {
+            const step = document.getElementById(`step${i}`);
+            const formStep = document.getElementById(`formStep${i}`);
 
-            if (!title) {
-                showAlert('Please enter a video title.', 'error');
-                return false;
+            if (i === currentStep) {
+                step.classList.add('active');
+                formStep.classList.add('active');
+            } else {
+                step.classList.remove('active');
+                formStep.classList.remove('active');
             }
-            if (!category) {
-                showAlert('Please select a category.', 'error');
-                return false;
-            }
-        } else if (currentStep === 2) {
-            const videoFile = document.getElementById('videoFile').files[0];
-
-            if (!videoFile) {
-                showAlert('Please select a video file.', 'error');
-                return false;
-            }
-
-            if (videoFile.size > 100 * 1024 * 1024) { // 100MB
-                showAlert('Video file size must be less than 100MB.', 'error');
-                return false;
-            }
-        }
-        return true;
-    }
-
-    function handleFileSelect(event, inputId, infoId) {
-        const file = event.target.files[0];
-        const fileInfo = document.getElementById(infoId);
-
-        if (file) {
-            const fileName = fileInfo.querySelector('.file-name');
-            const fileSize = fileInfo.querySelector('.file-size');
-
-            fileName.textContent = file.name;
-            fileSize.textContent = formatFileSize(file.size);
-            fileInfo.style.display = 'flex';
-        } else {
-            fileInfo.style.display = 'none';
         }
     }
 
+    // Validate form steps
+    function validateStep(step) {
+        switch (step) {
+            case 1:
+                const title = document.getElementById('videoTitle').value.trim();
+                const category = document.getElementById('videoCategory').value;
+
+                if (!title) {
+                    showAlert('Please enter a video title', 'error');
+                    return false;
+                }
+                if (!category) {
+                    showAlert('Please select a category', 'error');
+                    return false;
+                }
+                return true;
+
+            case 2:
+                const videoFile = document.getElementById('videoFile').files[0];
+
+                if (!videoFile) {
+                    showAlert('Please select a video file', 'error');
+                    return false;
+                }
+                return true;
+
+            default:
+                return true;
+        }
+    }
+
+    // Remove file
     function removeFile(inputId) {
-        document.getElementById(inputId).value = '';
-        const infoId = inputId + 'Info';
-        document.getElementById(infoId).style.display = 'none';
+        const input = document.getElementById(inputId);
+        const fileInfo = document.getElementById(inputId + 'Info');
+        const preview = document.getElementById('thumbnailPreview');
 
-        if (inputId === 'thumbnailFile') {
-            document.getElementById('thumbnailPreview').innerHTML = '';
+        input.value = '';
+        fileInfo.style.display = 'none';
+
+        if (inputId === 'thumbnailFile' && preview) {
+            preview.innerHTML = '';
         }
     }
 
-    function showThumbnailPreview(file) {
-        const preview = document.getElementById('thumbnailPreview');
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            preview.innerHTML = `<img src="${e.target.result}" alt="Thumbnail preview">`;
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-    function formatFileSize(bytes) {
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        if (bytes === 0) return '0 Bytes';
-        const i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
-    }
-
+    // Submit upload
     async function submitUpload(event) {
         event.preventDefault();
 
-        if (!validateCurrentStep()) {
-            return;
-        }
+        if (isUploading) return;
 
-        const formData = new FormData();
-        const form = event.target;
+        if (!validateStep(3)) return;
 
-        // Add all form data
-        formData.append('title', document.getElementById('videoTitle').value);
-        formData.append('description', document.getElementById('videoDescription').value);
-        formData.append('category', document.getElementById('videoCategory').value);
-        formData.append('language', document.getElementById('videoLanguage').value);
-        formData.append('tags', document.getElementById('videoTags').value);
-        formData.append('privacy', document.querySelector('input[name="privacy"]:checked').value);
-        formData.append('allowComments', document.querySelector('input[name="allowComments"]').checked);
-        formData.append('allowRatings', document.querySelector('input[name="allowRatings"]').checked);
-        formData.append('allowSharing', document.querySelector('input[name="allowSharing"]').checked);
-
-        const videoFile = document.getElementById('videoFile').files[0];
-        const thumbnailFile = document.getElementById('thumbnailFile').files[0];
-
-        if (videoFile) formData.append('videoFile', videoFile);
-        if (thumbnailFile) formData.append('thumbnailFile', thumbnailFile);
-
-        const submitBtn = document.getElementById('uploadSubmitBtn');
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Uploading...';
+        isUploading = true;
+        const uploadBtn = document.getElementById('uploadBtn');
+        const originalText = uploadBtn.innerHTML;
+        uploadBtn.innerHTML = '⏳ Uploading...';
+        uploadBtn.disabled = true;
 
         try {
+            const formData = new FormData();
+
+            // Add form data
+            formData.append('title', document.getElementById('videoTitle').value);
+            formData.append('description', document.getElementById('videoDescription').value);
+            formData.append('categoryId', getCategoryId(document.getElementById('videoCategory').value));
+            formData.append('privacy', document.querySelector('input[name="privacy"]:checked').value);
+            formData.append('tags', document.getElementById('videoTags').value);
+
+            // Add files
+            const videoFile = document.getElementById('videoFile').files[0];
+            const thumbnailFile = document.getElementById('thumbnailFile').files[0];
+
+            formData.append('videoFile', videoFile);
+            if (thumbnailFile) {
+                formData.append('thumbnailFile', thumbnailFile);
+            }
+
+            // Show upload progress
+            showUploadProgress();
+
+            // Upload video
             const response = await fetch('/api/videos/upload', {
                 method: 'POST',
-                credentials: 'include',
-                body: formData
+                body: formData,
+                credentials: 'include'
             });
 
             if (response.ok) {
-                showAlert('🎉 Video uploaded successfully!', 'success');
-                setTimeout(() => {
-                    window.location.href = '/profile.html';
-                }, 2000);
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    try {
+                        await response.json();
+                    } catch (parseError) {
+                        console.warn('Upload response could not be parsed as JSON:', parseError);
+                    }
+                } else {
+                    try {
+                        await response.text();
+                    } catch (consumeError) {
+                        console.warn('Upload response could not be read as text:', consumeError);
+                    }
+                }
+
+                showUploadSuccess();
+                showAlert('Video uploaded successfully!', 'success');
             } else {
                 const error = await response.text();
-                showAlert(`❌ Upload failed: ${error}`, 'error');
+                throw new Error(error || 'Upload failed');
             }
+
         } catch (error) {
             console.error('Upload error:', error);
-            showAlert('🚫 Upload failed. Please try again.', 'error');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = '🚀 Upload Video';
+            showAlert(error.message || 'Upload failed. Please try again.', 'error');
+            uploadBtn.innerHTML = originalText;
+            uploadBtn.disabled = false;
         }
+
+        isUploading = false;
+    }
+
+    // Show upload progress
+    function showUploadProgress() {
+        document.getElementById('uploadProgress').style.display = 'block';
+
+        // Simulate progress (in real implementation, you'd track actual upload progress)
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress >= 100) {
+                progress = 100;
+                clearInterval(interval);
+            }
+
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('uploadPercentage').textContent = Math.round(progress) + '%';
+        }, 200);
+    }
+
+    // Show upload success
+    function showUploadSuccess() {
+        document.querySelector('.upload-form').style.display = 'none';
+        document.getElementById('uploadSuccess').style.display = 'block';
+    }
+
+    // Navigation functions
+    function goToAllVideos() {
+        window.location.href = '/all-videos';
+    }
+
+    function goToProfile() {
+        window.location.href = '/profile';
+    }
+
+    function uploadAnother() {
+        window.location.reload();
+    }
+
+    // Utility functions
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function getCategoryId(categoryName) {
+        // Map category names to IDs (you might want to load this dynamically)
+        const categoryMap = {
+            'entertainment': 1,
+            'education': 2,
+            'technology': 3,
+            'gaming': 4,
+            'music': 5,
+            'sports': 6,
+            'news': 7,
+            'comedy': 8,
+            'lifestyle': 9,
+            'travel': 10
+        };
+        return categoryMap[categoryName] || 1;
     }
 
     function showAlert(message, type) {
         const alert = document.createElement('div');
         alert.className = `alert alert-${type}`;
         alert.textContent = message;
-        alert.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            padding: 15px;
-            border-radius: 4px;
-            color: white;
-            font-weight: bold;
-            max-width: 350px;
-            ${type === 'success' ? 'background-color: #28a745;' : ''}
-            ${type === 'error' ? 'background-color: #dc3545;' : ''}
-        `;
-
         document.body.appendChild(alert);
 
         setTimeout(() => {
-            if (alert.parentNode) {
-                alert.parentNode.removeChild(alert);
-            }
-        }, 4000);
+            alert.remove();
+        }, 5000);
     }
+
+    // Logout function
+    async function logout() {
+        try {
+            const response = await fetch('/api/users/logout', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                showAlert('Logged out successfully!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+            } else {
+                showAlert('Error logging out. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+            showAlert('Error logging out. Please try again.', 'error');
+        }
+    }
+
+    // Preloader management
+    window.addEventListener('load', function() {
+        const preloader = document.getElementById('preloader');
+        const mainContent = document.getElementById('main-content');
+        const progressBar = document.querySelector('.progress-bar');
+        
+        // Simulate loading progress
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 20;
+            progressBar.style.width = progress + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                
+                // Wait a moment then fade out preloader
+                setTimeout(() => {
+                    preloader.classList.add('fade-out');
+                    mainContent.classList.add('fade-in');
+                    
+                    // Remove preloader from DOM after animation
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                    }, 1000);
+                }, 500);
+            }
+        }, 200);
+    });
 </script>
+</div> <!-- Close page-content -->
 </body>
 </html>

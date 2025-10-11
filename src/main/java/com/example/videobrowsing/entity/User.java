@@ -1,15 +1,24 @@
 package com.example.videobrowsing.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import com.example.videobrowsing.entity.Comment;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name="users")
@@ -66,6 +75,20 @@ public class User {
     @OneToMany(mappedBy="user",cascade=CascadeType.ALL)
     @JsonIgnore
     private List<Playlist>playlists;
+
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Subscription> subscribers;
+
+    @OneToMany(mappedBy = "subscriber", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Subscription> subscriptions;
+
+    @Transient
+    private Long subscriberCount = 0L;
+
+    @Transient
+    private Long subscriptionCount = 0L;
 
 
     //Getter and setters
@@ -201,6 +224,30 @@ public class User {
     }
     public void setPlaylists(List<Playlist> playlists){
         this.playlists=playlists;
+    }
+    public List<Subscription> getSubscribers() {
+        return subscribers;
+    }
+    public void setSubscribers(List<Subscription> subscribers) {
+        this.subscribers = subscribers;
+    }
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+    public Long getSubscriberCount() {
+        return subscriberCount;
+    }
+    public void setSubscriberCount(Long subscriberCount) {
+        this.subscriberCount = subscriberCount;
+    }
+    public Long getSubscriptionCount() {
+        return subscriptionCount;
+    }
+    public void setSubscriptionCount(Long subscriptionCount) {
+        this.subscriptionCount = subscriptionCount;
     }
     public String getFirstName() {
         return firstname;
