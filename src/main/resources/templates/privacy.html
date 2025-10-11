@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - VideoHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #f5f5f5;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .privacy-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2.5rem;
+            background: rgba(15, 15, 15, 0.9);
+            border-bottom: 1px solid #222;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .privacy-header h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: #ff6b6b;
+        }
+
+        .privacy-home {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.6rem 1.4rem;
+            border: 1px solid #ff6b6b;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .privacy-home:hover {
+            background: #ff6b6b;
+            color: #0a0a0a;
+        }
+
+        .privacy-container {
+            flex: 1;
+            max-width: 900px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .privacy-card {
+            background: rgba(20, 20, 20, 0.95);
+            border-radius: 18px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .privacy-card h2 {
+            color: #ff6b6b;
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .privacy-card p {
+            color: #d0d0d0;
+            line-height: 1.7;
+            margin-bottom: 1.6rem;
+        }
+
+        .privacy-rules {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 2rem 0;
+        }
+
+        .privacy-rules li {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .privacy-rules li span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            font-weight: 700;
+        }
+
+        .privacy-contact {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .privacy-contact p {
+            margin: 0.3rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1.25rem 1.5rem;
+            }
+
+            .privacy-container {
+                margin-top: 1.5rem;
+                padding: 0 1.25rem 2rem;
+            }
+
+            .privacy-card {
+                padding: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="privacy-header">
+        <h1>Privacy Policy</h1>
+        <a href="/" class="privacy-home" data-guest-allowed>
+            <span>←</span> Home
+        </a>
+    </header>
+
+    <main class="privacy-container">
+        <section class="privacy-card">
+            <p>We respect your privacy. These guidelines explain how VideoHub handles your data and how you can stay in control of your personal information.</p>
+
+            <ol class="privacy-rules">
+                <li>
+                    <span>1</span>
+                    Keep your account secure. Don’t share your login details with anyone and choose a strong password.
+                </li>
+                <li>
+                    <span>2</span>
+                    We only collect the information we need to provide our services—such as your name, email, and videos you upload or watch.
+                </li>
+                <li>
+                    <span>3</span>
+                    You can update or delete your profile information at any time through your account settings.
+                </li>
+                <li>
+                    <span>4</span>
+                    Your videos stay yours. We only ask for permission to store and show them on VideoHub.
+                </li>
+                <li>
+                    <span>5</span>
+                    We never sell your information. If we partner with tools that analyze usage, we make sure they handle your data securely.
+                </li>
+            </ol>
+
+            <div class="privacy-contact">
+                <h2>Need help?</h2>
+                <p>Email: <a href="mailto:support@videohub.com">support@videohub.com</a></p>
+                <p>Visit our <a href="/help-center" data-guest-allowed>Help Center</a> for quick answers and tips.</p>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
