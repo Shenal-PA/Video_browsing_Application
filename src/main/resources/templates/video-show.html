@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/js/auth-utils.js" defer></script>
+    <script src="/js/app.js" defer></script>
+    <script th:inline="javascript">
+        window.__INITIAL_VIDEO__ = /*[[${initialVideoJson}]]*/ null;
+        if (typeof window.__INITIAL_VIDEO__ === 'string') {
+            try {
+                window.__INITIAL_VIDEO__ = window.__INITIAL_VIDEO__.length ? JSON.parse(window.__INITIAL_VIDEO__) : null;
+            } catch (error) {
+                console.error('Failed to parse initial video payload', error);
+                window.__INITIAL_VIDEO__ = null;
+            }
+        }
+        window.__REQUESTED_VIDEO_ID__ = /*[[${requestedVideoId}]]*/ null;
+    </script>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg-body: #070707;
+            --bg-surface: #101010;
+            --bg-highlight: #181818;
+            --border: #242424;
+            --border-soft: #2f2f2f;
+            --text: #f5f5f5;
+            --text-muted: #9f9f9f;
+            --text-subtle: #6d6d6d;
+            --accent: #e50914;
+            --accent-soft: rgba(229, 9, 20, 0.16);
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+            --shadow: 0 24px 40px rgba(0, 0, 0, 0.35);
+            font-family: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at top, rgba(229, 9, 20, 0.08), transparent 45%), var(--bg-body);
+            color: var(--text);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(7, 7, 7, 0.92);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.1rem 2.2rem;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .nav-brand button,
+        .nav-brand a {
+            background: var(--bg-highlight);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.55rem 1.1rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-title h1 {
+            margin: 0;
+            font-size: 1.65rem;
+            letter-spacing: -0.03em;
+        }
+
+        .nav-title span {
+            color: var(--text-subtle);
+            font-size: 0.82rem;
+        }
+
+        .nav-search {
+            flex: 1;
+            display: flex;
+            gap: 0.75rem;
+            max-width: 520px;
+        }
+
+        .nav-search input {
+            flex: 1;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-highlight);
+            color: var(--text);
+            padding: 0.65rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .nav-search input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+
+        .nav-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            object-fit: cover;
+            background: var(--bg-highlight);
+        }
+
+        .btn {
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 0.65rem 1.35rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-highlight);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .video-show-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 2.2rem;
+            padding: 2.2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .video-primary > section,
+        .video-primary > article,
+        .video-secondary > section {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        .video-primary {
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+
+        .player-card {
+            padding: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-player {
+            width: 100%;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: black;
+        }
+
+        .video-overlay {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+            background: rgba(7, 7, 7, 0.82);
+        }
+
+        .video-overlay-content {
+            text-align: center;
+            max-width: 360px;
+            padding: 2rem;
+            border-radius: var(--radius-md);
+            background: var(--bg-highlight);
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 36px rgba(0, 0, 0, 0.35);
+        }
+
+        .video-header {
+            padding: 0 1.2rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .video-title {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0;
+        }
+
+        .video-stats {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .video-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            background: var(--bg-highlight);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.55rem 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .action-btn:hover,
+        .action-btn.liked,
+        .action-btn.disliked {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.liked span:first-child,
+        .action-btn.disliked span:first-child {
+            filter: drop-shadow(0 0 6px rgba(229, 9, 20, 0.6));
+        }
+
+        .rating-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 1rem 1.2rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-highlight);
+        }
+
+        .rating-summary strong {
+            font-size: 1.4rem;
+        }
+
+        .rating-btn {
+            border-radius: 999px;
+        }
+
+        .channel-card {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            padding: 1.2rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-highlight);
+        }
+
+        .channel-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            object-fit: cover;
+        }
+
+        .subscribe-btn.subscribed {
+            background: rgba(229, 9, 20, 0.22);
+            border-color: rgba(229, 9, 20, 0.32);
+        }
+
+        .description-content {
+            margin-top: 1rem;
+            padding: 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--bg-highlight);
+            position: relative;
+        }
+
+        .description-text {
+            line-height: 1.6;
+            max-height: 6.8rem;
+            overflow: hidden;
+            color: var(--text-muted);
+            transition: max-height 0.3s ease;
+        }
+
+        .description-text.expanded {
+            max-height: none;
+        }
+
+        .show-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.85rem;
+            color: var(--accent);
+            background: transparent;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .video-tags {
+            margin-top: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .video-tags .tag {
+            background: var(--accent-soft);
+            border-radius: 999px;
+            padding: 0.45rem 0.9rem;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .comments-card {
+            padding: 1.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .comments-header select {
+            background: var(--bg-highlight);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            padding: 0.55rem 0.75rem;
+        }
+
+        .comment-login {
+            background: rgba(229, 9, 20, 0.1);
+            border: 1px dashed rgba(229, 9, 20, 0.36);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            display: none;
+        }
+
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            background: var(--bg-highlight);
+        }
+
+        .comment-form-main {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .comment-input-wrapper {
+            flex: 1;
+        }
+
+        #commentInput,
+        .reply-form textarea {
+            width: 100%;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text);
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        .comment-hint {
+            color: var(--text-subtle);
+            font-size: 0.78rem;
+            margin-top: 0.4rem;
+        }
+
+        .comment-form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .comment-thread {
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .comment {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .comment-avatar img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            object-fit: cover;
+        }
+
+        .comment-content {
+            flex: 1;
+            background: var(--bg-highlight);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+        }
+
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .comment-author {
+            font-weight: 600;
+        }
+
+        .comment-date {
+            font-size: 0.82rem;
+            color: var(--text-subtle);
+        }
+
+        .comment-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .comment-action-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            opacity: 0.7;
+        }
+
+        .comment-action-btn:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+        }
+
+        .edit-comment-form {
+            margin-top: 0.75rem;
+        }
+
+        .edit-comment-textarea {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 2px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            padding: 0.75rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .edit-comment-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .edit-comment-actions {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: flex-end;
+            margin-top: 0.6rem;
+        }
+
+        .edit-comment-actions .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .comment-footer {
+            margin-top: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        .comment-like-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-subtle);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            cursor: pointer;
+            font-weight: 600;
+            padding: 0.25rem 0.55rem;
+            border-radius: 999px;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .comment-like-btn:hover {
+            background: rgba(229, 9, 20, 0.12);
+            color: var(--accent);
+        }
+
+        .comment-like-btn.liked {
+            background: rgba(229, 9, 20, 0.18);
+            color: var(--accent);
+        }
+
+        .comment-like-btn.loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .comment-footer-separator {
+            color: var(--text-subtle);
+        }
+
+        .comment-reply-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .comment-reply-btn:hover {
+            color: var(--accent);
+        }
+
+        .comment-replies {
+            margin-left: 3.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .reply-form {
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.75rem;
+            background: var(--bg-highlight);
+        }
+
+        .reply-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.6rem;
+            margin-top: 0.6rem;
+        }
+
+        .video-secondary {
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+        }
+
+        .sidebar-section {
+            padding: 1.3rem 1.1rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+
+        .sidebar-section h3 {
+            margin: 0 0 1.1rem;
+            font-size: 1.1rem;
+        }
+
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .related-video,
+        .trending-video,
+        .latest-video {
+            display: grid;
+            grid-template-columns: 120px minmax(0, 1fr);
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            border: 1px solid transparent;
+            background: var(--bg-highlight);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .related-video:hover,
+        .trending-video:hover,
+        .latest-video:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .related-video-thumbnail,
+        .trending-video-thumbnail {
+            width: 100%;
+            height: 72px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+
+        .related-video-title,
+        .trending-video-title,
+        .latest-video-title {
+            margin: 0 0 0.4rem;
+            font-size: 0.98rem;
+            font-weight: 600;
+        }
+
+        .related-video-meta,
+        .trending-video-meta,
+        .latest-video-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--text-subtle);
+        }
+
+        .now-playing-card {
+            display: flex;
+            gap: 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--bg-highlight);
+            padding: 0.9rem;
+        }
+
+        .now-playing-thumbnail {
+            width: 120px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            object-fit: cover;
+        }
+
+        .now-playing-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            color: var(--text-subtle);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.6rem;
+            width: min(520px, 90vw);
+            box-shadow: var(--shadow);
+        }
+
+        .rating-modal-content {
+            width: min(440px, 90vw);
+            text-align: center;
+        }
+
+        .rating-modal-stars {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            font-size: 2rem;
+            margin: 1.2rem 0;
+        }
+
+        .rating-star {
+            cursor: pointer;
+            color: var(--text-subtle);
+            transition: transform 0.2s ease, color 0.2s ease;
+            filter: drop-shadow(0 0 0 transparent);
+        }
+
+        .rating-star:hover {
+            transform: scale(1.12);
+        }
+
+        .rating-star.active {
+            transform: scale(1.08);
+        }
+
+        .rating-star.active[data-score="1"] {
+            color: #ef4444;
+        }
+
+        .rating-star.active[data-score="2"] {
+            color: #f97316;
+        }
+
+        .rating-star.active[data-score="3"] {
+            color: #fbbf24;
+        }
+
+        .rating-star.active[data-score="4"] {
+            color: #34d399;
+        }
+
+        .rating-star.active[data-score="5"] {
+            color: #38bdf8;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            font-size: 1.4rem;
+            color: var(--text-subtle);
+        }
+
+        .link-container {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+        }
+
+        #embedCode {
+            width: 100%;
+            min-height: 120px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-highlight);
+            color: var(--text);
+            padding: 0.75rem;
+        }
+
+        .social-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .social-btn {
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-highlight);
+            color: var(--text);
+            padding: 0.65rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        #alert-container {
+            position: fixed;
+            z-index: 3000;
+            top: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .loading,
+        .error,
+        .empty,
+        .no-comments {
+            color: var(--text-subtle);
+            font-size: 0.92rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 1280px) {
+            .video-show-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .video-secondary {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .navbar {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .nav-search {
+                order: 3;
+                width: 100%;
+            }
+
+            .video-show-layout {
+                padding: 1.5rem;
+            }
+
+            .comment-replies {
+                margin-left: 2rem;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .video-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .related-video,
+            .trending-video,
+            .latest-video {
+                grid-template-columns: 100px minmax(0, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/" class="nav-title" style="text-decoration: none; color: inherit;">
+                <h1>VideoHub</h1>
+                <span>Your window into every story</span>
+            </a>
+        </div>
+        <form class="nav-search" action="/search" method="get">
+            <input id="searchInput" name="keyword" type="text" placeholder="Search videos, creators, or tags...">
+            <button class="btn btn-secondary" type="submit">🔍</button>
+        </form>
+        <div class="nav-actions">
+            <!-- User info section removed -->
+        </div>
+    </nav>
+</header>
+
+<main class="video-show-layout"
+    th:attr="data-video-id=${requestedVideoId != null ? requestedVideoId : (initialVideo != null ? initialVideo.id : null)}">
+    <section class="video-primary">
+        <article class="player-card">
+          <video id="videoPlayer" class="video-player" controls preload="metadata"
+              th:attr="poster=${initialVideo != null ? (initialVideo.thumbnailUrl != null ? initialVideo.thumbnailUrl : initialVideo.thumbnailPath) : null},
+                          data-video-id=${requestedVideoId != null ? requestedVideoId : (initialVideo != null ? initialVideo.id : null)}">
+        <source id="videoSource" type="video/mp4"
+            th:attr="src=${initialVideo != null ? (initialVideo.videoUrl != null ? initialVideo.videoUrl : initialVideo.filePath) : null}">
+                Your browser does not support the video tag.
+            </video>
+            <div id="videoOverlay" class="video-overlay hidden">
+                <div class="video-overlay-content">
+                    <h2>Ready to watch?</h2>
+                    <p>Log in or create a free account to watch and join the conversation on this video.</p>
+                    <div style="display: flex; gap: 0.8rem; justify-content: center;">
+                        <a class="btn btn-primary" href="/register">Create account</a>
+                        <a class="btn btn-secondary" href="/login">Log in</a>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <section class="video-header">
+            <h1 id="videoTitle" class="video-title"
+                th:text="${initialVideo != null ? initialVideo.title : 'Loading video...'}"></h1>
+            <div class="video-stats">
+                <span id="videoViews"
+                      th:text="${initialVideo != null ? ((initialVideo.viewCount != null ? initialVideo.viewCount : 0) + ' views') : '— views'}">— views</span>
+                <span>•</span>
+                <span id="videoDate"
+                      th:text="${initialVideo != null ? (initialVideo.createdAt != null ? initialVideo.createdAt : 'Recently uploaded') : '—'}">—</span>
+            </div>
+            <div class="video-actions">
+                <button id="likeBtn" class="action-btn" type="button">
+                    <span>👍</span>
+              <span id="likeCount"
+                  th:text="${initialVideo != null ? (initialVideo.likeCount != null ? initialVideo.likeCount : 0) : 0}">0</span>
+                </button>
+                <button id="dislikeBtn" class="action-btn" type="button">
+                    <span>👎</span>
+              <span id="dislikeCount"
+                  th:text="${initialVideo != null ? (initialVideo.dislikeCount != null ? initialVideo.dislikeCount : 0) : 0}">0</span>
+                </button>
+                <button id="shareBtn" class="action-btn" type="button">
+                    <span>🔗</span>
+                    <span>Share</span>
+                </button>
+                <button id="watchLaterBtn" class="action-btn" type="button">
+                    <span>⏱️</span>
+                    <span>Watch later</span>
+                </button>
+                <button id="playlistBtn" class="action-btn" type="button">
+                    <span>➕</span>
+                    <span>Playlist</span>
+                </button>
+                <button id="reportBtn" class="action-btn" type="button">
+                    <span>🚩</span>
+                    <span>Report</span>
+                </button>
+            </div>
+        </section>
+
+        <section id="ratingSummary" class="rating-summary">
+            <span class="rating-summary-star">⭐</span>
+            <strong id="ratingAverage"
+                                        th:text="${initialVideo != null and initialVideo.ratingCount != null and initialVideo.ratingCount > 0 and initialVideo.averageRating != null ? #numbers.formatDecimal(initialVideo.averageRating, 1, 1) : '—'}">—</strong>
+            <span id="ratingCountLabel"
+                                    th:text="${initialVideo != null ? (initialVideo.ratingCount != null ? (initialVideo.ratingCount > 1 ? initialVideo.ratingCount + ' ratings' : (initialVideo.ratingCount == 1 ? '1 rating' : 'No ratings yet')) : 'No ratings yet') : 'No ratings yet'}">No ratings yet</span>
+            <button id="rateVideoBtn" class="action-btn rating-btn" type="button" onclick="requireAuth(() => openRatingModal(), 'rate videos')">
+                <span>🌟</span>
+                <span id="ratingButtonLabel"
+                                            th:text="${initialVideo != null and initialVideo.userRating != null and initialVideo.userRating > 0 ? 'Your rating: ' + initialVideo.userRating + '★' : 'Rate this video'}">Rate this video</span>
+            </button>
+        </section>
+
+        <section class="channel-card">
+            <a th:href="@{/creator/{id}(id=${initialVideo != null ? initialVideo.uploadedById : ''})}" 
+               style="display: flex; align-items: center; gap: 1rem; text-decoration: none; color: inherit; flex: 1;">
+                <img id="channelAvatar" src="/images/default-avatar.jpg" alt="Channel avatar"
+                     th:attr="src=${initialVideo != null and initialVideo.uploaderAvatar != null and !#strings.isEmpty(initialVideo.uploaderAvatar) ? initialVideo.uploaderAvatar : '/images/default-avatar.jpg'}">
+                <div style="flex:1; display:flex; flex-direction:column; gap:0.35rem;">
+                    <strong id="channelName"
+                            th:text="${initialVideo != null ? (initialVideo.uploaderName != null ? initialVideo.uploaderName : 'Creator') : 'Creator'}">Creator</strong>
+                    <span id="channelSubtitle" class="channel-meta"
+                          th:text="${initialVideo != null ? ('Uploaded by ' + (initialVideo.uploaderName != null ? initialVideo.uploaderName : 'Creator')) : 'Sharing knowledge with the world'}">Sharing knowledge with the world</span>
+                    <span id="channelSubscribers" class="channel-meta"
+                          th:text="${initialVideo != null ? ((initialVideo.uploaderSubscriberCount != null ? initialVideo.uploaderSubscriberCount : 0) + ' subscribers') : '0 subscribers'}">0 subscribers</span>
+                </div>
+            </a>
+            <button id="subscribeBtn" class="btn btn-primary subscribe-btn" type="button" onclick="toggleSubscribe()" 
+                    style="display: inline-block !important; white-space: nowrap;"
+                    th:attr="data-creator-id=${initialVideo != null ? initialVideo.uploadedById : ''}"
+                    th:classappend="${initialVideo != null and initialVideo.subscribedToUploader != null and initialVideo.subscribedToUploader ? ' subscribed' : ''}"
+                    th:text="${initialVideo != null and initialVideo.subscribedToUploader != null and initialVideo.subscribedToUploader ? '✓ Subscribed' : '🔔 Subscribe'}">🔔 Subscribe</button>
+        </section>
+
+        <section class="description-content">
+            <div id="videoDescription" class="description-text"
+                 th:text="${initialVideo != null ? (initialVideo.description != null ? initialVideo.description : 'No description provided yet.') : 'Loading description...'}"></div>
+            <button id="showMoreBtn" class="show-more-btn" type="button" onclick="toggleDescription()">Show more</button>
+            <div id="videoTags" class="video-tags"
+                 th:with="initialTags=${initialVideo != null and initialVideo.tags != null and !#strings.isEmpty(initialVideo.tags) ? #strings.arraySplit(initialVideo.tags, ',') : null}">
+                <span class="tag" th:each="tag : ${initialTags}" th:text="${'#' + #strings.trim(tag)}"></span>
+            </div>
+        </section>
+
+        <section class="comments-card">
+            <div class="comments-header">
+                <h3>💬 Comments (<span id="commentCount">0</span>)</h3>
+                <select id="commentSort" onchange="sortComments()">
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="popular">Most popular</option>
+                </select>
+            </div>
+
+            <div id="loginPrompt" class="comment-login" sec:authorize="isAnonymous()">
+                Please <a href="/login">log in</a> or <a href="/register">create an account</a> to join the discussion.
+            </div>
+
+            <form id="commentForm" class="comment-form" onsubmit="event.preventDefault(); submitComment();"
+                sec:authorize="hasAnyRole('REGISTERED_USER','CONTENT_CREATOR','ADMIN')"
+                th:attr="data-video-id=${requestedVideoId != null ? requestedVideoId : (initialVideo != null ? initialVideo.id : null)},
+                         data-comment-endpoint=${requestedVideoId != null ? '/api/videos/' + requestedVideoId + '/comments' : (initialVideo != null ? '/api/videos/' + initialVideo.id + '/comments' : '')}">
+                <input type="hidden" id="commentVideoId"
+                       th:value="${requestedVideoId != null ? requestedVideoId : (initialVideo != null ? initialVideo.id : '')}"
+                       th:attr="data-video-id=${requestedVideoId != null ? requestedVideoId : (initialVideo != null ? initialVideo.id : null)},
+                                data-comment-endpoint=${requestedVideoId != null ? '/api/videos/' + requestedVideoId + '/comments' : (initialVideo != null ? '/api/videos/' + initialVideo.id + '/comments' : '')}">
+                <div class="comment-form-main">
+                    <img id="userAvatar" class="nav-avatar" src="/images/default-avatar.jpg" alt="You">
+                    <div class="comment-input-wrapper">
+                        <textarea id="commentInput" maxlength="500" data-word-limit="150"
+                                  th:attr="data-video-id=${requestedVideoId != null ? requestedVideoId : (initialVideo != null ? initialVideo.id : null)}"
+                                  placeholder="Share your thoughts (up to 150 words)..."></textarea>
+                        <span class="comment-hint">Plenty of room—up to 150 words.</span>
+                    </div>
+                </div>
+                <div class="comment-form-actions">
+                    <span><span id="commentWordCount">0</span>/150 words</span>
+                    <div style="display:flex; gap:0.6rem;">
+                        <button class="btn btn-secondary" type="button" onclick="cancelComment()">Cancel</button>
+                        <button class="btn btn-primary" type="submit">Comment</button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="commentsList" class="comments-list">
+                <div class="loading">Loading comments...</div>
+            </div>
+        </section>
+    </section>
+
+    <aside class="video-secondary">
+        <section class="sidebar-section">
+            <h3>🎬 Now playing</h3>
+            <div id="nowPlayingCard" class="now-playing-card">
+                <img id="nowPlayingThumbnail" class="now-playing-thumbnail" src="/images/default-thumbnail.jpg" alt="Now playing thumbnail"
+                     th:attr="src=${initialVideo != null ? (initialVideo.thumbnailUrl != null ? initialVideo.thumbnailUrl : (initialVideo.thumbnailPath != null ? initialVideo.thumbnailPath : '/images/default-thumbnail.jpg')) : '/images/default-thumbnail.jpg'}">
+                <div class="now-playing-info">
+                    <h4 id="nowPlayingTitle" th:text="${initialVideo != null ? (initialVideo.title != null ? initialVideo.title : 'Untitled video') : 'Loading...'}">Loading...</h4>
+                    <div class="now-playing-meta">
+                        <span id="nowPlayingViews" th:text="${initialVideo != null ? ((initialVideo.viewCount != null ? initialVideo.viewCount : 0) + ' views') : '— views'}">— views</span>
+                        <span id="nowPlayingRating"
+                              th:text="${initialVideo != null and initialVideo.ratingCount != null and initialVideo.ratingCount > 0 and initialVideo.averageRating != null ? initialVideo.averageRating + '★ (' + initialVideo.ratingCount + ')' : 'No ratings yet'}">—</span>
+                        <span id="nowPlayingDate" th:text="${initialVideo != null ? (initialVideo.createdAt != null ? initialVideo.createdAt : 'Recently uploaded') : '—'}">—</span>
+                        <span id="nowPlayingCategory" th:text="${initialVideo != null ? (initialVideo.categoryName != null ? initialVideo.categoryName : 'Uncategorized') : '—'}">—</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="sidebar-section">
+            <h3>📚 Related in this category</h3>
+            <div id="relatedVideos" class="video-list">
+                <div class="loading">Loading related videos...</div>
+            </div>
+        </section>
+
+        <section class="sidebar-section">
+            <h3>🔥 Trending now</h3>
+            <div id="trendingVideos" class="video-list">
+                <div class="loading">Loading trending videos...</div>
+            </div>
+        </section>
+
+        <section class="sidebar-section">
+            <h3>🆕 Latest uploads</h3>
+            <div id="latestVideos" class="video-list">
+                <div class="loading">Loading latest videos...</div>
+            </div>
+        </section>
+    </aside>
+</main>
+
+<div id="ratingModal" class="modal">
+    <div class="modal-content rating-modal-content">
+        <span class="close" onclick="closeModal('ratingModal')">&times;</span>
+        <h2>Rate this video</h2>
+        <p class="rating-modal-subtitle">Select how helpful this video was for you.</p>
+        <div class="rating-modal-stars">
+            <span class="rating-star" data-score="1">★</span>
+            <span class="rating-star" data-score="2">★</span>
+            <span class="rating-star" data-score="3">★</span>
+            <span class="rating-star" data-score="4">★</span>
+            <span class="rating-star" data-score="5">★</span>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-secondary" type="button" onclick="closeModal('ratingModal')">Cancel</button>
+            <button class="btn btn-primary" type="button" onclick="submitVideoRating()">Submit rating</button>
+        </div>
+    </div>
+</div>
+
+<div id="shareModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('shareModal')">&times;</span>
+        <h2>Share this video</h2>
+        <div class="form-group">
+            <label for="videoUrl">Video link</label>
+            <div class="link-container">
+                <input id="videoUrl" type="text" readonly style="flex:1; padding:0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-highlight); color:var(--text);">
+                <button class="btn btn-secondary" type="button" onclick="copyLink('videoUrl')">Copy</button>
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:1rem;">
+            <label for="embedCode">Embed code</label>
+            <textarea id="embedCode" readonly></textarea>
+        </div>
+        <div class="social-buttons">
+            <button class="social-btn" type="button" onclick="shareOnFacebook()">Facebook</button>
+            <button class="social-btn" type="button" onclick="shareOnTwitter()">Twitter / X</button>
+            <button class="social-btn" type="button" onclick="shareOnWhatsApp()">WhatsApp</button>
+            <button class="social-btn" type="button" onclick="shareViaEmail()">Email</button>
+        </div>
+    </div>
+</div>
+
+<div id="addToPlaylistModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('addToPlaylistModal')">&times;</span>
+        <h2>Add to playlist</h2>
+        <form id="addToPlaylistForm" onsubmit="event.preventDefault(); addToPlaylist();">
+            <div class="form-group" style="display:flex; flex-direction:column; gap:0.4rem;">
+                <label for="playlistSelect">Choose an existing playlist</label>
+                <select id="playlistSelect" style="padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-highlight); color:var(--text);">
+                    <option value="">-- Select a playlist --</option>
+                </select>
+            </div>
+            <div class="form-group" style="display:flex; flex-direction:column; gap:0.4rem; margin-top:1rem;">
+                <label for="newPlaylistName">Or create a new playlist</label>
+                <input id="newPlaylistName" type="text" placeholder="My collaborative session"
+                       style="padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-highlight); color:var(--text);">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closeModal('addToPlaylistModal')">Cancel</button>
+                <button class="btn btn-primary" type="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="reportVideoModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('reportVideoModal')">&times;</span>
+        <h2>Report video</h2>
+        <form id="reportVideoForm" onsubmit="event.preventDefault(); reportVideoSubmit();">
+            <div class="form-group" style="display:flex; flex-direction:column; gap:0.4rem;">
+                <label for="reportReason">Reason</label>
+                <select id="reportReason" style="padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-highlight); color:var(--text);">
+                    <option value="">Select a reason</option>
+                    <option value="SPAM">Spam or misleading</option>
+                    <option value="INAPPROPRIATE_CONTENT">Inappropriate content</option>
+                    <option value="COPYRIGHT">Copyright violation</option>
+                    <option value="PLAYBACK_ISSUE">Playback issue</option>
+                    <option value="OTHER">Other</option>
+                </select>
+            </div>
+            <div class="form-group" style="display:flex; flex-direction:column; gap:0.4rem; margin-top:1rem;">
+                <label for="additionalInfo">Additional details</label>
+                <textarea id="additionalInfo" placeholder="Help us understand what went wrong..." style="min-height:120px;"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" type="button" onclick="closeModal('reportVideoModal')">Cancel</button>
+                <button class="btn btn-primary" type="submit">Submit report</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="alert-container"></div>
+</body>
+</html>
