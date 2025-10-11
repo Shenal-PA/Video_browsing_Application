@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Videos - VideoHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/js/auth-utils.js"></script>
+    <script src="/js/creator-utils.js"></script>
+    <style>
+        /* Dark Theme Variables */
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #888888;
+            --accent-primary: #ff3e3e;
+            --accent-secondary: #ff6b6b;
+            --border-color: #2a2a2a;
+            --hover-color: #252525;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --gradient-primary: linear-gradient(135deg, #ff3e3e 0%, #ff6b6b 100%);
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-brand h1 a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .nav-user {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .filter-header h3 {
+            color: var(--text-primary);
+            font-size: 1.3rem;
+        }
+
+        .clear-filters-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-filters-btn:hover {
+            background: var(--hover-color);
+            color: var(--text-primary);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(255, 62, 62, 0.1);
+        }
+
+        .date-range {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        /* Results Section */
+        .results-section {
+            margin-bottom: 3rem;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .results-info {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .results-count {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .sort-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .sort-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        /* Video Grid */
+        .video-grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .video-grid.grid-view {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        .video-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+
+        .video-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow);
+        }
+
+        .video-card.list-view {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .video-thumbnail {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-grid.grid-view .video-thumbnail {
+            height: 180px;
+        }
+
+        .video-grid.list-view .video-thumbnail {
+            width: 200px;
+            height: 120px;
+            flex-shrink: 0;
+            border-radius: 8px;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .video-info {
+            padding: 1.5rem;
+            flex: 1;
+        }
+
+        .video-grid.list-view .video-info {
+            padding: 0;
+        }
+
+        .video-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            line-clamp: 2;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .video-uploader {
+            color: var(--accent-secondary);
+            font-weight: 500;
+        }
+
+        .video-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .video-category {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .pagination button {
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: var(--hover-color);
+            border-color: var(--accent-primary);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Loading and Empty States */
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-results {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+
+        .empty-results i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-results h3 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        /* Filter Tags */
+        .active-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            background: var(--accent-primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-tag .remove-filter {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .filters-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+
+            .filter-section {
+                padding: 1.5rem;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .sort-section {
+                justify-content: space-between;
+            }
+
+            .video-grid.grid-view {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .video-card.list-view {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .video-grid.list-view .video-thumbnail {
+                width: 100%;
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .video-grid.grid-view {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h1><a href="/">🎬 VideoHub</a></h1>
+        </div>
+        <div class="nav-user" id="navUser">
+            <!-- User info will be injected here by JavaScript -->
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>🎬 All Videos</h1>
+            <p>Discover and explore our complete video library with advanced filtering options</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-header">
+                <h3>🔍 Filter Videos</h3>
+                <button class="clear-filters-btn" onclick="clearAllFilters()">
+                    <i class="fas fa-times"></i> Clear Filters
+                </button>
+            </div>
+
+            <!-- Active Filters Display -->
+            <div class="active-filters" id="activeFilters" style="display: none;">
+                <!-- Active filter tags will appear here -->
+            </div>
+
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label for="categoryFilter">Category:</label>
+                    <select id="categoryFilter" onchange="applyFilters()">
+                        <option value="">All Categories</option>
+                        <option value="Gaming">🎮 Gaming</option>
+                        <option value="Music">🎵 Music</option>
+                        <option value="Technology">💻 Technology</option>
+                        <option value="Sports">🏀 Sports</option>
+                        <option value="Cooking">🍳 Cooking</option>
+                        <option value="Education">🎓 Education</option>
+                        <option value="Entertainment">🎭 Entertainment</option>
+                        <option value="News">📰 News</option>
+                        <option value="Documentary">🎞️ Documentary</option>
+                        <option value="Science">🔬 Science</option>
+                        <option value="Fitness">💪 Fitness</option>
+                        <option value="Travel">✈️ Travel</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="durationFilter">Duration:</label>
+                    <select id="durationFilter" onchange="applyFilters()">
+                        <option value="">Any Duration</option>
+                        <option value="short">Under 5 minutes</option>
+                        <option value="medium">5-20 minutes</option>
+                        <option value="long">20-60 minutes</option>
+                        <option value="very-long">Over 1 hour</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="uploadDateFilter">Upload Date:</label>
+                    <select id="uploadDateFilter" onchange="applyFilters()">
+                        <option value="">Any Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="year">This Year</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="qualityFilter">Quality:</label>
+                    <select id="qualityFilter" onchange="applyFilters()">
+                        <option value="">Any Quality</option>
+                        <option value="sd">SD (480p)</option>
+                        <option value="hd">HD (720p)</option>
+                        <option value="fhd">Full HD (1080p)</option>
+                        <option value="4k">4K (2160p)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="ratingFilter">Minimum Rating:</label>
+                    <select id="ratingFilter" onchange="applyFilters()">
+                        <option value="">Any Rating</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                        <option value="2">2+ Stars</option>
+                        <option value="1">1+ Stars</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="viewsFilter">Views:</label>
+                    <select id="viewsFilter" onchange="applyFilters()">
+                        <option value="">Any Views</option>
+                        <option value="1000">1K+ Views</option>
+                        <option value="10000">10K+ Views</option>
+                        <option value="100000">100K+ Views</option>
+                        <option value="1000000">1M+ Views</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="searchFilter">Search:</label>
+                    <input type="text" id="searchFilter" placeholder="Search videos..." onkeyup="debounceSearch()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-section">
+            <div class="results-header">
+                <div class="results-info">
+                    <span class="results-count" id="resultsCount">0</span> videos found
+                </div>
+                <div class="sort-section">
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="switchView('grid')" id="gridViewBtn">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button class="view-btn" onclick="switchView('list')" id="listViewBtn">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                    <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+                        <option value="latest">Latest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title-asc">Title A-Z</option>
+                        <option value="title-desc">Title Z-A</option>
+                        <option value="views-desc">Most Views</option>
+                        <option value="views-asc">Least Views</option>
+                        <option value="rating-desc">Highest Rated</option>
+                        <option value="rating-asc">Lowest Rated</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="loading" id="loadingState" style="display: none;">
+                <i class="fas fa-spinner"></i>
+                <p>Loading videos...</p>
+            </div>
+
+            <!-- Video Grid -->
+            <div class="video-grid grid-view" id="videoGrid">
+                <!-- Videos will be loaded here dynamically -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-results" id="emptyState" style="display: none;">
+                <i class="fas fa-film"></i>
+                <h3>No videos found</h3>
+                <p>Try adjusting your filters or search terms to find more videos.</p>
+                <button class="btn btn-primary" onclick="clearAllFilters()">Clear All Filters</button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button id="prevPageBtn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                <button id="nextPageBtn" onclick="changePage(1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let allVideos = [];
+        let filteredVideos = [];
+        let currentPage = 1;
+        let videosPerPage = 12;
+        let searchTimeout;
+        let currentUser = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            loadAllVideos();
+        });
+
+        // Check authentication status
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch('/api/users/me', {
+                    credentials: 'include'
+                });
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    if (window.setAuthState) {
+                        setAuthState(true, currentUser);
+                    }
+                    updateNavbar(currentUser);
+                } else {
+                    if (window.setAuthState) {
+                        setAuthState(false, null);
+                    }
+                    currentUser = null;
+                    updateNavbar(null);
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+                if (window.setAuthState) {
+                    setAuthState(false, null);
+                }
+                currentUser = null;
+                updateNavbar(null);
+            }
+        }
+
+        // Update navbar based on auth status
+        function updateNavbar(user) {
+            const navUser = document.getElementById('navUser');
+            if (!navUser) {
+                return;
+            }
+
+            if (user) {
+                const role = (user.role || 'REGISTERED_USER').toUpperCase();
+                const actions = [];
+
+                actions.push(`
+                    <a href="/" class="btn btn-secondary" title="Home">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                `);
+
+                actions.push(`
+                    <a href="/profile" class="btn btn-secondary">
+                        <i class="fas fa-user"></i> ${user.username || 'Profile'}
+                    </a>
+                `);
+
+                if (role === 'REGISTERED_USER') {
+                    actions.push(`
+                        <button class="btn btn-primary" onclick="handleBecomeCreatorCTA()">
+                            <i class="fas fa-video"></i> Become a Creator
+                        </button>
+                    `);
+                } else {
+                    actions.push(`
+                        <a href="/video-upload" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Upload Video
+                        </a>
+                    `);
+                }
+
+                actions.push(`
+                    <button class="btn btn-secondary" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                `);
+
+                navUser.innerHTML = actions.join('');
+            } else {
+                navUser.innerHTML = `
+                    <a href="/login" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="/register" class="btn btn-secondary">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                    <button class="btn btn-primary" data-guest-allowed onclick="handleBecomeCreatorCTA()">
+                        <i class="fas fa-video"></i> Become a Creator
+                    </button>
+                `;
+            }
+        }
+
+        // Load all videos
+        async function loadAllVideos() {
+            showLoading(true);
+            try {
+                const response = await fetch('/api/videos/public');
+                if (response.ok) {
+                    allVideos = await response.json();
+                    filteredVideos = [...allVideos];
+                    displayVideos();
+                    updateResultsCount();
+                } else {
+                    console.error('Failed to load videos');
+                    showEmptyState(true);
+                }
+            } catch (error) {
+                console.error('Error loading videos:', error);
+                showEmptyState(true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const durationFilter = document.getElementById('durationFilter').value;
+            const uploadDateFilter = document.getElementById('uploadDateFilter').value;
+            const ratingFilter = parseFloat(document.getElementById('ratingFilter').value) || 0;
+            const viewsFilter = parseInt(document.getElementById('viewsFilter').value) || 0;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            const sortSelect = document.getElementById('sortSelect').value;
+
+            filteredVideos = allVideos.filter(video => {
+                // Category filter
+                const videoCategory = (video.categoryName || '').toLowerCase();
+                if (categoryFilter && videoCategory !== categoryFilter.toLowerCase()) {
+                    return false;
+                }
+
+                // Duration filter
+                if (durationFilter) {
+                    const duration = video.duration || 0;
+                    switch (durationFilter) {
+                        case 'short':
+                            if (duration >= 300) return false; // 5 minutes
+                            break;
+                        case 'medium':
+                            if (duration < 300 || duration >= 1200) return false; // 5-20 minutes
+                            break;
+                        case 'long':
+                            if (duration < 1200 || duration >= 3600) return false; // 20-60 minutes
+                            break;
+                        case 'very-long':
+                            if (duration < 3600) return false; // Over 1 hour
+                            break;
+                    }
+                }
+
+                // Upload date filter
+                if (uploadDateFilter) {
+                    const uploadDate = video.createdAt ? new Date(video.createdAt) : null;
+                    if (!uploadDate || Number.isNaN(uploadDate.getTime())) {
+                        return false;
+                    }
+                    const now = new Date();
+                    const daysDiff = (now - uploadDate) / (1000 * 60 * 60 * 24);
+
+                    switch (uploadDateFilter) {
+                        case 'today':
+                            if (daysDiff > 1) return false;
+                            break;
+                        case 'week':
+                            if (daysDiff > 7) return false;
+                            break;
+                        case 'month':
+                            if (daysDiff > 30) return false;
+                            break;
+                        case 'year':
+                            if (daysDiff > 365) return false;
+                            break;
+                    }
+                }
+
+                // Rating filter
+                const likeScore = Number(video.likeCount) || 0;
+                if (ratingFilter > 0 && likeScore < ratingFilter) {
+                    return false;
+                }
+
+                // Views filter
+                if (viewsFilter > 0 && (video.viewCount || 0) < viewsFilter) {
+                    return false;
+                }
+
+                // Search filter
+                if (searchFilter) {
+                    const tagsText = Array.isArray(video.tags) ? video.tags.join(' ') : (video.tags || '');
+                    const searchableText = `${video.title || ''} ${video.description || ''} ${tagsText}`.toLowerCase();
+                    if (!searchableText.includes(searchFilter)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
+            // Sort videos
+            sortVideos(sortSelect);
+
+            // Reset to first page and display
+            currentPage = 1;
+            displayVideos();
+            updateResultsCount();
+            updateActiveFilters();
+        }
+
+        // Sort videos
+        function sortVideos(sortType) {
+            switch (sortType) {
+                case 'latest':
+                    filteredVideos.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                    break;
+                case 'oldest':
+                    filteredVideos.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+                    break;
+                case 'title-asc':
+                    filteredVideos.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+                case 'title-desc':
+                    filteredVideos.sort((a, b) => b.title.localeCompare(a.title));
+                    break;
+                case 'views-desc':
+                    filteredVideos.sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0));
+                    break;
+                case 'views-asc':
+                    filteredVideos.sort((a, b) => (a.viewCount || 0) - (b.viewCount || 0));
+                    break;
+                case 'rating-desc':
+                    filteredVideos.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
+                    break;
+                case 'rating-asc':
+                    filteredVideos.sort((a, b) => (a.likeCount || 0) - (b.likeCount || 0));
+                    break;
+            }
+        }
+
+        // Display videos
+        function displayVideos() {
+            const videoGrid = document.getElementById('videoGrid');
+            const startIndex = (currentPage - 1) * videosPerPage;
+            const endIndex = startIndex + videosPerPage;
+            const videosToShow = filteredVideos.slice(startIndex, endIndex);
+
+            if (videosToShow.length === 0) {
+                showEmptyState(true);
+                showPagination(false);
+                return;
+            }
+
+            showEmptyState(false);
+            showPagination(filteredVideos.length > videosPerPage);
+
+            videoGrid.innerHTML = videosToShow.map(video => createVideoCard(video)).join('');
+            updatePagination();
+        }
+
+        // Create video card HTML
+        function createVideoCard(video) {
+            const thumbnail = video.thumbnailUrl || video.thumbnailPath || '/images/default-thumbnail.jpg';
+            const duration = formatDuration(video.duration || 0);
+            const uploadDate = formatUploadDate(video.createdAt);
+            const views = formatViews(video.viewCount || 0);
+            const rating = formatRating(video.likeCount || 0);
+
+            return `
+                <div class="video-card" onclick="openVideo(${video.id})">
+                    <div class="video-thumbnail">
+                        <img src="${thumbnail}" alt="${video.title}" onerror="this.src='/images/default-thumbnail.jpg'">
+                        <div class="video-duration">${duration}</div>
+                    </div>
+                    <div class="video-info">
+                        <div class="video-title">${escapeHtml(video.title)}</div>
+                        <div class="video-meta">
+                            <span class="video-uploader">${escapeHtml(video.uploaderName || 'Unknown')}</span>
+                            <span class="video-category">${escapeHtml(video.categoryName || 'Uncategorized')}</span>
+                        </div>
+                        <div class="video-stats">
+                            <span><i class="fas fa-eye"></i> ${views}</span>
+                            <span><i class="fas fa-thumbs-up"></i> ${rating}</span>
+                            <span><i class="fas fa-calendar"></i> ${uploadDate}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Utility functions
+        function formatDuration(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const remainingSeconds = seconds % 60;
+
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        function formatUploadDate(dateString) {
+            const parsed = dateString ? new Date(dateString) : null;
+            if (!parsed || Number.isNaN(parsed.getTime())) {
+                return 'Unknown';
+            }
+            const date = parsed;
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+            if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
+            return `${Math.floor(diffDays / 365)} years ago`;
+        }
+
+        function formatViews(value) {
+            const views = Number(value) || 0;
+            if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+            if (views >= 1_000) return `${(views / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
+            return views.toString();
+        }
+
+        function formatRating(likeCount) {
+            return formatViews(likeCount);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Search debounce
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 300);
+        }
+
+        // View switching
+        function switchView(view) {
+            const videoGrid = document.getElementById('videoGrid');
+            const gridViewBtn = document.getElementById('gridViewBtn');
+            const listViewBtn = document.getElementById('listViewBtn');
+
+            if (view === 'grid') {
+                videoGrid.className = 'video-grid grid-view';
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+            } else {
+                videoGrid.className = 'video-grid list-view';
+                listViewBtn.classList.add('active');
+                gridViewBtn.classList.remove('active');
+            }
+        }
+
+        // Pagination
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredVideos.length / videosPerPage);
+            const newPage = currentPage + direction;
+
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                displayVideos();
+            }
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredVideos.length / videosPerPage);
+            const prevBtn = document.getElementById('prevPageBtn');
+            const nextBtn = document.getElementById('nextPageBtn');
+            const pageInfo = document.getElementById('pageInfo');
+
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+
+        // Update results count
+        function updateResultsCount() {
+            document.getElementById('resultsCount').textContent = filteredVideos.length;
+        }
+
+        // Show/hide states
+        function showLoading(show) {
+            document.getElementById('loadingState').style.display = show ? 'block' : 'none';
+        }
+
+        function showEmptyState(show) {
+            document.getElementById('emptyState').style.display = show ? 'block' : 'none';
+        }
+
+        function showPagination(show) {
+            document.getElementById('pagination').style.display = show ? 'flex' : 'none';
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('durationFilter').value = '';
+            document.getElementById('uploadDateFilter').value = '';
+            document.getElementById('ratingFilter').value = '';
+            document.getElementById('viewsFilter').value = '';
+            document.getElementById('searchFilter').value = '';
+            document.getElementById('sortSelect').value = 'latest';
+
+            applyFilters();
+        }
+
+        // Update active filters display
+        function updateActiveFilters() {
+            const activeFiltersContainer = document.getElementById('activeFilters');
+            const filters = [];
+
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const durationFilter = document.getElementById('durationFilter').value;
+            const uploadDateFilter = document.getElementById('uploadDateFilter').value;
+            const ratingFilter = document.getElementById('ratingFilter').value;
+            const viewsFilter = document.getElementById('viewsFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value;
+
+            if (categoryFilter) filters.push({ type: 'category', value: categoryFilter, display: `Category: ${categoryFilter}` });
+            if (durationFilter) filters.push({ type: 'duration', value: durationFilter, display: `Duration: ${getDurationLabel(durationFilter)}` });
+            if (uploadDateFilter) filters.push({ type: 'uploadDate', value: uploadDateFilter, display: `Date: ${getDateLabel(uploadDateFilter)}` });
+            if (ratingFilter) filters.push({ type: 'rating', value: ratingFilter, display: `Rating: ${ratingFilter}+ Stars` });
+            if (viewsFilter) filters.push({ type: 'views', value: viewsFilter, display: `Views: ${formatViews(viewsFilter)}+` });
+            if (searchFilter) filters.push({ type: 'search', value: searchFilter, display: `Search: "${searchFilter}"` });
+
+            if (filters.length > 0) {
+                activeFiltersContainer.style.display = 'flex';
+                activeFiltersContainer.innerHTML = filters.map(filter =>
+                    `<span class="filter-tag">
+                        ${filter.display}
+                        <span class="remove-filter" onclick="removeFilter('${filter.type}')">×</span>
+                    </span>`
+                ).join('');
+            } else {
+                activeFiltersContainer.style.display = 'none';
+            }
+        }
+
+        function getDurationLabel(value) {
+            switch(value) {
+                case 'short': return 'Under 5 min';
+                case 'medium': return '5-20 min';
+                case 'long': return '20-60 min';
+                case 'very-long': return 'Over 1 hour';
+                default: return value;
+            }
+        }
+
+        function getDateLabel(value) {
+            switch(value) {
+                case 'today': return 'Today';
+                case 'week': return 'This Week';
+                case 'month': return 'This Month';
+                case 'year': return 'This Year';
+                default: return value;
+            }
+        }
+
+        function removeFilter(type) {
+            document.getElementById(type + 'Filter').value = '';
+            applyFilters();
+        }
+
+        // Open video detail page
+        function openVideo(videoId) {
+            const normalizedId = (videoId ?? '').toString().trim();
+            if (!normalizedId || normalizedId === 'null' || normalizedId === 'undefined') {
+                console.warn('openVideo called without a valid id', videoId);
+                return;
+            }
+
+            const encodedId = encodeURIComponent(normalizedId);
+            const navigate = () => {
+                window.location.href = `/video-show?id=${encodedId}`;
+            };
+
+            if (typeof window.requireAuth === 'function') {
+                const allowed = window.requireAuth(navigate, 'watch videos');
+                if (!allowed) {
+                    return;
+                }
+                return;
+            }
+
+            navigate();
+        }
+
+        // Logout function
+        async function logout() {
+            try {
+                const response = await fetch('/api/users/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                if (response.ok && window.setAuthState) {
+                    setAuthState(false, null);
+                }
+
+                window.location.href = '/login';
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        }
+    </script>
+</body>
+</html>
