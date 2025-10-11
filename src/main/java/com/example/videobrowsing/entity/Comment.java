@@ -1,12 +1,24 @@
 package com.example.videobrowsing.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name="comments")
@@ -38,7 +50,12 @@ public class Comment {
     private Comment parentComment;
 
     @OneToMany(mappedBy="parentComment",cascade=CascadeType.ALL)
+    @JsonIgnore
     private List<Comment>replies;
+
+    @OneToMany(mappedBy="comment", cascade=CascadeType.ALL, orphanRemoval=true)
+    @JsonIgnore
+    private List<CommentLike> likes = new ArrayList<>();
 
     private LocalDateTime createdAt=LocalDateTime.now();
     private LocalDateTime updatedAt=LocalDateTime.now();
@@ -53,7 +70,7 @@ public class Comment {
     public Long getId(){
         return id;
     }
-    public void setid(Long id){
+    public void setId(Long id){
         this.id=id;
     }
     public Video getVideo(){
@@ -71,7 +88,7 @@ public class Comment {
     public String getContent(){
         return content;
     }
-    public void setContect(String content){
+    public void setContent(String content){
         this.content=content;
     }
     public Boolean getPinned(){
@@ -84,7 +101,7 @@ public class Comment {
         return isSpam;
     }
     public void setSpam(Boolean spam){
-        this.isSpam=isSpam;
+        this.isSpam=spam;
     }
     public Boolean getIsDisabled(){
         return isDisabled;
@@ -95,7 +112,7 @@ public class Comment {
     public Comment getParentComment(){
         return parentComment;
     }
-    public void setparentComment(Comment parentComment){
+    public void setParentComment(Comment parentComment){
         this.parentComment=parentComment;
     }
     public List<Comment> getReplies(){
@@ -103,6 +120,12 @@ public class Comment {
     }
     public void setReplies(List<Comment> replies){
         this.replies=replies;
+    }
+    public List<CommentLike> getLikes() {
+        return likes;
+    }
+    public void setLikes(List<CommentLike> likes) {
+        this.likes = likes;
     }
     public LocalDateTime getCreatedAt(){
         return createdAt;

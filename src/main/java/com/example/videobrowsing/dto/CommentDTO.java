@@ -1,6 +1,9 @@
 package com.example.videobrowsing.dto;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 
 public class CommentDTO {
@@ -18,6 +21,9 @@ public class CommentDTO {
     private Boolean isDisabled;
     private Long parentCommentId;
     private String createdAt;
+    private List<CommentDTO> replies = new ArrayList<>();
+    private Long likeCount;
+    private Boolean likedByCurrentUser;
 
     // Constructors
     public CommentDTO() {}
@@ -30,6 +36,7 @@ public class CommentDTO {
 
     // Getters and Setters
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public Long getVideoId() { return videoId; }
     public void setVideoId(Long videoId) { this.videoId = videoId; }
@@ -60,4 +67,13 @@ public class CommentDTO {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+
+    public List<CommentDTO> getReplies() { return replies; }
+    public void setReplies(List<CommentDTO> replies) { this.replies = replies != null ? replies : new ArrayList<>(); }
+
+    public Long getLikeCount() { return likeCount; }
+    public void setLikeCount(Long likeCount) { this.likeCount = likeCount; }
+
+    public Boolean getLikedByCurrentUser() { return likedByCurrentUser; }
+    public void setLikedByCurrentUser(Boolean likedByCurrentUser) { this.likedByCurrentUser = likedByCurrentUser; }
 }

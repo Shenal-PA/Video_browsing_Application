@@ -1,13 +1,26 @@
 package com.example.videobrowsing.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+
 @Entity
 @Table(name="categories")
-
+@JsonIgnoreProperties({"video", "hibernateLazyInitializer", "handler"})
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,6 +35,7 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="created_by")
+    @JsonIgnoreProperties({"password", "email", "phone", "bio", "profilePicture", "videos", "comments", "playlists", "subscriptions", "subscribers", "reports", "hibernateLazyInitializer", "handler"})
     private User createdBy;
 
     private LocalDateTime createdAt=LocalDateTime.now();
