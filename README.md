@@ -57,15 +57,15 @@
 
 ### ⚙️ Local Setup (Maven)
 ```bash
-🗂️ clone
+##🗂️ clone
 git clone https://github.com/Shenal-PA/Video_browsing_Application.git
 cd Video_browsing_Application
 
- 🔧 environment
+## 🔧 environment
 cp src/main/resources/application.example.properties src/main/resources/application.properties
 # ✍️ update DB, storage, and auth settings inside application.properties
 
- ▶️ run
+## ▶️ run
 mvn spring-boot:run
 ```
 
