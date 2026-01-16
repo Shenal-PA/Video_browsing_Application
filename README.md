@@ -57,7 +57,7 @@
 
 ### ⚙️ Local Setup (Maven)
 
-##🗂️ clone
+🗂️ clone
 ```bash
 git clone https://github.com/Shenal-PA/Video_browsing_Application.git
 cd Video_browsing_Application
