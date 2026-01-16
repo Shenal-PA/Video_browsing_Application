@@ -10,7 +10,7 @@
 ## 🧭 Overview
 - 🎥 Video library with categories, tags, and metadata  
 - 🔎 Search by title, tags, and categories  
-- 📺 Smooth playback (HLS/DASH-ready)  
+- 📺 Smooth playback 
 - ❤️ Favorites, 📃 Watchlist, 🕒 History  
 - 🔐 Secure access (Spring Security/JWT)  
 - 📊 Analytics (views, trends)
@@ -25,11 +25,11 @@
 ## 🧩 System Architecture
 ![Architecture](docs/architecture.gif)
 
-- 🧑‍🎨 UI: Web client (Thymeleaf/React/etc.)  
+- 🧑‍🎨 UI: Web client (HTML,CSS)  
 - 🧰 API: Spring Boot (REST controllers)  
 - 📚 Catalog: Video metadata, categories, tags  
 - 🔎 Search: DB queries + index (optional)  
-- 🎞️ Transcoding: FFmpeg for HLS/DASH (optional)  
+- 🎞️ Transcoding
 - 🗄️ Database: MySQL/PostgreSQL  
 - ☁️ Storage: Local/Cloud (S3/MinIO)  
 - 🔐 Auth: Spring Security + JWT  
@@ -40,10 +40,9 @@
 ## 🛠️ Tech Stack
 - ☕ Java 17+  
 - 🍃 Spring Boot (Web, Security, Data JPA)  
-- 🗄️ Hibernate + MySQL/PostgreSQL  
-- 🎞️ FFmpeg (HLS/DASH)  
-- 🧰 Build: Maven or Gradle  
-- 🐳 Docker (optional)
+- 🗄️ MySQL/PostgreSQL  
+- 🎞️ FFmpeg 
+- 🧰 Build: Maven 
 
 ---
 
@@ -51,7 +50,7 @@
 
 ### 🔧 Prerequisites
 - ☕ JDK 17+  
-- 🧰 Maven or Gradle  
+- 🧰 Maven
 - 🗄️ Database (MySQL/PostgreSQL)  
 - 🎞️ FFmpeg (for streaming/transcoding)  
 - 🔐 JWT secret (for auth)
@@ -69,18 +68,6 @@ cp src/main/resources/application.example.properties src/main/resources/applicat
 # ▶️ run
 mvn spring-boot:run
 ```
-
-### ⚙️ Local Setup (Gradle)
-```bash
-./gradlew bootRun
-```
-
-### 🐳 Docker (optional)
-```bash
-docker compose up --build
-```
-
----
 
 ## 🔧 Configuration (application.properties)
 ```properties
@@ -113,50 +100,6 @@ streaming.hls.preset=HLS_720p
 
 ---
 
-## 🗺️ Folder Structure (Spring Boot)
-```text
-📦 Video_browsing_Application
-├─ 📁 src/
-│  ├─ 📁 main/
-│  │  ├─ ☕ java/com/example/video/
-│  │  │  ├─ 🎮 controller/        # REST controllers (VideoController, AuthController)
-│  │  │  ├─ 🧠 service/           # Business logic (VideoService, TranscodeService)
-│  │  │  ├─ 🗃️ repository/        # JPA repositories (VideoRepository)
-│  │  │  ├─ 🧱 model/             # Entities (Video, Category, User)
-│  │  │  └─ 🔐 security/          # JWT filters, config
-│  │  ├─ 📂 resources/
-│  │  │  ├─ 📝 application.properties
-│  │  │  ├─ 🎨 templates/         # Thymeleaf (optional)
-│  │  │  └─ 🎛️ static/            # JS/CSS/assets/HLS manifests
-│  └─ 📁 test/                     # Unit & integration tests
-├─ 🗂️ docs/                        # GIFs, diagrams
-│  ├─ hero-demo.gif
-│  ├─ architecture.gif
-│  ├─ browse.gif
-│  ├─ watch.gif
-│  ├─ search.gif
-│  └─ playlist.gif
-└─ 📂 data/videos/                 # Local storage (dev only)
-```
-
----
-
-## 🔗 API Surface
-- 📚 Catalog
-  - GET `/api/videos` — list videos
-  - GET `/api/videos/{id}` — video details
-  - GET `/api/categories` — list categories
-- 🔎 Search
-  - GET `/api/search?q={term}` — search by title/tags
-- 🎞️ Playback
-  - GET `/api/streams/{id}/master.m3u8` — HLS manifest
-  - GET `/api/streams/{id}/{segment}.ts` — HLS segment
-- 👤 User
-  - GET `/api/me/favorites` — list favorites
-  - POST `/api/me/favorites/{id}` — add favorite
-- 🔐 Auth
-  - POST `/api/auth/login` — login
-  - POST `/api/auth/refresh` — refresh token
 
 ![Streaming Demo](docs/streaming.gif)
 
@@ -175,13 +118,6 @@ streaming.hls.preset=HLS_720p
 
 ---
 
-## 🤝 Contributing
-- 🪄 Fork → branch → commit  
-- 🧪 Add tests + docs  
-- ✅ Pass lint/CI  
-- 🔍 Open PR with demo GIFs
-
----
 
 ## 📜 License
 - ⚖️ MIT (adjust as needed)
@@ -197,4 +133,3 @@ streaming.hls.preset=HLS_720p
 
 ---
 
-Made with ❤️ and lots of 🎥 🍿
