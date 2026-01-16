@@ -56,16 +56,21 @@
 - 🔐 JWT secret (for auth)
 
 ### ⚙️ Local Setup (Maven)
-```bash
+
 ##🗂️ clone
+```bash
 git clone https://github.com/Shenal-PA/Video_browsing_Application.git
 cd Video_browsing_Application
+```
 
 ## 🔧 environment
+```bash
 cp src/main/resources/application.example.properties src/main/resources/application.properties
 # ✍️ update DB, storage, and auth settings inside application.properties
+```
 
 ## ▶️ run
+```bash
 mvn spring-boot:run
 ```
 
